@@ -19,8 +19,9 @@ Structured prompts you can use with any AI assistant (ChatGPT, Claude, Gemini, e
 |--------|----------|-------------|
 | [Build, Buy, or Fix First](prompt-1-build-buy-or-fix-first.md) | Leaders before committing budget | Anchored scoring, decision rules, cost/time ranges, vendor questions |
 | [AI Workflow Readiness Audit](prompt-2-ai-workflow-readiness-audit.md) | Team leads and ops managers | 8-area scorecard with anchors, readiness rules, prioritized fix list, operating guide structure |
+| [Vendor Proposal Stress Test](prompt-3-vendor-proposal-stress-test.md) | Anyone reviewing a consulting proposal | Deliverable classification, pricing benchmarks, overspend rules, counter-proposal |
 
-More prompts (Vendor Stress Test, AI Leverage Map) are under review and will be added soon.
+More prompts (AI Leverage Map) under review and will be added soon.
 
 ## How to use the prompts
 

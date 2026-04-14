@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Proficiency Assessment | TOE Framework</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg: #f5f5f7;
+  --bg-card: #ffffff;
+  --bg-hover: #f0f0f5;
+  --border: #e2e2ea;
+  --border-active: #4a6cf7;
+  --text: #1a1a2e;
+  --text-dim: #555568;
+  --text-muted: #999aab;
+  --accent: #4a6cf7;
+  --accent-glow: rgba(74,108,247,0.08);
+  --accent-2: #00b894;
+  --accent-3: #e84d3d;
+  --accent-4: #a855f7;
+  --success: #00b894;
+  --warning: #f59e0b;
+  --l1: #999aab;
+  --l2: #4a6cf7;
+  --l3: #00b894;
+  --l4: #f59e0b;
+  --l5: #e84d3d;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Background grid */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image:
+    linear-gradient(rgba(74,108,247,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74,108,247,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Floating orb */
+body::after {
+  content: '';
+  position: fixed;
+  top: -200px; right: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(74,108,247,0.06) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── SCREEN MANAGEMENT ─── */
+.screen { display: none; animation: fadeIn 0.5s ease; }
+.screen.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ─── INTRO SCREEN ─── */
+.intro-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: var(--accent-glow);
+  border: 1px solid rgba(74,108,247,0.2);
+  border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+}
+
+.intro-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.intro-title {
+  font-size: clamp(36px, 6vw, 56px);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  letter-spacing: -1.5px;
+}
+
+.intro-title span {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.intro-desc {
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--text-dim);
+  max-width: 600px;
+  margin-bottom: 40px;
+}
+
+.intro-context {
+  display: none;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  margin-bottom: 32px;
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+.intro-context.visible { display: block; }
+
+.intro-context strong { color: var(--text); font-weight: 600; }
+
+.intro-features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 48px;
+}
+
+.intro-feature {
+  padding: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.intro-feature .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.intro-feature .label {
+  font-size: 12px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ─── FORM FIELDS ─── */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.form-input, .form-textarea {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 15px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  line-height: 1.5;
+}
+
+.form-input:focus, .form-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.form-input::placeholder, .form-textarea::placeholder { color: var(--text-muted); }
+
+/* ─── BUTTONS ─── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 32px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 24px rgba(74,108,247,0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(74,108,247,0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-hover);
+  border-color: var(--text-muted);
+}
+
+/* ─── PROGRESS BAR ─── */
+.progress-bar {
+  margin-bottom: 40px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.progress-level {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 1px;
+}
+
+.progress-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.progress-track {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-radius: 2px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.level-dots {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.level-dot {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border);
+  transition: background 0.4s ease;
+}
+
+.level-dot.completed { background: var(--success); }
+.level-dot.active { background: var(--accent); }
+.level-dot.failed { background: var(--accent-3); opacity: 0.5; }
+
+/* ─── QUESTION CARD ─── */
+.question-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  margin-bottom: 24px;
+  animation: slideUp 0.4s ease;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+
+.question-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.question-dimension {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.dim-T { background: rgba(74,108,247,0.1); color: var(--accent); }
+.dim-O { background: rgba(0,184,148,0.1); color: var(--accent-2); }
+.dim-E { background: rgba(232,77,61,0.1); color: var(--accent-3); }
+
+.question-scenario {
+  font-size: 13px;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: rgba(74,108,247,0.04);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  line-height: 1.6;
+}
+
+.question-text {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+/* ─── ANSWER OPTIONS ─── */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 20px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.option:hover {
+  background: var(--bg-hover);
+  border-color: var(--text-muted);
+}
+
+.option.selected {
+  background: var(--accent-glow);
+  border-color: var(--accent);
+}
+
+.option-marker {
+  flex-shrink: 0;
+  width: 22px; height: 22px;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+  transition: all 0.2s ease;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.option.selected .option-marker {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.option-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+.option.selected .option-text { color: var(--text); }
+
+/* ─── QUESTION NAVIGATION ─── */
+.question-nav {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* ─── LEVEL TRANSITION ─── */
+.level-transition {
+  text-align: center;
+  padding: 48px 24px;
+  animation: scaleIn 0.5s ease;
+}
+
+.level-transition .icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.level-transition h3 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.level-transition p {
+  color: var(--text-dim);
+  font-size: 15px;
+  margin-bottom: 32px;
+}
+
+/* ─── RESULTS SCREEN ─── */
+.results-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.results-header .level-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 28px;
+  border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+}
+
+.results-header h2 {
+  font-size: clamp(28px, 5vw, 40px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 12px;
+}
+
+.results-header p {
+  color: var(--text-dim);
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* TOE Scores */
+.toe-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.toe-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+
+.toe-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+
+.toe-card.toe-T::before { background: var(--accent); }
+.toe-card.toe-O::before { background: var(--accent-2); }
+.toe-card.toe-E::before { background: var(--accent-3); }
+
+.toe-card .toe-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+
+.toe-card.toe-T .toe-label { color: var(--accent); }
+.toe-card.toe-O .toe-label { color: var(--accent-2); }
+.toe-card.toe-E .toe-label { color: var(--accent-3); }
+
+.toe-card .toe-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.toe-card .toe-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Level breakdown */
+.level-breakdown {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+
+.level-breakdown h4 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 20px;
+}
+
+.level-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.level-row:last-child { border-bottom: none; }
+
+.level-row .lv-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  width: 32px;
+  text-align: center;
+}
+
+.level-row .lv-name {
+  font-size: 14px;
+  font-weight: 500;
+  width: 120px;
+}
+
+.level-row .lv-bar-wrap {
+  flex: 1;
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.level-row .lv-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.level-row .lv-pct {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  width: 48px;
+  text-align: right;
+}
+
+.level-row .lv-status {
+  font-size: 12px;
+  width: 24px;
+  text-align: center;
+}
+
+/* Description card */
+.result-description {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+
+.result-description h4 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.result-description p {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text-dim);
+}
+
+.result-description ul {
+  margin-top: 16px;
+  padding-left: 20px;
+}
+
+.result-description li {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+/* ─── NPS / POST-TRAINING BLOCK ─── */
+.nps-block {
+  display: none;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  animation: slideUp 0.5s ease;
+}
+
+.nps-block.visible { display: block; }
+
+.nps-block h4 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.nps-block .nps-intro {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.nps-question {
+  margin-bottom: 24px;
+}
+
+.nps-question .nps-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.nps-scale {
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.nps-scale.sat-5 {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.nps-button {
+  aspect-ratio: 1;
+  min-height: 40px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.nps-button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.nps-button.selected {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.nps-scale-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.nps-submit-wrap {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.nps-submit-status {
+  font-size: 13px;
+  color: var(--success);
+  font-weight: 500;
+  display: none;
+  align-self: center;
+}
+
+.nps-submit-status.visible { display: block; }
+
+/* Footer */
+.results-footer {
+  text-align: center;
+  padding-top: 16px;
+}
+
+.results-footer p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 16px;
+}
+
+.credit {
+  text-align: center;
+  padding: 40px 0;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.5px;
+}
+
+.credit a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 640px) {
+  .container { padding: 24px 16px; }
+  .intro-features { grid-template-columns: 1fr; }
+  .toe-grid { grid-template-columns: 1fr; }
+  .question-card { padding: 24px 20px; }
+  .level-row .lv-name { width: 80px; font-size: 12px; }
+  .nps-scale { gap: 4px; }
+  .nps-button { min-height: 36px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ═══ INTRO SCREEN ═══ -->
+  <div class="screen active" id="screen-intro">
+    <div class="intro-badge" id="intro-badge">Adaptive Assessment</div>
+    <h1 class="intro-title">
+      Bạn đang ở<br>
+      <span>cấp độ AI</span> nào?
+    </h1>
+    <p class="intro-desc">
+      Bài đánh giá thích ứng dựa trên framework TOE (Task Complexity, Output Quality, Effort). Câu hỏi tự điều chỉnh theo năng lực thực tế &mdash; không hỏi thừa, không hỏi thiếu.
+    </p>
+
+    <div class="intro-context" id="intro-context">
+      <span id="intro-context-text"></span>
+    </div>
+
+    <div class="intro-features">
+      <div class="intro-feature">
+        <div class="num">5</div>
+        <div class="label">Cấp độ</div>
+      </div>
+      <div class="intro-feature">
+        <div class="num">~20</div>
+        <div class="label">Câu hỏi tối đa</div>
+      </div>
+      <div class="intro-feature">
+        <div class="num">8'</div>
+        <div class="label">Thời gian</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Họ và tên</label>
+      <input class="form-input" type="text" id="inp-name" placeholder="Nguyễn Văn A">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" type="email" id="inp-email" placeholder="email@company.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Phòng ban / Bộ phận</label>
+      <input class="form-input" type="text" id="inp-dept" placeholder="VD: Technology, HR, Sales...">
+    </div>
+
+    <button class="btn btn-primary" onclick="startAssessment()">
+      Bắt đầu đánh giá
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+
+  <!-- ═══ QUESTION SCREEN ═══ -->
+  <div class="screen" id="screen-question">
+    <div class="progress-bar">
+      <div class="progress-header">
+        <span class="progress-level" id="progress-level">LEVEL 1 — ASK</span>
+        <span class="progress-count" id="progress-count">1 / 4</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+      </div>
+      <div class="level-dots" id="level-dots">
+        <div class="level-dot active"></div>
+        <div class="level-dot"></div>
+        <div class="level-dot"></div>
+        <div class="level-dot"></div>
+        <div class="level-dot"></div>
+      </div>
+    </div>
+
+    <div id="question-container"></div>
+
+    <div class="question-nav">
+      <button class="btn btn-primary" id="btn-next" onclick="nextQuestion()" disabled>
+        Tiếp theo
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ TRANSITION SCREEN ═══ -->
+  <div class="screen" id="screen-transition">
+    <div class="level-transition" id="transition-content"></div>
+  </div>
+
+  <!-- ═══ RESULTS SCREEN ═══ -->
+  <div class="screen" id="screen-results">
+    <div class="results-header">
+      <div class="level-badge" id="result-badge">LEVEL 3</div>
+      <h2 id="result-title"></h2>
+      <p id="result-subtitle"></p>
+    </div>
+
+    <div class="toe-grid" id="toe-grid"></div>
+
+    <div class="level-breakdown">
+      <h4>Chi tiết theo cấp độ</h4>
+      <div id="level-rows"></div>
+    </div>
+
+    <div class="result-description" id="result-desc"></div>
+
+    <!-- NPS block — shown only when phase=post -->
+    <div class="nps-block" id="nps-block">
+      <h4>Phản hồi về khoá đào tạo</h4>
+      <p class="nps-intro">
+        Cảm ơn bạn đã hoàn thành đánh giá sau đào tạo. Vui lòng dành thêm 1 phút để phản hồi về trải nghiệm &mdash; dữ liệu này giúp cải tiến chương trình cho các học viên kế tiếp.
+      </p>
+
+      <div class="nps-question">
+        <div class="nps-label">1. Bạn có sẵn sàng giới thiệu khoá đào tạo này cho đồng nghiệp không? (0 = chắc chắn không, 10 = chắc chắn có)</div>
+        <div class="nps-scale" id="nps-scale"></div>
+        <div class="nps-scale-labels">
+          <span>Không sẵn sàng</span>
+          <span>Rất sẵn sàng</span>
+        </div>
+      </div>
+
+      <div class="nps-question">
+        <div class="nps-label">2. Mức độ hài lòng tổng thể với khoá đào tạo (1 = rất không hài lòng, 5 = rất hài lòng)</div>
+        <div class="nps-scale sat-5" id="sat-scale"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">3. Một điều bạn đã áp dụng từ khoá học</label>
+        <textarea class="form-textarea" id="inp-applied" placeholder="VD: Xây Master Prompt cho báo cáo tuần, tiết kiệm 2 giờ/tuần..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">4. Cam kết hành động cụ thể trong 2 tuần tới</label>
+        <textarea class="form-textarea" id="inp-next" placeholder="VD: Xây context file cho dự án X, triển khai cho team 5 người..."></textarea>
+      </div>
+
+      <div class="nps-submit-wrap">
+        <span class="nps-submit-status" id="nps-status">&#10003; Đã ghi nhận. Cảm ơn bạn!</span>
+        <button class="btn btn-primary" id="btn-submit-nps" onclick="submitPostFeedback()" disabled>
+          Gửi phản hồi
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="results-footer">
+      <button class="btn btn-secondary" onclick="restartAssessment()">Làm lại</button>
+      <p id="results-footer-text">Kết quả đã được ghi nhận. Cảm ơn bạn đã tham gia.</p>
+    </div>
+  </div>
+
+  <div class="credit">
+    TOE Framework &copy; Tim Tran &mdash; <a href="https://linkedin.com/in/timqtran" target="_blank">The Operationalizer</a>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// CONFIG — Google Apps Script endpoint
+// Replace with your deployed Web App URL.
+// ═══════════════════════════════════════
+
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxKylrNEP2uRIcyPlRtDOm_HTxl7WQ1Za_H_01ByGWfbUcHFKB1mXJC5xZl2InvM-dQaQ/exec';
+
+// ═══════════════════════════════════════
+// URL PARAMS — client-specific config
+// Params: phase (pre|post), client, clientId, program, color
+// ═══════════════════════════════════════
+
+const urlParams = new URLSearchParams(window.location.search);
+
+const CONFIG = {
+  phase: urlParams.get('phase') === 'post' ? 'post' : 'pre',
+  client: (urlParams.get('client') || '').trim().slice(0, 80),
+  clientId: (urlParams.get('clientId') || '').trim().slice(0, 40),
+  program: (urlParams.get('program') || '').trim().slice(0, 80),
+  color: urlParams.get('color') || ''
+};
+
+// Apply accent color override if valid hex
+if (/^#[0-9A-Fa-f]{3,8}$/.test(CONFIG.color)) {
+  document.documentElement.style.setProperty('--accent', CONFIG.color);
+}
+
+// Debug log — visible in browser console (F12). Safe to leave in production.
+console.log('[TOE TNA] CONFIG:', CONFIG);
+console.log('[TOE TNA] URL:', window.location.href);
+
+// ═══════════════════════════════════════
+// LEVEL NAMES + DESCRIPTIONS
+// ═══════════════════════════════════════
+
+const LEVEL_NAMES = {
+  1: { tag: 'L1', name: 'Ask', vn: 'Hỏi', color: '#888898' },
+  2: { tag: 'L2', name: 'Instruct', vn: 'Chỉ dẫn', color: '#4a6cf7' },
+  3: { tag: 'L3', name: 'Systematize', vn: 'Hệ thống hoá', color: '#00d4aa' },
+  4: { tag: 'L4', name: 'Build', vn: 'Xây dựng', color: '#f7b84a' },
+  5: { tag: 'L5', name: 'Productize', vn: 'Vận hành', color: '#f7734a' }
+};
+
+const LEVEL_DESCRIPTIONS = {
+  1: {
+    title: 'Level 1: Ask',
+    desc: 'Bạn đang ở giai đoạn khám phá AI. Bạn sử dụng AI như một công cụ tìm kiếm nâng cao — hỏi câu đơn giản và nhận câu trả lời đầu tiên.',
+    next: [
+      'Học cách viết prompt có cấu trúc (Role — Task — Context — Format)',
+      'Bắt đầu lưu lại những prompt hiệu quả để dùng lại',
+      'Thử dùng AI cho công việc thực tế hàng ngày, không chỉ thử nghiệm'
+    ]
+  },
+  2: {
+    title: 'Level 2: Instruct',
+    desc: 'Bạn biết cách ra lệnh cho AI hiệu quả. Bạn sử dụng prompt có cấu trúc, biết cách điều chỉnh khi output chưa đạt, và đã tích hợp AI vào một số công việc hàng ngày.',
+    next: [
+      'Xây dựng Master Prompt — một prompt tổng có thể tái sử dụng cho nhiều tình huống',
+      'Học cách quản lý context window — cung cấp đủ ngữ cảnh, không quá nhiều hay quá ít',
+      'Tạo hệ thống kiểm tra chất lượng output (verification checklist)'
+    ]
+  },
+  3: {
+    title: 'Level 3: Systematize',
+    desc: 'Bạn không chỉ dùng AI — bạn xây dựng hệ thống xung quanh AI. Bạn có master prompt, context files, và quy trình kiểm tra chất lượng. AI là một phần trong workflow, không phải công cụ rời.',
+    next: [
+      'Thử xây dựng tool đơn giản (agent, automation) giải quyết một vấn đề lặp đi lặp lại',
+      'Thiết kế value hierarchy — quy tắc ưu tiên khi các mục tiêu xung đột',
+      'Kết nối AI với dữ liệu nội bộ (SOPs, CRM, tài liệu công ty)'
+    ]
+  },
+  4: {
+    title: 'Level 4: Build',
+    desc: 'Bạn xây dựng công cụ AI, không chỉ sử dụng chúng. Bạn tạo ra agent, automation, hoặc workflow tự động giải quyết vấn đề thực tế. AI không chỉ "nói" — AI "làm" dưới sự thiết kế của bạn.',
+    next: [
+      'Thiết kế hệ thống PDCA (Plan-Do-Check-Act) cho agent — AI tự kiểm tra và cải tiến output',
+      'Phối hợp nhiều agent làm việc cùng nhau cho một workflow phức tạp',
+      'Xây dựng quy trình version control và monitoring cho các AI tool'
+    ]
+  },
+  5: {
+    title: 'Level 5: Productize',
+    desc: 'Bạn vận hành một hệ sinh thái AI. Nhiều agent phối hợp, tự kiểm tra lẫn nhau, và bạn quản lý hệ thống thay vì quản lý từng task. Pattern phối hợp của bạn có thể chuyển đổi giữa các domain khác nhau.',
+    next: [
+      'Chia sẻ và nhân rộng hệ thống cho team/tổ chức',
+      'Xây dựng observability layer — theo dõi chi phí, chất lượng, và drift theo thời gian',
+      'Thiết kế hệ thống có thể tự thích ứng khi model hoặc yêu cầu thay đổi'
+    ]
+  }
+};
+
+// ═══════════════════════════════════════
+// QUESTION BANK
+// ═══════════════════════════════════════
+
+const QUESTIONS = {
+  1: [
+    {
+      dim: 'T',
+      scenario: 'Bạn cần soạn email phản hồi một khiếu nại từ khách hàng về chất lượng dịch vụ. Bạn quyết định dùng AI.',
+      text: 'Bạn sẽ gõ gì vào AI?',
+      options: [
+        { text: 'Dán toàn bộ email khiếu nại vào, kèm ngữ cảnh về chính sách công ty, và yêu cầu AI viết phản hồi theo tone phù hợp', score: 1 },
+        { text: 'Không dùng AI cho việc này — tự viết nhanh hơn', score: 0 },
+        { text: '"Viết email trả lời khiếu nại"', score: 0 },
+        { text: '"Viết email trả lời khiếu nại của khách hàng về dịch vụ chậm trễ, giọng văn chuyên nghiệp, xin lỗi và đưa ra giải pháp cụ thể"', score: 1 }
+      ]
+    },
+    {
+      dim: 'O',
+      scenario: 'AI vừa tạo cho bạn một bản tóm tắt báo cáo quý. Bạn đọc lại và thấy "khá ổn".',
+      text: 'Trước khi gửi cho sếp, bạn sẽ làm gì?',
+      options: [
+        { text: 'Đọc lại một lần, sửa lỗi chính tả nếu có, rồi gửi', score: 0 },
+        { text: 'Không tin AI — viết lại từ đầu bằng tay', score: 0 },
+        { text: 'Gửi luôn — AI viết tốt hơn mình', score: 0 },
+        { text: 'So sánh từng con số với dữ liệu gốc, kiểm tra logic lập luận, sửa giọng văn cho đúng context nội bộ', score: 1 }
+      ]
+    },
+    {
+      dim: 'E',
+      scenario: 'Bạn dùng AI để viết một slide deck cho buổi họp team hàng tuần.',
+      text: 'Sau khi nhận output từ AI, bạn thường mất bao lâu để hoàn thiện?',
+      options: [
+        { text: 'Không dùng AI cho slide — mất thời gian hơn tự làm', score: 0 },
+        { text: 'Chỉnh sửa 10-20% — sửa vài chỗ cho đúng context và tone', score: 1 },
+        { text: 'Dùng ngay, không chỉnh sửa', score: 0 },
+        { text: 'Chỉnh sửa 50-70% — AI cho khung, mình phải viết lại phần lớn nội dung', score: 0 }
+      ]
+    },
+    {
+      dim: 'T',
+      scenario: 'Đồng nghiệp hỏi: "AI có thể giúp gì cho công việc hàng ngày của mình?"',
+      text: 'Bạn sẽ trả lời thế nào?',
+      options: [
+        { text: '"Mình chưa dùng nhiều nên không chắc"', score: 0 },
+        { text: '"Hỏi ChatGPT thử đi, nó trả lời được nhiều thứ lắm"', score: 0 },
+        { text: '"Tùy công việc cụ thể. Cho mình xem workflow của bạn, mình sẽ chỉ chỗ nào AI giúp được hiệu quả nhất"', score: 1 },
+        { text: '"Dùng để viết email, dịch tài liệu, tóm tắt báo cáo — những việc lặp đi lặp lại"', score: 1 }
+      ]
+    }
+  ],
+  2: [
+    {
+      dim: 'T',
+      scenario: 'Bạn cần AI phân tích dữ liệu bán hàng quý vừa rồi và đưa ra 5 insights chính.',
+      text: 'Bạn sẽ cung cấp thông tin gì cho AI?',
+      options: [
+        { text: 'Dùng Excel/BI tool thay vì AI cho phân tích dữ liệu', score: 0 },
+        { text: 'Cung cấp: (1) dữ liệu raw, (2) mục tiêu KPI của quý, (3) context thị trường, (4) audience là ai sẽ đọc, (5) format output mong muốn', score: 1 },
+        { text: '"Phân tích dữ liệu bán hàng quý 1 và cho tôi 5 insights"', score: 0 },
+        { text: 'Dán dữ liệu vào, yêu cầu phân tích theo các tiêu chí cụ thể (doanh thu, tăng trưởng, so sánh cùng kỳ)', score: 0.5 }
+      ]
+    },
+    {
+      dim: 'O',
+      scenario: 'AI tạo cho bạn một bản đề xuất dự án (project proposal) cho khách hàng. Nội dung đúng nhưng giọng văn quá "AI".',
+      text: 'Bạn xử lý thế nào?',
+      options: [
+        { text: 'Cho AI ví dụ một proposal cũ mà bạn đã viết, yêu cầu viết lại theo giọng đó', score: 1 },
+        { text: 'Gửi luôn — nội dung quan trọng hơn giọng văn', score: 0 },
+        { text: 'Viết lại từ đầu — AI không bao giờ viết đúng giọng mình', score: 0 },
+        { text: 'Tự sửa giọng văn bằng tay cho đến khi nghe tự nhiên', score: 0.5 }
+      ]
+    },
+    {
+      dim: 'E',
+      scenario: 'Bạn cần viết 10 email follow-up cho 10 khách hàng khác nhau. Nội dung tương tự nhưng cần personalize.',
+      text: 'Bạn sẽ tiếp cận thế nào?',
+      options: [
+        { text: 'Nhờ AI viết từng email một, cung cấp context riêng cho mỗi khách', score: 0.5 },
+        { text: 'Viết 1 email mẫu, copy-paste và sửa tên cho 9 email còn lại', score: 0 },
+        { text: 'Tự viết tay — 10 email không nhiều', score: 0 },
+        { text: 'Tạo 1 prompt template với biến (tên, công ty, lịch sử tương tác), chạy 10 lần với data khác nhau', score: 1 }
+      ]
+    },
+    {
+      dim: 'T',
+      scenario: 'Bạn hỏi AI một câu về quy trình nội bộ công ty. AI trả lời tự tin nhưng bạn nghi ngờ câu trả lời sai.',
+      text: 'Bạn làm gì tiếp?',
+      options: [
+        { text: 'Hỏi lại câu khác để xem AI có nhất quán không', score: 0.5 },
+        { text: 'Bỏ qua, tự tìm câu trả lời', score: 0 },
+        { text: 'Kiểm tra với nguồn gốc (SOP, tài liệu gốc). Nếu AI sai, cung cấp tài liệu đúng và yêu cầu trả lời lại dựa trên đó', score: 1 },
+        { text: 'Tin AI — nó thường đúng', score: 0 }
+      ]
+    }
+  ],
+  3: [
+    {
+      dim: 'T',
+      scenario: 'Bạn cần AI hỗ trợ nhiều task trong một dự án phức tạp kéo dài 3 tháng (viết báo cáo, phân tích dữ liệu, soạn email, tạo slide).',
+      text: 'Bạn tổ chức "workspace AI" cho dự án này như thế nào?',
+      options: [
+        { text: 'Tạo nhiều cuộc chat riêng cho từng loại task (viết email, phân tích dữ liệu, tạo slide...) để mỗi chat chuyên môn hóa và không bị nhiễu context', score: 0.5 },
+        { text: 'Dùng một cuộc chat dài xuyên suốt dự án, mỗi lần nhắc lại context quan trọng để AI nhớ — giữ lịch sử liên tục giúp AI hiểu tốt hơn theo thời gian', score: 0 },
+        { text: 'Tạo một Project/Custom GPT riêng cho dự án, với context file chứa mục tiêu, timeline, stakeholders, standards, và lịch sử quyết định — tách biệt context cố định và task biến động', score: 1 },
+        { text: 'Dùng AI cho từng task cụ thể khi cần, mỗi lần cung cấp đủ context trong prompt — linh hoạt, không bị ràng buộc vào một setup cố định', score: 0 }
+      ]
+    },
+    {
+      dim: 'O',
+      scenario: 'AI vừa tạo một báo cáo phân tích thị trường 10 trang. Bạn cần đảm bảo chất lượng trước khi gửi cho ban giám đốc.',
+      text: 'Quy trình kiểm tra chất lượng của bạn là gì?',
+      options: [
+        { text: 'Kiểm tra 3 lớp: (1) số liệu khớp nguồn gốc, (2) logic lập luận mạch lạc, (3) kết luận có evidence support. Sửa trực tiếp những chỗ sai trước khi gửi', score: 0.5 },
+        { text: 'Có checklist kiểm tra sẵn (accuracy, consistency, tone, format, actionability). Chạy checklist, rồi yêu cầu AI tự red-team — tìm lỗ hổng trong chính output của nó — trước khi mình review final', score: 1 },
+        { text: 'Nhờ đồng nghiệp có chuyên môn review song song — báo cáo cấp BGĐ cần ít nhất 2 người kiểm tra, đặc biệt khi dùng AI tạo', score: 0 },
+        { text: 'Đối chiếu từng phần với dữ liệu gốc, chạy lại các phép tính trong Excel để xác nhận, sửa giọng văn cho phù hợp với văn hóa nội bộ trước khi gửi', score: 0 }
+      ]
+    },
+    {
+      dim: 'E',
+      scenario: 'Bạn có một Master Prompt dùng để tạo báo cáo tháng. Tháng này có sự kiện đặc biệt (sáp nhập bộ phận) cần phản ánh trong báo cáo.',
+      text: 'Bạn xử lý thế nào?',
+      options: [
+        { text: 'Viết prompt mới hoàn toàn cho tháng này, vì sáp nhập thay đổi cấu trúc báo cáo — Master Prompt cũ không còn phù hợp', score: 0 },
+        { text: 'Thêm một đoạn context bổ sung vào cuối Master Prompt giải thích sáp nhập: bộ phận nào, thay đổi gì, ảnh hưởng KPI nào — để AI tự điều chỉnh output', score: 0.5 },
+        { text: 'Master Prompt đã có phần "biến động đặc biệt" (variable section) tách riêng. Cập nhật biến đó mà không sửa cấu trúc chính. Context file riêng chứa chi tiết sáp nhập, gắn vào session.', score: 1 },
+        { text: 'Giữ nguyên Master Prompt, chạy như bình thường. Sau khi có output, thêm một bước prompt riêng: "Bổ sung phân tích ảnh hưởng của việc sáp nhập bộ phận X vào bộ phận Y"', score: 0 }
+      ]
+    },
+    {
+      dim: 'O',
+      scenario: 'Bạn phát hiện AI thường nhầm lẫn đơn vị VNĐ và USD khi làm việc với dữ liệu tài chính công ty. Đã xảy ra 3 lần trong tháng.',
+      text: 'Bạn xử lý vấn đề này như thế nào để không lặp lại?',
+      options: [
+        { text: 'Thêm rule cố định vào đầu mọi prompt tài chính: "Tất cả số liệu ở VNĐ trừ khi ghi rõ. Format: X.XXX.XXX VNĐ." — đơn giản, rõ ràng, dễ enforce', score: 0.5 },
+        { text: 'Tạo context file riêng cho domain tài chính: đơn vị mặc định, format số, quy ước báo cáo, danh sách ví dụ đúng/sai cụ thể. Gắn file này vào mọi session liên quan — AI học từ ví dụ, không chỉ từ rule', score: 1 },
+        { text: 'Thêm bước verification tự động: sau mỗi output tài chính, prompt AI kiểm tra lại toàn bộ số liệu và xác nhận đơn vị. Nếu phát hiện inconsistency, AI tự sửa trước khi trình', score: 0 },
+        { text: 'Xây dựng template chuẩn cho báo cáo tài chính với format số đã định sẵn (header, bảng, đơn vị). AI chỉ điền data vào template — giảm khả năng sai format', score: 0 }
+      ]
+    }
+  ],
+  4: [
+    {
+      dim: 'T',
+      scenario: 'Team bạn mất 3 giờ/tuần để manually tổng hợp feedback khách hàng từ 5 nguồn (email, survey, hotline, social media, review app).',
+      text: 'Bạn sẽ giải quyết vấn đề này bằng AI như thế nào?',
+      options: [
+        { text: 'Tạo prompt template chuẩn để tổng hợp feedback. Mỗi tuần, team export data từ 5 nguồn vào 1 file, chạy prompt, nhận báo cáo tóm tắt trong 10 phút thay vì 3 giờ', score: 0.5 },
+        { text: 'Xây agent tự thu thập từ 5 nguồn qua API/connector → phân loại tự động (sentiment, category, urgency) → tạo dashboard + weekly digest → gửi qua Slack. Chạy scheduled, không cần human trigger', score: 1 },
+        { text: 'Kết nối 5 nguồn vào một data warehouse trung tâm (Google Sheets hoặc BI tool). Dùng AI để phân tích data đã tổng hợp — tách bước thu thập và bước phân tích cho dễ kiểm soát', score: 0 },
+        { text: 'Phân công mỗi team member phụ trách 1 nguồn, dùng AI tóm tắt phần của mình, rồi merge các bản tóm tắt lại. Giảm effort per person và tận dụng domain knowledge từng người', score: 0 }
+      ]
+    },
+    {
+      dim: 'O',
+      scenario: 'Bạn xây dựng một AI agent hỗ trợ team HR trả lời câu hỏi chính sách công ty. Agent đôi khi trả lời sai hoặc "hallucinate" chính sách không tồn tại.',
+      text: 'Bạn thiết kế cơ chế kiểm soát chất lượng thế nào?',
+      options: [
+        { text: 'Cho agent truy cập toàn bộ tài liệu chính sách qua RAG, yêu cầu trích dẫn nguồn (tên tài liệu + mục) cho mỗi câu trả lời. Nhân viên HR review ngẫu nhiên 10% câu trả lời mỗi tuần', score: 0.5 },
+        { text: 'Thiết kế 3 lớp kiểm soát: (1) Agent chỉ trả lời khi confidence cao — nếu không chắc, chuyển sang HR, (2) Mọi câu trả lời kèm trích dẫn cụ thể (mục + trang), (3) Log câu hỏi không trả lời được → cập nhật knowledge base hàng tuần', score: 1 },
+        { text: 'Xây dựng bộ test cases: 50 câu hỏi thường gặp + đáp án đúng. Chạy regression test mỗi khi update tài liệu chính sách. Nếu accuracy < 95%, tạm dừng agent và debug trước khi re-deploy', score: 0 },
+        { text: 'Giới hạn agent chỉ trả lời yes/no + trích dẫn chính xác điều khoản. Không cho agent diễn giải hay tư vấn. Mọi câu hỏi phức tạp tự động chuyển sang HR trực tiếp', score: 0 }
+      ]
+    },
+    {
+      dim: 'E',
+      scenario: 'Bạn cần kết nối AI với hệ thống CRM để tự động gửi email follow-up dựa trên hành vi khách hàng.',
+      text: 'Bạn tiếp cận thế nào?',
+      options: [
+        { text: 'Dùng API/webhook/Power Automate kết nối CRM → AI. Trigger tự động khi khách đạt điều kiện → AI tạo email personalized → gửi (có human approval cho high-value accounts). Mình own toàn bộ pipeline', score: 1 },
+        { text: 'Viết spec chi tiết (trigger conditions, email templates, approval flow, edge cases) rồi brief team IT xây dựng. Mình own logic và QA, IT own infrastructure', score: 0.5 },
+        { text: 'Dùng Zapier/Make kết nối CRM với AI. Setup trigger → AI draft → auto-send. Ưu tiên speed-to-market — chạy MVP trước, sau đó iterate dựa trên open rate và reply rate', score: 0 },
+        { text: 'Export danh sách qualified leads từ CRM hàng ngày, chạy batch qua AI để tạo email personalized, review nhanh rồi schedule gửi. Semi-automated nhưng kiểm soát được chất lượng', score: 0 }
+      ]
+    },
+    {
+      dim: 'T',
+      scenario: 'Sếp bạn muốn "ứng dụng AI" nhưng không rõ bắt đầu từ đâu. Bạn được giao tìm use case phù hợp nhất.',
+      text: 'Bạn sẽ tiếp cận thế nào?',
+      options: [
+        { text: 'Phỏng vấn các team leader để tìm top 5 pain points tiêu tốn thời gian nhất, sau đó đánh giá mỗi pain point theo khả năng AI giải quyết (data sẵn có, pattern rõ, ROI ước tính)', score: 0.5 },
+        { text: 'Nghiên cứu best practices từ các công ty cùng ngành đã triển khai AI thành công, chọn 3 use cases có ROI cao nhất, pitch cho sếp với case study và timeline', score: 0 },
+        { text: 'Audit workflow thực tế: (1) map quy trình từng bước, (2) đo thời gian/effort mỗi bước, (3) xác định bước nào lặp lại + có data sẵn + pattern rõ. (4) Build prototype cho candidate #1, chạy thử 1 tuần, đo ROI thực trước khi scale', score: 1 },
+        { text: 'Chọn 1 use case đơn giản nhất (ví dụ: tóm tắt email, dịch tài liệu), triển khai nhanh cho team nhỏ, dùng thành công đó làm bằng chứng để mở rộng — land-and-expand strategy', score: 0 }
+      ]
+    }
+  ],
+  5: [
+    {
+      dim: 'T',
+      scenario: 'Bạn đã xây dựng 5 AI agent riêng lẻ cho team (email writer, data analyzer, report generator, meeting summarizer, content reviewer).',
+      text: 'Làm thế nào để nâng cấp từ 5 agent riêng lẻ thành một hệ thống phối hợp?',
+      options: [
+        { text: 'Tạo 1 orchestrator agent nhận input từ user → phân tích intent → route đến agent phù hợp → tổng hợp output. User chỉ cần 1 entry point thay vì chọn agent', score: 0.5 },
+        { text: 'Thiết kế pipeline theo workflow thực tế: meeting → summarizer → action items → email writer → review. Mỗi agent là 1 bước, output của agent trước là input của agent sau', score: 0 },
+        { text: 'Thiết kế PDCA harness: Orchestrator phân tách công việc → parallel agents xử lý → checker agent kiểm tra chéo output → orchestrator quyết định iteration hay deliver. Pattern coordination này reuse được cho domain khác', score: 1 },
+        { text: 'Hợp nhất 5 agent thành 1 agent đa năng với prompt modular — dùng system prompt lớn chứa tất cả capabilities, kích hoạt tùy theo loại task. Đơn giản hóa maintenance', score: 0 }
+      ]
+    },
+    {
+      dim: 'O',
+      scenario: 'Hệ thống AI của bạn đang chạy production. Bạn update prompt cho report generator và bất ngờ output chất lượng giảm so với tuần trước.',
+      text: 'Bạn xử lý thế nào?',
+      options: [
+        { text: 'Revert về prompt cũ ngay lập tức. Chạy prompt mới song song trên sample data, so sánh output cũ vs mới trước khi deploy lại. Document lý do thay đổi gây vấn đề', score: 0.5 },
+        { text: 'Phân tích output mới vs cũ: xác định cụ thể dimension nào giảm (accuracy, format, tone, completeness). Sửa targeted thay vì revert toàn bộ — có thể chỉ 1 phần prompt gây vấn đề', score: 0 },
+        { text: 'Đã có version control + regression test suite sẵn. Rollback ngay. Chạy bộ test cases chuẩn so sánh output. Monitoring dashboard đã báo alert khi quality metric giảm quá threshold — đó là lý do phát hiện nhanh', score: 1 },
+        { text: 'Tạm dừng agent, thông báo team dùng quy trình manual trong khi debug. Chạy A/B test giữa prompt cũ và mới trên 20 cases thực, dùng rubric đánh giá để quyết định giữ bản nào', score: 0 }
+      ]
+    },
+    {
+      dim: 'E',
+      scenario: 'Team A (Sales) muốn hệ thống AI tương tự như team B (HR) đã xây dựng thành công.',
+      text: 'Bạn nhân rộng thế nào?',
+      options: [
+        { text: 'Agent architecture đã được thiết kế modular từ đầu: coordination pattern giữ nguyên, chỉ swap data connectors + domain rules + evaluation criteria. Có template/blueprint sẵn — team A tự deploy theo hướng dẫn, bạn chỉ review', score: 1 },
+        { text: 'Clone codebase/setup của team B, ngồi cùng team A customize: thay data sources, sửa prompts cho Sales context, test với real data của Sales. Hands-on mentoring 2 tuần để team A tự vận hành', score: 0.5 },
+        { text: 'Xây lại từ đầu cho team A vì Sales context khác fundamentally: data structure khác, workflow khác, KPIs khác. Reuse kinh nghiệm thiết kế, nhưng implementation phải custom', score: 0 },
+        { text: 'Document toàn bộ architecture + lessons learned từ team B thành playbook. Train team A theo playbook. Họ tự xây dựng — ownership từ đầu giúp adoption cao hơn', score: 0 }
+      ]
+    }
+  ]
+};
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+
+let state = {
+  name: '', email: '', dept: '',
+  currentLevel: 1,
+  currentQuestionIndex: 0,
+  answers: {},
+  scores: {},
+  toeScores: { T: 0, O: 0, E: 0, maxT: 0, maxO: 0, maxE: 0 },
+  selectedOption: -1,
+  finalLevel: 1,
+  levelsPassed: [],
+  toeCache: { tT: 0, tO: 0, tE: 0 },
+  npsScore: null,
+  satisfaction: null
+};
+
+// ═══════════════════════════════════════
+// INIT — apply URL-param customization
+// ═══════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Page title
+  const clientDisplay = CONFIG.client || 'TOE Framework';
+  document.title = `AI Proficiency Assessment | ${clientDisplay}`;
+
+  // Intro badge — shows phase
+  const badge = document.getElementById('intro-badge');
+  badge.textContent = CONFIG.phase === 'post'
+    ? 'Post-Training Reassessment'
+    : 'Adaptive Assessment';
+
+  // Client + program context box on intro
+  if (CONFIG.client || CONFIG.program) {
+    const ctx = document.getElementById('intro-context');
+    const parts = [];
+    if (CONFIG.client) parts.push(`<strong>${escapeHTML(CONFIG.client)}</strong>`);
+    if (CONFIG.program) parts.push(escapeHTML(CONFIG.program));
+    let phaseLabel = CONFIG.phase === 'post' ? 'Đánh giá sau đào tạo' : 'Đánh giá trước đào tạo';
+    document.getElementById('intro-context-text').innerHTML =
+      `${phaseLabel} · ${parts.join(' · ')}`;
+    ctx.classList.add('visible');
+  }
+
+  // Build NPS scale buttons
+  buildScaleButtons('nps-scale', 11, 0, handleNpsSelect);
+  buildScaleButtons('sat-scale', 5, 1, handleSatSelect);
+});
+
+function escapeHTML(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function buildScaleButtons(containerId, count, startAt, handler) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const val = startAt + i;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'nps-button';
+    btn.textContent = val;
+    btn.dataset.value = val;
+    btn.addEventListener('click', () => handler(val, container));
+    container.appendChild(btn);
+  }
+}
+
+function handleNpsSelect(val, container) {
+  state.npsScore = val;
+  container.querySelectorAll('.nps-button').forEach(b => {
+    b.classList.toggle('selected', Number(b.dataset.value) === val);
+  });
+  updatePostSubmitButton();
+}
+
+function handleSatSelect(val, container) {
+  state.satisfaction = val;
+  container.querySelectorAll('.nps-button').forEach(b => {
+    b.classList.toggle('selected', Number(b.dataset.value) === val);
+  });
+  updatePostSubmitButton();
+}
+
+function updatePostSubmitButton() {
+  const btn = document.getElementById('btn-submit-nps');
+  btn.disabled = !(state.npsScore !== null && state.satisfaction !== null);
+}
+
+// ═══════════════════════════════════════
+// SCREEN MANAGEMENT
+// ═══════════════════════════════════════
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function startAssessment() {
+  const name = document.getElementById('inp-name').value.trim();
+  const email = document.getElementById('inp-email').value.trim();
+  const dept = document.getElementById('inp-dept').value.trim();
+
+  if (!name || !email) {
+    alert('Vui lòng nhập họ tên và email.');
+    return;
+  }
+
+  state.name = name;
+  state.email = email;
+  state.dept = dept;
+
+  showScreen('screen-question');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const questions = QUESTIONS[state.currentLevel];
+  const q = questions[state.currentQuestionIndex];
+  const totalQuestions = getTotalQuestions();
+  const currentTotal = getCurrentQuestionNumber();
+
+  const levelInfo = LEVEL_NAMES[state.currentLevel];
+  document.getElementById('progress-level').textContent =
+    `LEVEL ${state.currentLevel} — ${levelInfo.name.toUpperCase()}`;
+  document.getElementById('progress-count').textContent =
+    `${currentTotal} / ${totalQuestions}`;
+  document.getElementById('progress-fill').style.width =
+    `${(currentTotal / totalQuestions) * 100}%`;
+
+  const dots = document.querySelectorAll('.level-dot');
+  dots.forEach((dot, i) => {
+    dot.className = 'level-dot';
+    const lv = i + 1;
+    if (state.levelsPassed.includes(lv)) dot.classList.add('completed');
+    else if (lv === state.currentLevel) dot.classList.add('active');
+    else if (lv < state.currentLevel && !state.levelsPassed.includes(lv)) dot.classList.add('failed');
+  });
+
+  state.selectedOption = -1;
+
+  const container = document.getElementById('question-container');
+  const optionLetters = ['A', 'B', 'C', 'D'];
+
+  container.innerHTML = `
+    <div class="question-card">
+      <div class="question-meta">
+        <span class="question-dimension dim-${q.dim}">${q.dim === 'T' ? 'Task Complexity' : q.dim === 'O' ? 'Output Quality' : 'Effort'}</span>
+      </div>
+      ${q.scenario ? `<div class="question-scenario">${q.scenario}</div>` : ''}
+      <div class="question-text">${q.text}</div>
+      <div class="options">
+        ${q.options.map((opt, i) => `
+          <div class="option ${state.selectedOption === i ? 'selected' : ''}" onclick="selectOption(${i})">
+            <div class="option-marker">${optionLetters[i]}</div>
+            <div class="option-text">${opt.text}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('btn-next').disabled = true;
+}
+
+function selectOption(index) {
+  state.selectedOption = index;
+  const qKey = `${state.currentLevel}_${state.currentQuestionIndex}`;
+  state.answers[qKey] = index;
+
+  document.querySelectorAll('.option').forEach((opt, i) => {
+    opt.classList.toggle('selected', i === index);
+  });
+
+  document.getElementById('btn-next').disabled = false;
+}
+
+function nextQuestion() {
+  if (state.selectedOption === -1) return;
+
+  const questions = QUESTIONS[state.currentLevel];
+  const q = questions[state.currentQuestionIndex];
+  const score = q.options[state.selectedOption].score;
+
+  if (!state.scores[state.currentLevel]) {
+    state.scores[state.currentLevel] = { total: 0, max: 0 };
+  }
+  state.scores[state.currentLevel].total += score;
+  state.scores[state.currentLevel].max += 1;
+
+  const dim = q.dim;
+  state.toeScores[dim] += score;
+  state.toeScores['max' + dim] += 1;
+
+  state.currentQuestionIndex++;
+
+  if (state.currentQuestionIndex >= questions.length) {
+    evaluateLevel();
+  } else {
+    renderQuestion();
+  }
+}
+
+function evaluateLevel() {
+  const levelScore = state.scores[state.currentLevel];
+  const pct = levelScore.total / levelScore.max;
+  const passed = pct >= 0.6;
+
+  if (passed) {
+    state.levelsPassed.push(state.currentLevel);
+  }
+
+  if (!passed || state.currentLevel >= 5) {
+    state.finalLevel = passed ? state.currentLevel : Math.max(1, state.currentLevel - 1);
+    if (state.levelsPassed.length > 0) {
+      state.finalLevel = Math.max(...state.levelsPassed);
+    }
+    showResults();
+  } else {
+    showTransition(state.currentLevel, state.currentLevel + 1);
+  }
+}
+
+function showTransition(fromLevel, toLevel) {
+  const from = LEVEL_NAMES[fromLevel];
+  const to = LEVEL_NAMES[toLevel];
+
+  document.getElementById('transition-content').innerHTML = `
+    <div class="icon" style="color: ${from.color}">&#10003;</div>
+    <h3 style="color: ${from.color}">Level ${fromLevel}: ${from.name} — Passed</h3>
+    <p>Bạn đã vượt qua cấp độ ${fromLevel}. Tiếp tục với Level ${toLevel}: ${to.name} (${to.vn}).</p>
+    <button class="btn btn-primary" onclick="advanceLevel(${toLevel})">
+      Tiếp tục Level ${toLevel}
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  `;
+
+  showScreen('screen-transition');
+}
+
+function advanceLevel(level) {
+  state.currentLevel = level;
+  state.currentQuestionIndex = 0;
+  state.selectedOption = -1;
+  showScreen('screen-question');
+  renderQuestion();
+}
+
+function getTotalQuestions() {
+  let total = 0;
+  for (let l = 1; l <= 5; l++) {
+    total += QUESTIONS[l].length;
+  }
+  return total;
+}
+
+function getCurrentQuestionNumber() {
+  let num = 0;
+  for (let l = 1; l < state.currentLevel; l++) {
+    num += QUESTIONS[l].length;
+  }
+  num += state.currentQuestionIndex + 1;
+  return num;
+}
+
+function showResults() {
+  const tT = state.toeScores.maxT > 0 ? Math.round((state.toeScores.T / state.toeScores.maxT) * 100) : 0;
+  const tO = state.toeScores.maxO > 0 ? Math.round((state.toeScores.O / state.toeScores.maxO) * 100) : 0;
+  const tE = state.toeScores.maxE > 0 ? Math.round((state.toeScores.E / state.toeScores.maxE) * 100) : 0;
+
+  state.toeCache = { tT, tO, tE };
+
+  const lvl = LEVEL_NAMES[state.finalLevel];
+  const desc = LEVEL_DESCRIPTIONS[state.finalLevel];
+
+  const badge = document.getElementById('result-badge');
+  badge.textContent = `LEVEL ${state.finalLevel} — ${lvl.name.toUpperCase()}`;
+  badge.style.background = `${lvl.color}20`;
+  badge.style.color = lvl.color;
+  badge.style.border = `1px solid ${lvl.color}40`;
+
+  document.getElementById('result-title').textContent = `${lvl.vn}`;
+  document.getElementById('result-subtitle').textContent = desc.desc;
+
+  document.getElementById('toe-grid').innerHTML = `
+    <div class="toe-card toe-T">
+      <div class="toe-label">Task Complexity</div>
+      <div class="toe-score">${tT}%</div>
+      <div class="toe-desc">Độ phức tạp công việc</div>
+    </div>
+    <div class="toe-card toe-O">
+      <div class="toe-label">Output Quality</div>
+      <div class="toe-score">${tO}%</div>
+      <div class="toe-desc">Chất lượng đầu ra</div>
+    </div>
+    <div class="toe-card toe-E">
+      <div class="toe-label">Effort</div>
+      <div class="toe-score">${tE}%</div>
+      <div class="toe-desc">Công sức bỏ ra</div>
+    </div>
+  `;
+
+  const rowsHTML = [];
+  for (let l = 1; l <= 5; l++) {
+    const lv = LEVEL_NAMES[l];
+    const sc = state.scores[l];
+    let pct = 0;
+    let status = '—';
+
+    if (sc) {
+      pct = Math.round((sc.total / sc.max) * 100);
+      status = state.levelsPassed.includes(l) ? '&#10003;' : '&#10007;';
+    }
+
+    const attempted = !!sc;
+    rowsHTML.push(`
+      <div class="level-row" style="opacity: ${attempted ? 1 : 0.35}">
+        <span class="lv-tag" style="color: ${lv.color}">${lv.tag}</span>
+        <span class="lv-name">${lv.name}</span>
+        <div class="lv-bar-wrap">
+          <div class="lv-bar" style="width: ${pct}%; background: ${lv.color}"></div>
+        </div>
+        <span class="lv-pct" style="color: ${attempted ? lv.color : 'var(--text-muted)'}">${attempted ? pct + '%' : '—'}</span>
+        <span class="lv-status">${attempted ? status : ''}</span>
+      </div>
+    `);
+  }
+  document.getElementById('level-rows').innerHTML = rowsHTML.join('');
+
+  document.getElementById('result-desc').innerHTML = `
+    <h4>${desc.title}</h4>
+    <p>${desc.desc}</p>
+    <ul>${desc.next.map(n => `<li>${n}</li>`).join('')}</ul>
+  `;
+
+  if (CONFIG.phase === 'post') {
+    document.getElementById('nps-block').classList.add('visible');
+    document.getElementById('results-footer-text').textContent =
+      'Vui lòng hoàn thành phản hồi ở trên để kết quả được ghi nhận đầy đủ.';
+  }
+
+  showScreen('screen-results');
+
+  setTimeout(() => {
+    document.querySelectorAll('.lv-bar').forEach(bar => {
+      bar.style.width = bar.style.width;
+    });
+  }, 100);
+
+  if (CONFIG.phase !== 'post') {
+    submitResults(null);
+  }
+}
+
+function submitPostFeedback() {
+  const applied = document.getElementById('inp-applied').value.trim();
+  const next = document.getElementById('inp-next').value.trim();
+
+  submitResults({
+    nps: state.npsScore,
+    satisfaction: state.satisfaction,
+    applied: applied,
+    next: next
+  });
+
+  document.getElementById('btn-submit-nps').disabled = true;
+  document.getElementById('btn-submit-nps').style.display = 'none';
+  document.getElementById('nps-status').classList.add('visible');
+  document.getElementById('results-footer-text').textContent =
+    'Kết quả + phản hồi đã được ghi nhận. Cảm ơn bạn đã tham gia.';
+}
+
+function submitResults(npsData) {
+  const { tT, tO, tE } = state.toeCache;
+
+  const payload = {
+    timestamp: new Date().toISOString(),
+    phase: CONFIG.phase,
+    clientId: CONFIG.clientId,
+    clientName: CONFIG.client,
+    programName: CONFIG.program,
+    name: state.name,
+    email: state.email,
+    department: state.dept,
+    finalLevel: state.finalLevel,
+    levelName: LEVEL_NAMES[state.finalLevel].name,
+    toeT: tT,
+    toeO: tO,
+    toeE: tE,
+    l1Score: state.scores[1] ? Math.round((state.scores[1].total / state.scores[1].max) * 100) : '',
+    l2Score: state.scores[2] ? Math.round((state.scores[2].total / state.scores[2].max) * 100) : '',
+    l3Score: state.scores[3] ? Math.round((state.scores[3].total / state.scores[3].max) * 100) : '',
+    l4Score: state.scores[4] ? Math.round((state.scores[4].total / state.scores[4].max) * 100) : '',
+    l5Score: state.scores[5] ? Math.round((state.scores[5].total / state.scores[5].max) * 100) : '',
+    rawAnswers: JSON.stringify(state.answers),
+    npsScore: npsData ? npsData.nps : '',
+    satisfaction: npsData ? npsData.satisfaction : '',
+    appliedSoFar: npsData ? npsData.applied : '',
+    nextCommitment: npsData ? npsData.next : ''
+  };
+
+  if (!GOOGLE_SCRIPT_URL) {
+    console.log('Google Script URL not configured. Payload:', payload);
+    return;
+  }
+
+  fetch(GOOGLE_SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).catch(err => console.log('Submit error:', err));
+}
+
+function restartAssessment() {
+  state = {
+    name: '', email: '', dept: '',
+    currentLevel: 1, currentQuestionIndex: 0,
+    answers: {}, scores: {},
+    toeScores: { T: 0, O: 0, E: 0, maxT: 0, maxO: 0, maxE: 0 },
+    selectedOption: -1, finalLevel: 1, levelsPassed: [],
+    toeCache: { tT: 0, tO: 0, tE: 0 },
+    npsScore: null, satisfaction: null
+  };
+  document.getElementById('inp-name').value = '';
+  document.getElementById('inp-email').value = '';
+  document.getElementById('inp-dept').value = '';
+  document.getElementById('inp-applied').value = '';
+  document.getElementById('inp-next').value = '';
+  document.querySelectorAll('.nps-button').forEach(b => b.classList.remove('selected'));
+  document.getElementById('nps-block').classList.remove('visible');
+  document.getElementById('btn-submit-nps').disabled = true;
+  document.getElementById('btn-submit-nps').style.display = '';
+  document.getElementById('nps-status').classList.remove('visible');
+  document.getElementById('results-footer-text').textContent =
+    'Kết quả đã được ghi nhận. Cảm ơn bạn đã tham gia.';
+  showScreen('screen-intro');
+}
+</script>
+
+</body>
+</html>

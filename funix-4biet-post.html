@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đánh Giá Sau Khóa Học — Funix × Tim on AI (4 Cái Biết)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+:root {
+  --bg: #f5f5f7;
+  --bg-card: #ffffff;
+  --bg-hover: #f0f0f5;
+  --border: #e2e2ea;
+  --border-active: #4a6cf7;
+  --text: #1a1a2e;
+  --text-dim: #555568;
+  --text-muted: #999aab;
+  --accent: #4a6cf7;
+  --accent-glow: rgba(74,108,247,0.08);
+  --accent-2: #00b894;
+  --funix: #ff6b2c;
+  --funix-dim: #fff3ec;
+  --success: #00b894;
+  --warning: #f59e0b;
+  --danger: #e84d3d;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image:
+    linear-gradient(rgba(74,108,247,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74,108,247,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+  position: relative;
+  z-index: 1;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 40px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.logo-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo-funix {
+  height: 40px;
+  width: auto;
+  display: block;
+}
+
+.co-brand {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.co-brand .x {
+  color: var(--text-dim);
+  margin: 0 4px;
+}
+
+.phase-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(0,184,148,0.1);
+  border: 1px solid rgba(0,184,148,0.25);
+  border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-2);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.phase-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--accent-2);
+  border-radius: 50%;
+}
+
+.title {
+  font-size: clamp(28px, 4.5vw, 40px);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  margin-bottom: 14px;
+}
+
+.title span {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.meta-row {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 36px;
+}
+
+.section { margin-bottom: 36px; }
+
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+.field { margin-bottom: 14px; }
+
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.field input[type="text"],
+.field input[type="email"],
+.field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg-card);
+  transition: border-color 0.2s;
+}
+
+.field textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.field-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.q-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.q-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-2);
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+
+.q-stem {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.55;
+  margin-bottom: 14px;
+  color: var(--text);
+}
+
+.options { display: flex; flex-direction: column; gap: 8px; }
+
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  background: var(--bg-card);
+}
+
+.option:hover {
+  border-color: var(--accent-2);
+  background: rgba(0,184,148,0.06);
+}
+
+.option input[type="radio"],
+.option input[type="checkbox"] {
+  margin-top: 2px;
+  accent-color: var(--accent-2);
+  flex-shrink: 0;
+}
+
+.option span {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+
+.option.selected {
+  border-color: var(--accent-2);
+  background: rgba(0,184,148,0.08);
+}
+
+.option.selected span { color: var(--text); font-weight: 500; }
+
+.scale {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.scale-opt {
+  flex: 1;
+  min-width: 56px;
+  padding: 10px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  cursor: pointer;
+  background: var(--bg-card);
+  transition: all 0.18s ease;
+}
+
+.scale-opt input { display: none; }
+
+.scale-opt:hover {
+  border-color: var(--accent-2);
+  background: rgba(0,184,148,0.06);
+}
+
+.scale-opt.selected {
+  border-color: var(--accent-2);
+  background: var(--accent-2);
+  color: white;
+}
+
+.scale-opt .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  display: block;
+}
+
+.scale-opt .lbl {
+  font-size: 10px;
+  opacity: 0.7;
+  margin-top: 2px;
+  display: block;
+}
+
+.scale-nps {
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  gap: 4px;
+}
+
+.scale-nps .scale-opt { min-width: 0; padding: 8px 2px; }
+.scale-nps .scale-opt .num { font-size: 13px; }
+
+.commit-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.commit-row .fx {
+  color: var(--text-dim);
+}
+
+.commit-row input {
+  flex: 1;
+  min-width: 180px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 14px;
+  background: var(--bg-card);
+}
+
+.commit-row input:focus { outline: none; border-color: var(--accent-2); }
+
+.submit-row {
+  margin-top: 36px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--accent-2) 0%, var(--accent) 100%);
+  border: none;
+  border-radius: var(--radius);
+  color: white;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  letter-spacing: 0.3px;
+}
+
+.btn-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,184,148,0.25);
+}
+
+.btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.submit-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.thankyou {
+  display: none;
+  text-align: center;
+  padding: 60px 24px;
+}
+
+.thankyou.active { display: block; }
+
+.thankyou-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-2) 0%, var(--accent) 100%);
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.thankyou h2 {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+
+.thankyou p {
+  font-size: 15px;
+  color: var(--text-dim);
+  line-height: 1.7;
+  max-width: 520px;
+  margin: 0 auto 28px;
+}
+
+.score-display {
+  display: inline-block;
+  padding: 20px 32px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 0 auto 28px;
+}
+
+.score-big {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 44px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent-2) 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+}
+
+.score-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-top: 8px;
+}
+
+.band {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 16px;
+}
+
+.band-l1 { background: #f0f0f5; color: #555568; }
+.band-l2p { background: rgba(74,108,247,0.12); color: var(--accent); }
+.band-l2c { background: rgba(0,184,148,0.12); color: var(--success); }
+
+.ceiling-note {
+  margin-top: 28px;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  text-align: left;
+}
+
+.ceiling-note strong { color: var(--text-dim); }
+
+.error-msg {
+  color: var(--danger);
+  font-size: 13px;
+  margin-top: 8px;
+  display: none;
+}
+
+.error-msg.show { display: block; }
+
+@media (max-width: 600px) {
+  .header { flex-direction: column; align-items: flex-start; }
+  .scale { gap: 4px; }
+  .scale-opt { min-width: 44px; padding: 8px 4px; }
+  .scale-nps { grid-template-columns: repeat(6, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="container" id="form-screen">
+
+  <div class="header">
+    <div class="logo-row">
+      <img src="funix-logo.png" alt="FUNiX" class="logo-funix">
+      <div class="co-brand">FUNIX <span class="x">×</span> Tim on AI</div>
+    </div>
+    <div class="phase-badge">Post-test · Sau buổi</div>
+  </div>
+
+  <h1 class="title">Đánh Giá <span>Sau Khóa Học</span></h1>
+  <p class="subtitle">Buổi Giới Thiệu: "AI Cho Dân Văn Phòng — 4 Cái Biết"</p>
+  <div class="meta-row">~10 phút • Phản hồi trung thực giúp cải thiện buổi học tiếp theo</div>
+
+  <!-- DEMOGRAPHIC -->
+  <div class="section">
+    <div class="section-label">Thông tin cá nhân</div>
+    <div class="field">
+      <label>Họ và tên *</label>
+      <input type="text" id="name" required>
+    </div>
+    <div class="field">
+      <label>Email *</label>
+      <input type="email" id="email" required>
+      <div class="field-note">Dùng ĐÚNG email bạn đã điền ở bài trước buổi — để ghép kết quả tính lift.</div>
+    </div>
+  </div>
+
+  <!-- MCQ -->
+  <div class="section">
+    <div class="section-label">Phần 1 — 9 tình huống thực tế</div>
+    <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px;line-height:1.6;">
+      Chọn đáp án gần với cách bạn <strong>SẼ LÀM</strong> sau khi học xong buổi hôm nay.
+    </p>
+    <div id="mcq-container"></div>
+  </div>
+
+  <!-- ARTIFACT -->
+  <div class="section">
+    <div class="section-label">Phần 2 — Kết quả trực tiếp trong buổi</div>
+
+    <div class="q-card">
+      <div class="q-num">Câu 10 · Kimi Sheets</div>
+      <div class="q-stem">Bạn có tạo được file Excel master tracker bằng Kimi Sheets trong buổi học không?</div>
+      <div class="options" id="artifact1"></div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-num">Câu 11 · Kimi Slides</div>
+      <div class="q-stem">Bạn có tạo được bộ slide 4 Cái Biết bằng Kimi Slides trong buổi học không?</div>
+      <div class="options" id="artifact2"></div>
+    </div>
+  </div>
+
+  <!-- SELF-ASSESS + COMMIT -->
+  <div class="section">
+    <div class="section-label">Phần 3 — Tự đánh giá &amp; cam kết</div>
+
+    <div class="q-card">
+      <div class="q-num">Câu 12 · Tự tin sau buổi</div>
+      <div class="q-stem">Mức độ tự tin dùng AI cho công việc SAU buổi học (1 = rất thấp, 5 = rất cao):</div>
+      <div class="scale">
+        <label class="scale-opt"><input type="radio" name="q12" value="1"><span class="num">1</span><span class="lbl">Rất thấp</span></label>
+        <label class="scale-opt"><input type="radio" name="q12" value="2"><span class="num">2</span></label>
+        <label class="scale-opt"><input type="radio" name="q12" value="3"><span class="num">3</span></label>
+        <label class="scale-opt"><input type="radio" name="q12" value="4"><span class="num">4</span></label>
+        <label class="scale-opt"><input type="radio" name="q12" value="5"><span class="num">5</span><span class="lbl">Rất cao</span></label>
+      </div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-num">Câu 13 · Cam kết tuần sau</div>
+      <div class="q-stem">Hoàn thành câu này — 1 cam kết áp dụng tuần sau:</div>
+      <div class="commit-row">
+        <span class="fx">"Lần tới khi</span>
+        <input type="text" id="commit-when" placeholder="tình huống / công việc">
+        <span class="fx">, tôi sẽ</span>
+        <input type="text" id="commit-do" placeholder="hành động cụ thể">
+        <span class="fx">."</span>
+      </div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-num">Câu 14 · NPS</div>
+      <div class="q-stem">Bạn sẽ giới thiệu buổi học này cho đồng nghiệp không? (0 = chắc chắn không, 10 = chắc chắn có)</div>
+      <div class="scale scale-nps">
+        <label class="scale-opt"><input type="radio" name="q14" value="0"><span class="num">0</span></label>
+        <label class="scale-opt"><input type="radio" name="q14" value="1"><span class="num">1</span></label>
+        <label class="scale-opt"><input type="radio" name="q14" value="2"><span class="num">2</span></label>
+        <label class="scale-opt"><input type="radio" name="q14" value="3"><span class="num">3</span></label>
+        <label class="scale-opt"><input type="radio" name="q14" value="4"><span class="num">4</span></label>
+        <label class="scale-opt"><input type="radio" name="q14" value="5"><span class="num">5</span></label>
+        <label class="scale-opt"><input type="radio" name="q14" value="6"><span class="num">6</span></label>
+        <label class="scale-opt"><input type="radio" name="q14" value="7"><span class="num">7</span></label>
+        <label class="scale-opt"><input type="radio" name="q14" value="8"><span class="num">8</span></label>
+        <label class="scale-opt"><input type="radio" name="q14" value="9"><span class="num">9</span></label>
+        <label class="scale-opt"><input type="radio" name="q14" value="10"><span class="num">10</span></label>
+      </div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-num">Câu 15 · Lớp 8 tuần</div>
+      <div class="q-stem">Bạn muốn tham gia lớp 8 tuần tiếp theo không?</div>
+      <div class="options" id="q15-opts"></div>
+    </div>
+  </div>
+
+  <!-- OPTIONAL FEEDBACK -->
+  <div class="section">
+    <div class="section-label">Góp ý thêm (tuỳ chọn)</div>
+    <div class="field">
+      <label>1 điều bạn thích nhất về buổi học</label>
+      <textarea id="fb-like"></textarea>
+    </div>
+    <div class="field">
+      <label>1 điều bạn muốn cải thiện</label>
+      <textarea id="fb-improve"></textarea>
+    </div>
+  </div>
+
+  <div class="submit-row">
+    <button class="btn-submit" id="btn-submit">Nộp bài đánh giá</button>
+    <div class="error-msg" id="error-msg"></div>
+    <div class="submit-note">Chúng tôi sẽ gửi khảo sát ngắn (~2 phút) trong 14 ngày tới để xem bạn áp dụng được không.</div>
+  </div>
+
+</div>
+
+<div class="container thankyou" id="thank-screen">
+  <div class="thankyou-icon">✓</div>
+  <h2>Cảm ơn bạn!</h2>
+  <p>Phản hồi của bạn đã được ghi nhận. Chúng tôi sẽ gửi khảo sát ngắn trong 14 ngày tới.</p>
+
+  <div class="score-display">
+    <div class="score-big" id="score-big">–/9</div>
+    <div class="score-label">Stage 1 Score · Sau buổi</div>
+    <div class="band" id="band">Đang phân tích...</div>
+  </div>
+
+  <div class="ceiling-note">
+    <strong>Về thang đo:</strong> Điểm này phân loại L1 (Hỏi) vs L2 (Chỉ dẫn — prompt có cấu trúc). Lift thực tế so với bài trước buổi = điểm POST trừ điểm PRE (ghép qua email). Thang chỉ đo placement L1/L2. Nhận định L3+ cần thêm Stage 2 controlled task + người chấm trong tuần 1.
+  </div>
+</div>
+
+<script>
+const GOOGLE_SCRIPT_URL = 'PASTE_FUNIX_SHEET_ENDPOINT_HERE';
+
+const urlParams = new URLSearchParams(window.location.search);
+const CONFIG = {
+  instrument: 'funix-4biet-post',
+  phase: 'post',
+  client: (urlParams.get('client') || 'funix').trim().slice(0, 80),
+  clientId: (urlParams.get('clientId') || '').trim().slice(0, 40),
+  program: (urlParams.get('program') || '4-cai-biet').trim().slice(0, 80),
+  cohort: (urlParams.get('cohort') || '').trim().slice(0, 40)
+};
+console.log('[Funix Post] CONFIG:', CONFIG);
+
+const ARTIFACT_OPTIONS = [
+  'Tạo xong, dùng được',
+  'Tạo được một phần',
+  'Thử nhưng không ra',
+  'Không thử'
+];
+
+const Q15_OPTIONS = ['Chắc chắn', 'Có thể', 'Chưa chắc', 'Không'];
+
+const MCQ_ITEMS = [
+  { dim: 'T', stem: 'Sếp yêu cầu bạn viết 1 thông báo nội bộ gửi team về quy định mới. Bạn làm gì ĐẦU TIÊN?', options: [
+    { text: 'Gõ cho AI câu ngắn "viết thông báo nội bộ về quy định mới" rồi copy output gửi ngay', score: 0 },
+    { text: 'Mô tả cho AI: team nào, quy định gì, giọng ra sao, rồi nhận output và sửa lại', score: 1 },
+    { text: 'Tự viết từ đầu theo kinh nghiệm, xong nhờ AI kiểm tra chính tả và ngữ pháp', score: 0 },
+    { text: 'Tìm thông báo cũ, copy đoạn phù hợp, rồi thay nội dung — không cần dùng AI', score: 0 }
+  ]},
+  { dim: 'T', stem: 'Bạn cần tạo 1 checklist cho quy trình xử lý khiếu nại mới (10+ bước). Bạn làm thế nào?', options: [
+    { text: 'Gõ cho AI "tạo checklist xử lý khiếu nại" rồi lấy kết quả đầu tiên dùng luôn', score: 0 },
+    { text: 'Mô tả cho AI: ai dùng checklist, loại khiếu nại nào, ràng buộc pháp lý, rồi rà soát', score: 1 },
+    { text: 'Tự liệt kê theo kinh nghiệm rồi sắp xếp lại, không dùng AI cho checklist nội bộ', score: 0 },
+    { text: 'Hỏi team pháp chế trước, nếu không được thì tham khảo quy trình cũ rồi sửa đổi', score: 0 }
+  ]},
+  { dim: 'T', stem: 'Sếp gửi danh sách 200 khách hàng tiềm năng, nhờ bạn phân loại theo ngành. Bạn làm gì?', options: [
+    { text: 'Scroll qua danh sách, tự đoán ngành từng khách, hỏi sếp nếu không chắc', score: 0 },
+    { text: 'Mô tả AI: những ngành mình quan tâm, dấu hiệu phân ngành, rồi kiểm AI phân', score: 1 },
+    { text: 'Copy danh sách vào AI, gõ "phân theo ngành giúp", lấy kết quả gửi lại cho sếp', score: 0 },
+    { text: 'Tự viết công thức Excel hoặc pivot table, không cần dùng AI cho việc phân loại', score: 0 }
+  ]},
+  { dim: 'O', stem: 'Bạn nhận 1 bản báo cáo 2 trang AI vừa viết, cần gửi sếp. Bạn làm gì TRƯỚC KHI GỬI?', options: [
+    { text: 'Đọc lướt 1 lượt xem có gì kỳ lạ, nếu không thấy vấn đề gì thì gửi đi luôn', score: 0 },
+    { text: 'Gửi luôn, AI giờ cũng chính xác rồi, không cần mất thời gian kiểm tra lại', score: 0 },
+    { text: 'Kiểm từng con số và tên riêng, đọc toàn bộ, xóa chi tiết không giải thích được', score: 1 },
+    { text: 'Copy vào Word, chạy spellcheck, nếu không báo lỗi chính tả nào thì gửi đi được', score: 0 }
+  ]},
+  { dim: 'O', stem: 'AI viết giúp bạn 1 email xin lỗi khách hàng về sự cố giao hàng. Cách bạn kiểm tra output?', options: [
+    { text: 'Đọc xem có lời xin lỗi rõ ràng không, nếu có là được rồi, gửi khách luôn', score: 0 },
+    { text: 'Đọc như khách hàng đang bực — email này có thật sự giải quyết được bực dọc?', score: 1 },
+    { text: 'Gửi sếp đọc duyệt trước, nếu sếp OK thì coi như dùng được, mình không cần kiểm', score: 0 },
+    { text: 'So sánh với email xin lỗi mẫu của công ty, nếu nội dung gần giống thì được gửi', score: 0 }
+  ]},
+  { dim: 'O', stem: 'Bạn đọc output AI và thấy 1 tên công ty bạn không biết chắc có tồn tại không. Bạn làm gì?', options: [
+    { text: 'Xóa tên công ty đó ra khỏi output, hoặc tự search để xác thực trước khi dùng tiếp', score: 1 },
+    { text: 'Giữ lại vì AI nói vậy chắc có nguồn, nếu ai hỏi thì mình nói "AI tìm được cho em"', score: 0 },
+    { text: 'Hỏi AI thêm "công ty này có thật không?", AI trả lời gì mình tin vậy, khỏi tra lại', score: 0 },
+    { text: 'Gửi nguyên bản, tên công ty là chi tiết nhỏ không ảnh hưởng đến tổng thể báo cáo', score: 0 }
+  ]},
+  { dim: 'E', stem: 'Sau khóa học hôm nay, khi bạn viết prompt cho AI, prompt của bạn SẼ gồm BAO NHIÊU phần?', options: [
+    { text: '1 câu ngắn, AI đủ thông minh để tự hiểu phần còn lại, không cần viết dài', score: 0 },
+    { text: 'Tối thiểu 3-5 phần — vai trò, bối cảnh, nhiệm vụ, yêu cầu cụ thể, ràng buộc', score: 1 },
+    { text: '2 phần — việc cần làm + format mong muốn, đủ rồi, thêm nữa mất thời gian', score: 0 },
+    { text: 'Tùy tâm trạng — dài ngắn đều được, quan trọng là AI hiểu được ý mình', score: 0 }
+  ]},
+  { dim: 'E', stem: 'Bạn gõ prompt "viết bài post LinkedIn về buổi họp team" và AI trả kết quả không dùng được. Bạn làm gì TIẾP?', options: [
+    { text: 'Thử gõ lại prompt với từ khác hoặc diễn đạt khác, AI chắc sẽ ra kết quả khác', score: 0 },
+    { text: 'Bỏ cuộc, tự viết bài post từ đầu theo kinh nghiệm — AI không làm được việc này', score: 0 },
+    { text: 'Thêm vào prompt: vai trò mình, bối cảnh buổi họp, đối tượng đọc, ràng buộc — chạy lại', score: 1 },
+    { text: 'Hỏi AI "bạn cần thêm thông tin gì", AI nói cần gì thì mình cung cấp đúng thế thôi', score: 0 }
+  ]},
+  { dim: 'E', stem: 'Bạn có 1 prompt AI trả kết quả gần đúng nhưng phần kết luận chưa ổn. Bạn làm gì?', options: [
+    { text: 'Viết prompt mới từ đầu, thêm câu "giống lần trước nhưng kết luận khác", chạy lại', score: 0 },
+    { text: 'Paste kết quả vào, chỉ chỗ cần sửa: "Phần kết luận đổi thành Y", AI sửa đúng phần đó', score: 1 },
+    { text: 'Accept luôn phần đầu, phần kết luận tự viết lại bằng tay — nhanh hơn giải thích', score: 0 },
+    { text: 'Gõ "hay quá, nhưng sửa kết luận nhé" — AI đủ thông minh tự hiểu ý bạn muốn gì', score: 0 }
+  ]}
+];
+
+function renderMCQ() {
+  const host = document.getElementById('mcq-container');
+  MCQ_ITEMS.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML = `
+      <div class="q-num">Câu ${i + 1} · ${item.dim} · L1/L2</div>
+      <div class="q-stem">${item.stem}</div>
+      <div class="options" id="mcq-${i}"></div>
+    `;
+    host.appendChild(card);
+    const optHost = card.querySelector(`#mcq-${i}`);
+    item.options.forEach((opt, j) => {
+      const lbl = document.createElement('label');
+      lbl.className = 'option';
+      lbl.innerHTML = `<input type="radio" name="mcq-${i}" value="${j}"><span>${String.fromCharCode(65 + j)}. ${opt.text}</span>`;
+      optHost.appendChild(lbl);
+    });
+  });
+}
+
+function renderArtifact(hostId, name) {
+  const host = document.getElementById(hostId);
+  ARTIFACT_OPTIONS.forEach(opt => {
+    const lbl = document.createElement('label');
+    lbl.className = 'option';
+    lbl.innerHTML = `<input type="radio" name="${name}" value="${opt}"><span>${opt}</span>`;
+    host.appendChild(lbl);
+  });
+}
+
+function renderQ15() {
+  const host = document.getElementById('q15-opts');
+  Q15_OPTIONS.forEach(opt => {
+    const lbl = document.createElement('label');
+    lbl.className = 'option';
+    lbl.innerHTML = `<input type="radio" name="q15" value="${opt}"><span>${opt}</span>`;
+    host.appendChild(lbl);
+  });
+}
+
+document.addEventListener('change', (e) => {
+  if (e.target.matches('input[type="radio"]')) {
+    const card = e.target.closest('.q-card, .scale, .field');
+    if (!card) return;
+    card.querySelectorAll('.option, .scale-opt').forEach(el => el.classList.remove('selected'));
+    e.target.closest('.option, .scale-opt')?.classList.add('selected');
+  }
+  if (e.target.matches('input[type="checkbox"]')) {
+    const host = e.target.closest('.option');
+    if (host) host.classList.toggle('selected', e.target.checked);
+  }
+});
+
+function collectData() {
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+
+  const mcqAnswers = [];
+  let score = 0;
+  const dimScores = { T: 0, O: 0, E: 0 };
+
+  for (let i = 0; i < MCQ_ITEMS.length; i++) {
+    const checked = document.querySelector(`input[name="mcq-${i}"]:checked`);
+    if (!checked) return { error: `Chưa trả lời Câu ${i + 1} trong Phần 1` };
+    const optIdx = parseInt(checked.value, 10);
+    const s = MCQ_ITEMS[i].options[optIdx].score;
+    mcqAnswers.push({ q: i + 1, dim: MCQ_ITEMS[i].dim, choice: String.fromCharCode(65 + optIdx), score: s });
+    score += s;
+    dimScores[MCQ_ITEMS[i].dim] += s;
+  }
+
+  const a1 = document.querySelector('input[name="artifact1"]:checked');
+  const a2 = document.querySelector('input[name="artifact2"]:checked');
+  const q12 = document.querySelector('input[name="q12"]:checked');
+  const q14 = document.querySelector('input[name="q14"]:checked');
+  const q15 = document.querySelector('input[name="q15"]:checked');
+
+  if (!name) return { error: 'Vui lòng điền Họ và tên' };
+  if (!email) return { error: 'Vui lòng điền Email (trùng với bài trước buổi)' };
+  if (!a1) return { error: 'Chưa trả lời Câu 10 (Kimi Sheets)' };
+  if (!a2) return { error: 'Chưa trả lời Câu 11 (Kimi Slides)' };
+  if (!q12) return { error: 'Chưa trả lời Câu 12 (tự tin sau buổi)' };
+  if (!q14) return { error: 'Chưa trả lời Câu 14 (NPS)' };
+  if (!q15) return { error: 'Chưa trả lời Câu 15 (lớp 8 tuần)' };
+
+  return {
+    ok: true,
+    payload: {
+      instrument: CONFIG.instrument,
+      phase: CONFIG.phase,
+      client: CONFIG.client,
+      clientId: CONFIG.clientId,
+      program: CONFIG.program,
+      cohort: CONFIG.cohort,
+      timestamp: new Date().toISOString(),
+      name, email,
+      mcq_answers: mcqAnswers,
+      mcq_score: score,
+      mcq_total: MCQ_ITEMS.length,
+      mcq_dim_T: dimScores.T,
+      mcq_dim_O: dimScores.O,
+      mcq_dim_E: dimScores.E,
+      artifact_kimi_sheets: a1.value,
+      artifact_kimi_slides: a2.value,
+      confidence_post: parseInt(q12.value, 10),
+      commitment_when: document.getElementById('commit-when').value.trim(),
+      commitment_do: document.getElementById('commit-do').value.trim(),
+      nps: parseInt(q14.value, 10),
+      eight_week_intent: q15.value,
+      feedback_like: document.getElementById('fb-like').value.trim(),
+      feedback_improve: document.getElementById('fb-improve').value.trim()
+    },
+    score
+  };
+}
+
+function classifyBand(score) {
+  if (score < 5) return { code: 'L1', label: 'L1 — Hỏi', cls: 'band-l1' };
+  if (score < 7) return { code: 'L2_PROV', label: 'L2 Provisional — Chỉ dẫn (đang hình thành)', cls: 'band-l2p' };
+  return { code: 'L2_CONFIRMED', label: 'L2 Confirmed — Chỉ dẫn', cls: 'band-l2c' };
+}
+
+function showThankYou(score) {
+  document.getElementById('form-screen').style.display = 'none';
+  document.getElementById('thank-screen').classList.add('active');
+  document.getElementById('score-big').textContent = `${score}/${MCQ_ITEMS.length}`;
+  const band = classifyBand(score);
+  const bandEl = document.getElementById('band');
+  bandEl.textContent = band.label;
+  bandEl.classList.add(band.cls);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.getElementById('btn-submit').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-submit');
+  const errorEl = document.getElementById('error-msg');
+  errorEl.classList.remove('show');
+
+  const result = collectData();
+  if (result.error) {
+    errorEl.textContent = result.error;
+    errorEl.classList.add('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Đang gửi...';
+
+  try {
+    if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== 'PASTE_FUNIX_SHEET_ENDPOINT_HERE') {
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(result.payload)
+      });
+    } else {
+      console.warn('[Funix Post] Endpoint not configured — logging payload only');
+      console.log('[Funix Post] Payload:', result.payload);
+    }
+    showThankYou(result.score);
+  } catch (err) {
+    console.error('[Funix Post] Submit failed:', err);
+    showThankYou(result.score);
+  }
+});
+
+renderMCQ();
+renderArtifact('artifact1', 'artifact1');
+renderArtifact('artifact2', 'artifact2');
+renderQ15();
+</script>
+
+</body>
+</html>

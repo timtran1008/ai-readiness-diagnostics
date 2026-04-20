@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đánh Giá Trước Khóa Học — Funix × Tim on AI (4 Cái Biết)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+:root {
+  --bg: #f5f5f7;
+  --bg-card: #ffffff;
+  --bg-hover: #f0f0f5;
+  --border: #e2e2ea;
+  --border-active: #4a6cf7;
+  --text: #1a1a2e;
+  --text-dim: #555568;
+  --text-muted: #999aab;
+  --accent: #4a6cf7;
+  --accent-glow: rgba(74,108,247,0.08);
+  --accent-2: #00b894;
+  --funix: #ff6b2c;
+  --funix-dim: #fff3ec;
+  --success: #00b894;
+  --warning: #f59e0b;
+  --danger: #e84d3d;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image:
+    linear-gradient(rgba(74,108,247,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74,108,247,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── HEADER ─── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 40px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.logo-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo-funix {
+  height: 40px;
+  width: auto;
+  display: block;
+}
+
+.co-brand {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.co-brand .x {
+  color: var(--text-dim);
+  margin: 0 4px;
+}
+
+.phase-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--accent-glow);
+  border: 1px solid rgba(74,108,247,0.2);
+  border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.phase-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+
+/* ─── TITLE ─── */
+.title {
+  font-size: clamp(28px, 4.5vw, 40px);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  margin-bottom: 14px;
+}
+
+.title span {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.meta-row {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 36px;
+}
+
+/* ─── SECTIONS ─── */
+.section {
+  margin-bottom: 36px;
+}
+
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+/* ─── FORM FIELDS ─── */
+.field {
+  margin-bottom: 14px;
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.field input[type="text"],
+.field input[type="email"] {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg-card);
+  transition: border-color 0.2s;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.field-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* ─── QUESTION CARDS ─── */
+.q-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.q-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+
+.q-stem {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.55;
+  margin-bottom: 14px;
+  color: var(--text);
+}
+
+/* ─── OPTIONS ─── */
+.options { display: flex; flex-direction: column; gap: 8px; }
+
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  background: var(--bg-card);
+}
+
+.option:hover {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+
+.option input[type="radio"],
+.option input[type="checkbox"] {
+  margin-top: 2px;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+}
+
+.option input[type="radio"]:checked + span,
+.option input[type="checkbox"]:checked + span {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.option span {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+
+.option.selected {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+
+/* ─── SCALE (1-5) ─── */
+.scale {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.scale-opt {
+  flex: 1;
+  min-width: 56px;
+  padding: 10px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  cursor: pointer;
+  background: var(--bg-card);
+  transition: all 0.18s ease;
+}
+
+.scale-opt input { display: none; }
+
+.scale-opt:hover {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+
+.scale-opt.selected {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: white;
+}
+
+.scale-opt .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  display: block;
+}
+
+.scale-opt .lbl {
+  font-size: 10px;
+  color: inherit;
+  opacity: 0.7;
+  margin-top: 2px;
+  display: block;
+}
+
+/* ─── SUBMIT ─── */
+.submit-row {
+  margin-top: 36px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  border: none;
+  border-radius: var(--radius);
+  color: white;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  letter-spacing: 0.3px;
+}
+
+.btn-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(74,108,247,0.25);
+}
+
+.btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.submit-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ─── THANK-YOU SCREEN ─── */
+.thankyou {
+  display: none;
+  text-align: center;
+  padding: 60px 24px;
+}
+
+.thankyou.active { display: block; }
+
+.thankyou-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.thankyou h2 {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+
+.thankyou p {
+  font-size: 15px;
+  color: var(--text-dim);
+  line-height: 1.7;
+  max-width: 520px;
+  margin: 0 auto 28px;
+}
+
+.score-display {
+  display: inline-block;
+  padding: 20px 32px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 0 auto 28px;
+}
+
+.score-big {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 44px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+}
+
+.score-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-top: 8px;
+}
+
+.band {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 16px;
+}
+
+.band-l1 { background: #f0f0f5; color: #555568; }
+.band-l2p { background: rgba(74,108,247,0.12); color: var(--accent); }
+.band-l2c { background: rgba(0,184,148,0.12); color: var(--success); }
+
+.ceiling-note {
+  margin-top: 28px;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  text-align: left;
+}
+
+.ceiling-note strong { color: var(--text-dim); }
+
+.error-msg {
+  color: var(--danger);
+  font-size: 13px;
+  margin-top: 8px;
+  display: none;
+}
+
+.error-msg.show { display: block; }
+
+@media (max-width: 600px) {
+  .header { flex-direction: column; align-items: flex-start; }
+  .scale { gap: 4px; }
+  .scale-opt { min-width: 44px; padding: 8px 4px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container" id="form-screen">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-row">
+      <img src="funix-logo.png" alt="FUNiX" class="logo-funix">
+      <div class="co-brand">FUNIX <span class="x">×</span> Tim on AI</div>
+    </div>
+    <div class="phase-badge">Pre-test · Trước buổi</div>
+  </div>
+
+  <!-- TITLE -->
+  <h1 class="title">Đánh Giá <span>Trước Khóa Học</span></h1>
+  <p class="subtitle">Buổi Giới Thiệu: "AI Cho Dân Văn Phòng — 4 Cái Biết"</p>
+  <div class="meta-row">~10 phút • Mọi câu trả lời đều hữu ích, không có đúng/sai</div>
+
+  <!-- DEMOGRAPHIC -->
+  <div class="section">
+    <div class="section-label">Thông tin cá nhân</div>
+    <div class="field">
+      <label>Họ và tên *</label>
+      <input type="text" id="name" required>
+    </div>
+    <div class="field">
+      <label>Công việc / Phòng ban</label>
+      <input type="text" id="role">
+    </div>
+    <div class="field">
+      <label>Email *</label>
+      <input type="email" id="email" required>
+      <div class="field-note">Quan trọng: dùng email này ở cả bài đánh giá sau buổi để ghép kết quả.</div>
+    </div>
+  </div>
+
+  <!-- ENTRY PULSE -->
+  <div class="section">
+    <div class="section-label">Phần 1 — 3 câu trả lời nhanh</div>
+
+    <div class="q-card">
+      <div class="q-num">Câu 1 · Tự tin hiện tại</div>
+      <div class="q-stem">Mức độ tự tin dùng AI cho công việc hiện tại (1 = rất thấp, 5 = rất cao):</div>
+      <div class="scale" data-pulse="confidence">
+        <label class="scale-opt"><input type="radio" name="p1" value="1"><span class="num">1</span><span class="lbl">Rất thấp</span></label>
+        <label class="scale-opt"><input type="radio" name="p1" value="2"><span class="num">2</span></label>
+        <label class="scale-opt"><input type="radio" name="p1" value="3"><span class="num">3</span></label>
+        <label class="scale-opt"><input type="radio" name="p1" value="4"><span class="num">4</span></label>
+        <label class="scale-opt"><input type="radio" name="p1" value="5"><span class="num">5</span><span class="lbl">Rất cao</span></label>
+      </div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-num">Câu 2 · 7 ngày qua</div>
+      <div class="q-stem">Trong 7 ngày qua, bạn đã dùng AI cho những việc nào? (chọn tất cả đáp án đúng)</div>
+      <div class="options" id="pulse2"></div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-num">Câu 3 · Rào cản</div>
+      <div class="q-stem">Điều gì đang cản bạn dùng AI hiệu quả hơn? (chọn 1 hoặc 2 đáp án)</div>
+      <div class="options" id="pulse3"></div>
+    </div>
+  </div>
+
+  <!-- MCQ -->
+  <div class="section">
+    <div class="section-label">Phần 2 — 9 tình huống thực tế</div>
+    <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px;line-height:1.6;">
+      Chọn đáp án gần với cách bạn <strong>LÀM THẬT</strong> lần gần nhất. Không có đáp án đúng/sai theo kiểu học thuộc.
+    </p>
+    <div id="mcq-container"></div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="submit-row">
+    <button class="btn-submit" id="btn-submit">Nộp bài đánh giá</button>
+    <div class="error-msg" id="error-msg"></div>
+    <div class="submit-note">Dữ liệu được ghi nhận để so sánh với bài đánh giá sau buổi.</div>
+  </div>
+
+</div>
+
+<!-- THANK-YOU SCREEN -->
+<div class="container thankyou" id="thank-screen">
+  <div class="thankyou-icon">✓</div>
+  <h2>Cảm ơn bạn!</h2>
+  <p>Kết quả của bạn đã được ghi nhận. Hẹn gặp bạn trong buổi học.</p>
+
+  <div class="score-display">
+    <div class="score-big" id="score-big">–/9</div>
+    <div class="score-label">Stage 1 Score · Hiện trạng</div>
+    <div class="band" id="band">Đang phân tích...</div>
+  </div>
+
+  <div class="ceiling-note">
+    <strong>Về thang đo:</strong> Điểm này phân loại năng lực L1 (Hỏi — biết khái niệm) vs L2 (Chỉ dẫn — biết viết prompt có cấu trúc) theo thang của Miller &amp; Tim Tran. Không dùng làm chứng nhận cấp 3+ — nhận định L3+ cần thêm bài đánh giá kỹ năng sản xuất (Stage 2) sau buổi học.
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════
+
+const GOOGLE_SCRIPT_URL = 'PASTE_FUNIX_SHEET_ENDPOINT_HERE';
+
+const urlParams = new URLSearchParams(window.location.search);
+const CONFIG = {
+  instrument: 'funix-4biet-pre',
+  phase: 'pre',
+  client: (urlParams.get('client') || 'funix').trim().slice(0, 80),
+  clientId: (urlParams.get('clientId') || '').trim().slice(0, 40),
+  program: (urlParams.get('program') || '4-cai-biet').trim().slice(0, 80),
+  cohort: (urlParams.get('cohort') || '').trim().slice(0, 40)
+};
+console.log('[Funix Pre] CONFIG:', CONFIG);
+
+// ═══════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════
+
+const PULSE_2_OPTIONS = [
+  'Viết email / tin nhắn',
+  'Tóm tắt tài liệu',
+  'Phân tích dữ liệu',
+  'Làm slide / bản trình bày',
+  'Viết quy trình / SOP',
+  'Dịch thuật',
+  'Chưa dùng'
+];
+
+const PULSE_3_OPTIONS = [
+  'Không biết hỏi thế nào',
+  'Không tin kết quả AI',
+  'Không có thời gian học',
+  'Sợ bị phụ thuộc',
+  'Công việc của tôi AI không làm được'
+];
+
+// 9 Stage 1 MCQ items — L1/L2 only, TOE 3T/3O/3E balance, keyed correct in `score: 1`
+const MCQ_ITEMS = [
+  { dim: 'T', stem: 'Lần gần nhất sếp giao bạn viết 1 email trả lời khách phản hồi tiêu chuẩn, bạn làm gì ĐẦU TIÊN?', options: [
+    { text: 'Gõ cho AI câu ngắn "viết email trả lời khách phản hồi" rồi copy output gửi ngay', score: 0 },
+    { text: 'Mô tả cho AI: khách nào, phản hồi gì, giọng ra sao, rồi nhận output và sửa lại', score: 1 },
+    { text: 'Tự viết từ đầu theo kinh nghiệm, xong nhờ AI kiểm tra chính tả và ngữ pháp', score: 0 },
+    { text: 'Tìm email mẫu cũ, copy đoạn phù hợp, rồi thay tên khách — không cần dùng AI', score: 0 }
+  ]},
+  { dim: 'T', stem: 'Lần gần nhất bạn cần tóm tắt 1 báo cáo 20 trang, bạn làm thế nào?', options: [
+    { text: 'Copy toàn bộ báo cáo vào AI, gõ "tóm tắt giúp" rồi lấy kết quả đầu tiên đọc', score: 0 },
+    { text: 'Mô tả cho AI: tóm tắt cho ai đọc, dài bao nhiêu, tập trung phần nào, rồi rà soát', score: 1 },
+    { text: 'Tự đọc rồi ghi tay các ý chính quan trọng, không dùng AI cho việc đọc hiểu', score: 0 },
+    { text: 'Hỏi người viết báo cáo trước, nếu không được thì đọc phần mở đầu và kết luận', score: 0 }
+  ]},
+  { dim: 'T', stem: 'Đồng nghiệp gửi 1 file Excel 500 dòng, nhờ bạn lọc ra dòng bất thường. Bạn làm gì?', options: [
+    { text: 'Scroll qua toàn bộ file, mắt nhìn xem dòng nào khác, hỏi đồng nghiệp khi nghi', score: 0 },
+    { text: 'Mô tả AI: cột nào quan trọng, "bất thường" nghĩa là gì, rồi kiểm danh sách AI đưa', score: 1 },
+    { text: 'Copy file vào AI, gõ "tìm bất thường giúp", lấy kết quả gửi lại cho đồng nghiệp', score: 0 },
+    { text: 'Tự viết công thức Excel hoặc pivot table, không cần dùng AI cho việc dữ liệu này', score: 0 }
+  ]},
+  { dim: 'O', stem: 'Lần gần nhất bạn nhận 1 output AI dài 500 chữ và cần gửi đi, bạn làm gì TRƯỚC KHI GỬI?', options: [
+    { text: 'Đọc lướt 1 lượt xem có gì kỳ lạ, nếu không thấy vấn đề gì thì gửi đi luôn', score: 0 },
+    { text: 'Gửi luôn, AI giờ cũng chính xác rồi, không cần mất thời gian kiểm tra lại', score: 0 },
+    { text: 'Kiểm từng con số và tên riêng, đọc toàn bộ, xóa chi tiết không giải thích được', score: 1 },
+    { text: 'Copy vào Word, chạy spellcheck, nếu không báo lỗi chính tả nào thì gửi đi được', score: 0 }
+  ]},
+  { dim: 'O', stem: 'AI viết giúp bạn 1 SOP onboarding 7 bước. Cách bạn kiểm tra output?', options: [
+    { text: 'Đọc xem có đủ 7 bước không, nếu đếm đủ 7 là coi như xong, gửi sếp duyệt', score: 0 },
+    { text: 'Đọc như nhân viên mới chưa biết gì — chỗ nào chưa rõ, chỗ nào họ sẽ phải hỏi lại?', score: 1 },
+    { text: 'Gửi sếp đọc duyệt trước, nếu sếp OK thì coi như dùng được, mình không cần kiểm', score: 0 },
+    { text: 'So sánh với SOP cũ của công ty, nếu nội dung gần giống SOP cũ thì được dùng rồi', score: 0 }
+  ]},
+  { dim: 'O', stem: 'Bạn đọc output AI và thấy 1 con số thống kê bạn không tự giải thích được. Bạn làm gì?', options: [
+    { text: 'Xóa con số đó ra khỏi output, hoặc tự tra nguồn để xác thực trước khi dùng tiếp', score: 1 },
+    { text: 'Giữ lại vì AI nói vậy chắc có nguồn, nếu ai hỏi thì mình nói "AI tìm được cho em"', score: 0 },
+    { text: 'Hỏi AI thêm "con số này nguồn ở đâu?", AI trả lời gì mình tin vậy, khỏi tra lại', score: 0 },
+    { text: 'Gửi nguyên bản, con số là chi tiết nhỏ không ảnh hưởng đến tổng thể báo cáo lắm', score: 0 }
+  ]},
+  { dim: 'E', stem: 'Lần gần nhất bạn viết 1 prompt cho AI, prompt của bạn gồm BAO NHIÊU phần?', options: [
+    { text: '1 câu ngắn, AI đủ thông minh để tự hiểu phần còn lại, không cần viết dài', score: 0 },
+    { text: 'Tối thiểu 3-5 phần — vai trò, bối cảnh, nhiệm vụ, yêu cầu cụ thể, ràng buộc', score: 1 },
+    { text: '2 phần — việc cần làm + format mong muốn, đủ rồi, thêm nữa mất thời gian', score: 0 },
+    { text: 'Tùy tâm trạng — dài ngắn đều được, quan trọng là AI hiểu được ý mình', score: 0 }
+  ]},
+  { dim: 'E', stem: 'Bạn gõ prompt "viết SOP onboarding" và AI trả kết quả không dùng được. Bạn làm gì TIẾP?', options: [
+    { text: 'Thử gõ lại prompt với từ khác hoặc diễn đạt khác, AI chắc sẽ ra kết quả khác', score: 0 },
+    { text: 'Bỏ cuộc, tự viết SOP từ đầu theo kinh nghiệm — AI không làm được việc này đâu', score: 0 },
+    { text: 'Thêm vào prompt: vai trò mình, bối cảnh công ty, người đọc, ràng buộc — rồi chạy lại', score: 1 },
+    { text: 'Hỏi AI "bạn cần thêm thông tin gì", AI nói cần gì thì mình cung cấp đúng thế thôi', score: 0 }
+  ]},
+  { dim: 'E', stem: 'Bạn có 1 prompt tốt, AI trả kết quả 80% đúng. 20% còn lại bạn muốn sửa. Bạn làm gì?', options: [
+    { text: 'Viết prompt mới từ đầu, thêm câu "giống lần trước nhưng sửa phần X", chạy lại', score: 0 },
+    { text: 'Paste kết quả vào, chỉ chỗ cần sửa: "Phần này đổi thành Y", AI sửa đúng phần đó', score: 1 },
+    { text: 'Accept luôn 80%, 20% sai sót tự sửa bằng tay — nhanh hơn giải thích cho AI', score: 0 },
+    { text: 'Gõ "hay quá, nhưng sửa chỗ X nhé" — AI đủ thông minh tự hiểu ý bạn muốn gì', score: 0 }
+  ]}
+];
+
+// ═══════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════
+
+function renderPulse2() {
+  const host = document.getElementById('pulse2');
+  PULSE_2_OPTIONS.forEach((opt, i) => {
+    const lbl = document.createElement('label');
+    lbl.className = 'option';
+    lbl.innerHTML = `<input type="checkbox" name="p2" value="${opt}"><span>${opt}</span>`;
+    host.appendChild(lbl);
+  });
+}
+
+function renderPulse3() {
+  const host = document.getElementById('pulse3');
+  PULSE_3_OPTIONS.forEach((opt, i) => {
+    const lbl = document.createElement('label');
+    lbl.className = 'option';
+    lbl.innerHTML = `<input type="checkbox" name="p3" value="${opt}"><span>${opt}</span>`;
+    host.appendChild(lbl);
+  });
+}
+
+function renderMCQ() {
+  const host = document.getElementById('mcq-container');
+  MCQ_ITEMS.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML = `
+      <div class="q-num">Câu ${i + 1} · ${item.dim} · L1/L2</div>
+      <div class="q-stem">${item.stem}</div>
+      <div class="options" id="mcq-${i}"></div>
+    `;
+    host.appendChild(card);
+    const optHost = card.querySelector(`#mcq-${i}`);
+    item.options.forEach((opt, j) => {
+      const lbl = document.createElement('label');
+      lbl.className = 'option';
+      lbl.innerHTML = `<input type="radio" name="mcq-${i}" value="${j}"><span>${String.fromCharCode(65 + j)}. ${opt.text}</span>`;
+      optHost.appendChild(lbl);
+    });
+  });
+}
+
+// Option visual state
+document.addEventListener('change', (e) => {
+  if (e.target.matches('input[type="radio"]') || e.target.matches('input[type="checkbox"]')) {
+    const card = e.target.closest('.q-card, .scale, .field');
+    if (!card) return;
+    // Radio: clear selected on siblings, set on current
+    if (e.target.type === 'radio') {
+      card.querySelectorAll('.option, .scale-opt').forEach(el => el.classList.remove('selected'));
+      e.target.closest('.option, .scale-opt')?.classList.add('selected');
+    }
+    // Checkbox: toggle current
+    if (e.target.type === 'checkbox') {
+      const host = e.target.closest('.option');
+      if (host) {
+        host.classList.toggle('selected', e.target.checked);
+      }
+    }
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
+// SUBMIT
+// ═══════════════════════════════════════════════════════════
+
+function collectData() {
+  const name = document.getElementById('name').value.trim();
+  const role = document.getElementById('role').value.trim();
+  const email = document.getElementById('email').value.trim();
+
+  const p1El = document.querySelector('input[name="p1"]:checked');
+  const p2Els = document.querySelectorAll('input[name="p2"]:checked');
+  const p3Els = document.querySelectorAll('input[name="p3"]:checked');
+
+  const mcqAnswers = [];
+  let score = 0;
+  const dimScores = { T: 0, O: 0, E: 0 };
+  const dimCounts = { T: 0, O: 0, E: 0 };
+
+  for (let i = 0; i < MCQ_ITEMS.length; i++) {
+    const checked = document.querySelector(`input[name="mcq-${i}"]:checked`);
+    if (!checked) return { error: `Chưa trả lời Câu ${i + 1} trong Phần 2` };
+    const optIdx = parseInt(checked.value, 10);
+    const s = MCQ_ITEMS[i].options[optIdx].score;
+    mcqAnswers.push({ q: i + 1, dim: MCQ_ITEMS[i].dim, choice: String.fromCharCode(65 + optIdx), score: s });
+    score += s;
+    dimScores[MCQ_ITEMS[i].dim] += s;
+    dimCounts[MCQ_ITEMS[i].dim] += 1;
+  }
+
+  if (!name) return { error: 'Vui lòng điền Họ và tên' };
+  if (!email) return { error: 'Vui lòng điền Email' };
+  if (!p1El) return { error: 'Chưa trả lời Câu 1 trong Phần 1 (thang tự tin)' };
+
+  return {
+    ok: true,
+    payload: {
+      instrument: CONFIG.instrument,
+      phase: CONFIG.phase,
+      client: CONFIG.client,
+      clientId: CONFIG.clientId,
+      program: CONFIG.program,
+      cohort: CONFIG.cohort,
+      timestamp: new Date().toISOString(),
+      name, role, email,
+      pulse_confidence: parseInt(p1El.value, 10),
+      pulse_7day_usage: Array.from(p2Els).map(e => e.value),
+      pulse_blockers: Array.from(p3Els).map(e => e.value),
+      mcq_answers: mcqAnswers,
+      mcq_score: score,
+      mcq_total: MCQ_ITEMS.length,
+      mcq_dim_T: dimScores.T,
+      mcq_dim_O: dimScores.O,
+      mcq_dim_E: dimScores.E
+    },
+    score
+  };
+}
+
+function classifyBand(score) {
+  if (score < 5) return { code: 'L1', label: 'L1 — Hỏi', cls: 'band-l1' };
+  if (score < 7) return { code: 'L2_PROV', label: 'L2 Provisional — Chỉ dẫn (đang hình thành)', cls: 'band-l2p' };
+  return { code: 'L2_CONFIRMED', label: 'L2 Confirmed — Chỉ dẫn', cls: 'band-l2c' };
+}
+
+function showThankYou(score) {
+  document.getElementById('form-screen').style.display = 'none';
+  document.getElementById('thank-screen').classList.add('active');
+  document.getElementById('score-big').textContent = `${score}/${MCQ_ITEMS.length}`;
+  const band = classifyBand(score);
+  const bandEl = document.getElementById('band');
+  bandEl.textContent = band.label;
+  bandEl.classList.add(band.cls);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.getElementById('btn-submit').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-submit');
+  const errorEl = document.getElementById('error-msg');
+  errorEl.classList.remove('show');
+
+  const result = collectData();
+  if (result.error) {
+    errorEl.textContent = result.error;
+    errorEl.classList.add('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Đang gửi...';
+
+  try {
+    if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== 'PASTE_FUNIX_SHEET_ENDPOINT_HERE') {
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(result.payload)
+      });
+    } else {
+      console.warn('[Funix Pre] Endpoint not configured — logging payload only');
+      console.log('[Funix Pre] Payload:', result.payload);
+    }
+    showThankYou(result.score);
+  } catch (err) {
+    console.error('[Funix Pre] Submit failed:', err);
+    // Still show thank-you — submission failures should not block the learner
+    showThankYou(result.score);
+  }
+});
+
+// Init
+renderPulse2();
+renderPulse3();
+renderMCQ();
+</script>
+
+</body>
+</html>

@@ -8,8 +8,8 @@ This toolkit helps leaders, team leads, and internal AI champions figure out wha
 
 Try the interactive assessments directly in your browser:
 
-- [Individual AI Proficiency Assessment](https://muriel1008.github.io/ai-readiness-diagnostics/individual-assessment.html) — Adaptive assessment using the TOE framework (Tool fluency, Orchestration, Evaluation)
-- [Organization AI Maturity Assessment](https://muriel1008.github.io/ai-readiness-diagnostics/organization-assessment.html) — Team-level diagnostic using the GIE framework (Governance, Infrastructure, Efficiency)
+- [Individual AI Proficiency Assessment](https://timtran1008.github.io/ai-readiness-diagnostics/generic-toe-tna.html) — Adaptive screener using the TOE framework (Task Complexity, Output Quality, Effort) with Stage 1 + Stage 2 portfolio for L3
+- [Organization AI Maturity Assessment](https://timtran1008.github.io/ai-readiness-diagnostics/organization-assessment.html) — Team-level diagnostic using the GIE framework (Governance, Infrastructure, Efficiency)
 
 ## Diagnostic Prompts
 

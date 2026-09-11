@@ -41,9 +41,9 @@ var BANDS = {
           done: 'Nhóm này có lớp riêng tối thứ Năm.' }
 };
 var BOTTLENECK = {
-  T: 'Bạn giao cho AI toàn việc nhỏ.',
-  O: 'Bạn nhận output mà chưa có chuẩn để chấm.',
-  E: 'Bạn đang tốn công sửa nhiều hơn công dặn.'
+  T: 'Bạn giao cho AI toàn việc nhỏ. Bạn chưa tận dụng hết sức mạnh của AI, kể cả AI miễn phí.',
+  O: 'Bạn giao việc cho AI mà nó không biết thế nào là chuẩn. Bạn đã thử cho nó 1 sản phẩm mẫu trước khi bảo nó thực hiện tác vụ chưa?',
+  E: 'Bạn đang tốn quá nhiều công sức vào việc sửa output của AI. Nếu việc bạn giao là phức tạp, hãy luyện thói quen cho AI phỏng vấn để hiểu rõ tính chất công việc trước khi nó bắt tay vào làm nhé.'
 };
 var NEXT = {
   T: 'Tuần này, chọn một việc bạn vẫn đang tự làm vì "AI không làm nổi đâu" — giao cho AI, kèm đủ bối cảnh, xem nó đi được tới đâu.',

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scorecard AI — Tim on AI · The Operationalizer</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Open+Sans:wght@400;600;700&display=swap');
+
+:root {
+  --yellow: #FFCC00; --navy: #0B2046; --onyx: #111111; --gold: #C5A059;
+  --bg: #f6f6f3; --bg-card: #ffffff; --bg-hover: #f0efe9;
+  --border: #e3e1d8; --border-active: #0B2046;
+  --text: #111111; --text-dim: #43506e; --text-muted: #8b90a1;
+  --accent: #0B2046; --accent-glow: rgba(11,32,70,0.06);
+  --success: #00b894; --warning: #f59e0b; --danger: #e84d3d;
+  --radius: 6px; --radius-sm: 4px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Open Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+h1, h2, h3 { font-family: 'Montserrat', sans-serif; letter-spacing: -0.02em; }
+.container { max-width: 760px; margin: 0 auto; padding: 0 24px 80px; position: relative; z-index: 1; }
+
+/* ─── HEADER — Navy chest block (Home Kit) ─── */
+.header { background: var(--navy); border-bottom: 5px solid var(--yellow); margin: 0 -24px 36px; padding: 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.logo-row { display: flex; align-items: baseline; gap: 12px; }
+.wordmark { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 21px; letter-spacing: -0.02em; color: #fff; white-space: nowrap; }
+.wordmark .hl { color: var(--yellow); }
+.wordmark-sub { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.5); letter-spacing: 2.5px; text-transform: uppercase; }
+.phase-badge { display: inline-flex; align-items: center; padding: 7px 14px; background: var(--yellow); border-radius: 100px; font-size: 11px; font-weight: 700; color: var(--navy); letter-spacing: 1.2px; text-transform: uppercase; white-space: nowrap; }
+
+h1 { font-size: 27px; font-weight: 800; line-height: 1.2; margin-bottom: 10px; color: var(--navy); }
+.subtitle { color: var(--text-dim); font-size: 15px; line-height: 1.6; margin-bottom: 8px; }
+.meta-line { font-size: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 32px; }
+
+.section-label { font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--navy); border-bottom: 4px solid var(--yellow); display: inline-block; padding-bottom: 4px; margin: 40px 0 8px; }
+.section-desc { font-size: 14px; color: var(--text-dim); line-height: 1.6; margin-bottom: 18px; }
+
+.q-card { background: var(--bg-card); border: 1px solid var(--border); border-left: 4px solid var(--navy); border-radius: var(--radius); padding: 22px; margin-bottom: 16px; }
+.q-num { font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
+.q-stem { font-size: 15px; font-weight: 600; line-height: 1.55; margin-bottom: 14px; }
+.options { display: flex; flex-direction: column; gap: 8px; }
+.option { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; font-size: 14px; line-height: 1.5; transition: all .15s; background: var(--bg-card); }
+.option:hover { background: var(--bg-hover); }
+.option.selected { border-color: var(--border-active); background: var(--accent-glow); }
+.option input { margin-top: 3px; accent-color: var(--accent); flex-shrink: 0; }
+
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.field .hint { font-size: 13px; color: var(--text-muted); font-weight: 400; margin-bottom: 8px; line-height: 1.5; }
+.form-input, .form-textarea { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: 'Open Sans', sans-serif; font-size: 14px; background: var(--bg-card); color: var(--text); }
+.form-input:focus, .form-textarea:focus { outline: none; border-color: var(--border-active); box-shadow: 0 0 0 3px var(--accent-glow); }
+.form-textarea { resize: vertical; line-height: 1.6; }
+
+.gate-note { background: rgba(255,204,0,0.12); border: 1px solid rgba(197,160,89,0.5); border-radius: var(--radius-sm); padding: 14px 16px; font-size: 14px; line-height: 1.6; margin: 14px 0; display: none; }
+
+.btn-submit { display: block; width: 100%; padding: 17px; margin-top: 32px; background: var(--yellow); color: var(--navy); border: none; border-radius: var(--radius); font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 800; letter-spacing: -0.01em; cursor: pointer; transition: all .2s; }
+.btn-submit:hover { filter: brightness(1.05); box-shadow: 0 4px 14px rgba(255,204,0,0.45); }
+.btn-submit:disabled { opacity: .55; cursor: wait; }
+.err-msg { color: var(--danger); font-size: 14px; font-weight: 600; margin-top: 12px; text-align: center; display: none; }
+
+/* ─── LOADING ─── */
+#screen-loading { display: none; text-align: center; padding: 80px 20px; }
+.spinner { width: 46px; height: 46px; border: 4px solid var(--border); border-top-color: var(--accent); border-radius: 50%; margin: 0 auto 24px; animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+#screen-loading h2 { font-size: 20px; margin-bottom: 10px; }
+#screen-loading p { color: var(--text-dim); font-size: 14px; }
+
+/* ─── RESULT — Away Kit hero (Navy + Yellow) ─── */
+#screen-result { display: none; }
+.result-hero { background: var(--navy); border-radius: var(--radius); padding: 44px 28px; text-align: center; margin-bottom: 20px; }
+.result-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 12px; }
+.result-level { font-family: 'Montserrat', sans-serif; font-size: 32px; font-weight: 900; letter-spacing: -0.02em; margin-bottom: 10px; color: var(--yellow); }
+.result-sub { font-size: 14px; line-height: 1.6; color: rgba(255,255,255,0.75); max-width: 460px; margin: 0 auto; }
+.ladder { display: flex; gap: 6px; margin: 26px auto 0; max-width: 440px; }
+.ladder .rung { flex: 1; padding: 9px 4px; border-radius: var(--radius-sm); background: rgba(255,255,255,0.08); font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.45); }
+.ladder .rung.active { background: var(--yellow); color: var(--navy); }
+.dims { display: flex; gap: 12px; margin-bottom: 20px; }
+.dim-card { flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; }
+.dim-card .dim-k { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); }
+.dim-card .dim-v { font-family: 'Montserrat', sans-serif; font-size: 22px; font-weight: 800; margin: 4px 0; color: var(--navy); }
+.dim-card .dim-bar { height: 6px; border-radius: 3px; background: var(--bg-hover); overflow: hidden; margin-top: 8px; }
+.dim-card .dim-bar > div { height: 100%; background: var(--yellow); border-radius: 3px; }
+.result-block { background: var(--bg-card); border: 1px solid var(--border); border-left: 4px solid var(--navy); border-radius: var(--radius); padding: 22px; margin-bottom: 16px; }
+.result-block h3 { font-size: 15px; font-weight: 800; margin-bottom: 12px; color: var(--navy); }
+.result-block ul, .result-block ol { padding-left: 20px; font-size: 14px; line-height: 1.7; color: var(--text-dim); }
+.result-block li { margin-bottom: 8px; }
+.email-note { background: rgba(255,204,0,0.12); border: 1px solid rgba(197,160,89,0.5); border-radius: var(--radius-sm); padding: 14px 16px; font-size: 14px; line-height: 1.6; }
+.review-note { background: #fff8e6; border: 1px solid #f0d48a; border-radius: var(--radius-sm); padding: 14px 16px; font-size: 14px; line-height: 1.6; margin-bottom: 16px; display: none; }
+.footer-note { font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-top: 24px; border-top: 1px solid var(--border); padding-top: 14px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="logo-row">
+      <span class="wordmark">TIM <span class="hl">ON AI</span></span>
+      <span class="wordmark-sub">The Operationalizer</span>
+    </div>
+    <span class="phase-badge">Scorecard AI</span>
+  </div>
+
+  <div id="screen-form">
+    <h1>Bạn đang ở Cấp mấy trên thang 5 Cấp AI?</h1>
+    <p class="subtitle">9 câu tình huống xác định Cấp 1–2. Nếu đủ điều kiện, phần portfolio ngắn phía dưới xét tiếp Cấp 3–4. Kết quả hiện ngay trên màn hình và gửi chi tiết về email của bạn.</p>
+    <p class="meta-line">~10–20 phút · chấm tự động · kết quả + khuyến nghị cá nhân hóa qua email</p>
+
+    <div class="section-label">Thông tin</div>
+    <div class="q-card">
+      <div class="field"><label>Họ và tên *</label><input class="form-input" id="name" placeholder="Nguyễn Văn A"></div>
+      <div class="field"><label>Công việc / Phòng ban</label><input class="form-input" id="role" placeholder="VD: Marketing, Tuyển sinh, Khảo thí..."></div>
+      <div class="field"><label>Email (nhận kết quả) *</label><input class="form-input" id="email" type="email" placeholder="ban@congty.com"></div>
+    </div>
+
+    <div class="section-label">Phần 1 — 9 tình huống thực tế</div>
+    <p class="section-desc">Không có đáp án đúng/sai kiểu học thuộc. Chọn đáp án gần với cách bạn <strong>LÀM THẬT</strong> lần gần nhất.</p>
+    <div id="mcq-container"></div>
+
+    <div class="section-label">Phần 2 — Xét Cấp 3–4 (portfolio)</div>
+    <p class="section-desc">Cấp 3–4 không đo được bằng trắc nghiệm — nó đo bằng <strong>hệ thống bạn đang vận hành thật</strong>. Trả lời bằng cách dán artifact thật của bạn. Bỏ trống nếu chưa có — kết quả Cấp 1–2 vẫn được chấm bình thường.</p>
+
+    <div class="q-card">
+      <div class="q-stem">Bạn đang dùng gói AI nào cho công việc?</div>
+      <div class="options" id="tier-options">
+        <label class="option"><input type="radio" name="tier" value="free"><span>Chỉ gói miễn phí (ChatGPT free, Gemini free, Claude free...)</span></label>
+        <label class="option"><input type="radio" name="tier" value="paid"><span>Gói trả phí — tự trả hoặc công ty cấp (ChatGPT Plus, Gemini Advanced, Claude Pro...)</span></label>
+        <label class="option"><input type="radio" name="tier" value="enterprise"><span>Gói doanh nghiệp công ty cấp (ChatGPT Enterprise, Copilot M365...)</span></label>
+      </div>
+      <div class="gate-note" id="gate-note">
+        Cấp 3 cần các tính năng chỉ có ở gói trả phí (Project / Gem / context file bền vững) — với gói miễn phí, kết quả của bạn sẽ dừng ở Cấp 2. Bạn vẫn có thể nộp bài để nhận chẩn đoán đầy đủ.
+      </div>
+    </div>
+
+    <div id="s2-fields">
+      <div class="q-card">
+        <div class="q-num">Portfolio 1/5 · Bối cảnh</div>
+        <div class="field">
+          <label>Mô tả 1 công việc lặp lại bạn đang dùng AI</label>
+          <div class="hint">2–4 câu: việc gì, cho ai, tần suất, "xong" nghĩa là gì. Các câu sau sẽ được chấm dựa trên đúng công việc này.</div>
+          <textarea class="form-textarea" id="s2-project" rows="3" placeholder="VD: Báo cáo tuần cho team sales 5 người, output là 1 file PDF gửi sếp sáng thứ 2, 'xong' = sếp không hỏi thêm câu nào về số liệu..."></textarea>
+        </div>
+      </div>
+      <div class="q-card">
+        <div class="q-num">Portfolio 2/5 · Master Prompt</div>
+        <div class="field">
+          <label>Dán master prompt bạn dùng cho công việc ở trên</label>
+          <div class="hint">Nguyên văn, không chỉnh sửa. Nếu mỗi lần bạn viết prompt mới từ đầu, ghi thật như vậy.</div>
+          <textarea class="form-textarea" id="s2-master-prompt" rows="7" placeholder="Dán master prompt thật của bạn..."></textarea>
+        </div>
+      </div>
+      <div class="q-card">
+        <div class="q-num">Portfolio 3/5 · Tiêu chuẩn chất lượng</div>
+        <div class="field">
+          <label>"Thế nào là đạt" cho công việc này được lưu ở đâu để AI tự đọc mỗi phiên?</label>
+          <div class="hint">Dán nội dung style guide / context doc / custom instructions + ghi rõ nó nằm ở đâu (Gemini Gem, Claude Project, file .md...). Nếu tiêu chuẩn nằm trong đầu bạn, ghi thật như vậy.</div>
+          <textarea class="form-textarea" id="s2-quality-memory" rows="6" placeholder="Dán nội dung + nơi lưu. VD: 'Lưu trong Gem Báo cáo tuần: số liệu phải có nguồn, không dùng từ chung chung, ví dụ xấu cần tránh: ...'"></textarea>
+        </div>
+      </div>
+      <div class="q-card">
+        <div class="q-num">Portfolio 4/5 · 3 việc chạy bằng câu lệnh ngắn</div>
+        <div class="field">
+          <label>Liệt kê 3 việc lặp lại (tuần/ngày) mà 1 câu lệnh ngắn cho ra kết quả dùng được ngay trong 1 lần chạy</label>
+          <div class="hint">Mỗi việc: tên việc + câu lệnh bạn gõ + kết quả nhận được. Nếu thường phải chạy lại 2–3 lần mới đạt, ghi thật như vậy.</div>
+          <textarea class="form-textarea" id="s2-tasks" rows="7" placeholder="Việc 1: [tên] — câu lệnh: '...' — kết quả: ...&#10;Việc 2: ...&#10;Việc 3: ..."></textarea>
+        </div>
+      </div>
+      <div class="q-card">
+        <div class="q-num">Portfolio 5/5 · Xét Cấp 4</div>
+        <div class="field">
+          <label>Bạn đã XÂY công cụ/quy trình nào mà AI tự chạy — không cần bạn ngồi kèm từng bước?</label>
+          <div class="hint">Agent, script, automation, quy trình định kỳ... Mô tả: nó làm gì, chạy lặp lại thế nào, bạn kiểm soát chất lượng đầu ra bằng cách nào — <strong>và dán link/ảnh chụp công cụ đang chạy</strong> (Cấp 4 chỉ xác nhận qua buổi bảo vệ, không chấm từ mô tả suông). Bỏ trống nếu chưa có.</div>
+          <textarea class="form-textarea" id="s2-l4" rows="5" placeholder="VD: Apps Script tự kéo số từ Sheet chạy sáng thứ 2, có rule: số lệch >10% so tuần trước thì dừng và hỏi tôi trước khi gửi..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-submit" id="btn-submit" onclick="submitAll()">Chấm điểm &amp; gửi kết quả về email tôi →</button>
+    <div class="err-msg" id="err-msg"></div>
+
+    <p class="footer-note">Về thang đo: Cấp 1–2 đo mức bạn <strong>nhận ra</strong> cách làm đúng (trắc nghiệm tình huống). Cấp 3–4 chấm <strong>sơ bộ</strong> từ portfolio bạn tự mô tả — Cấp 3 cần một buổi trao đổi để xác nhận, Cấp 4 cần buổi bảo vệ trực tiếp. Đây là công cụ tự đánh giá thử nghiệm, dùng để gợi ý lộ trình học — không phải chứng chỉ, không dùng để tuyển dụng/đánh giá nhân sự.</p>
+  </div>
+
+  <div id="screen-loading">
+    <div class="spinner"></div>
+    <h2>Đang chấm bài của bạn...</h2>
+    <p>Trắc nghiệm chấm ngay · portfolio đang được AI giám khảo đọc — khoảng 10–20 giây.</p>
+  </div>
+
+  <div id="screen-result">
+    <div class="result-hero">
+      <div class="result-eyebrow">Trình độ hiện tại của bạn</div>
+      <div class="result-level" id="res-level">—</div>
+      <div class="result-sub" id="res-sub">—</div>
+      <div class="ladder" id="res-ladder">
+        <div class="rung" data-l="1">C1 · Hỏi</div>
+        <div class="rung" data-l="2">C2 · Chỉ dẫn</div>
+        <div class="rung" data-l="3">C3 · Hệ thống</div>
+        <div class="rung" data-l="4">C4 · Xây dựng</div>
+      </div>
+    </div>
+    <div class="dims" id="res-dims"></div>
+    <div class="review-note" id="res-review">⚠️ Một phần bài của bạn cần người chấm xem lại — đây là kết quả sơ bộ. Nếu có điều chỉnh, Tim sẽ email bạn trong vài ngày tới.</div>
+    <div class="result-block"><h3>Chẩn đoán</h3><ul id="res-diag"></ul></div>
+    <div class="result-block"><h3>Khuyến nghị bước tiếp theo</h3><ol id="res-reco"></ol></div>
+    <div class="email-note" id="res-email">📬 Bản đầy đủ đã được gửi tới email của bạn từ Tim Trần (Tim on AI). Không thấy? Kiểm tra mục Spam/Quảng cáo.</div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONFIG — dán Web App URL sau khi deploy Apps Script
+// ═══════════════════════════════════════════════════════════
+const GOOGLE_SCRIPT_URL = 'PASTE_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+const urlParams = new URLSearchParams(window.location.search);
+const CONFIG = {
+  instrument: 'tim-ai-scorecard',
+  client: (urlParams.get('client') || 'tim-on-ai').trim().slice(0, 80),
+  clientId: (urlParams.get('clientId') || '').trim().slice(0, 40),
+  program: (urlParams.get('program') || 'scorecard').trim().slice(0, 80),
+  cohort: (urlParams.get('cohort') || '').trim().slice(0, 40)
+};
+
+const LEVEL_META = {
+  1: { name: 'Cấp 1 — Hỏi (Ask)', color: '#e84d3d', sub: 'Gõ 1-2 câu, lấy output đầu tiên. AI đang là công cụ tìm kiếm biết viết.' },
+  2: { name: 'Cấp 2 — Chỉ dẫn (Instruct)', color: '#f59e0b', sub: 'Biết viết prompt có cấu trúc — nhưng vẫn làm thủ công từng lần.' },
+  3: { name: 'Cấp 3 — Hệ thống hóa (Systematize)', color: '#4a6cf7', sub: 'Vận hành hệ thống tái sử dụng: master prompt, tiêu chuẩn bền vững, câu lệnh ngắn.' },
+  4: { name: 'Cấp 4 — Xây dựng (Build)', color: '#00b894', sub: 'AI làm việc chứ không chỉ nói — công cụ tự chạy, có chốt chặn chất lượng.' }
+};
+
+// 9 Stage 1 MCQ — giữ nguyên bộ v4 (L1/L2, cân bằng 3T/3O/3E)
+const MCQ_ITEMS = [
+  { dim: 'T', stem: 'Lần gần nhất sếp giao bạn viết 1 email trả lời khách phản hồi tiêu chuẩn, bạn làm gì ĐẦU TIÊN?', options: [
+    { text: 'Gõ cho AI câu ngắn "viết email trả lời khách phản hồi" rồi copy output gửi ngay', score: 0 },
+    { text: 'Mô tả cho AI: khách nào, phản hồi gì, giọng ra sao, rồi nhận output và sửa lại', score: 1 },
+    { text: 'Tự viết từ đầu theo kinh nghiệm, xong nhờ AI kiểm tra chính tả và ngữ pháp', score: 0 },
+    { text: 'Tìm email mẫu cũ, copy đoạn phù hợp, rồi thay tên khách — không cần dùng AI', score: 0 }
+  ]},
+  { dim: 'T', stem: 'Lần gần nhất bạn cần tóm tắt 1 báo cáo 20 trang, bạn làm thế nào?', options: [
+    { text: 'Copy toàn bộ báo cáo vào AI, gõ "tóm tắt giúp" rồi lấy kết quả đầu tiên đọc', score: 0 },
+    { text: 'Mô tả cho AI: tóm tắt cho ai đọc, dài bao nhiêu, tập trung phần nào, rồi rà soát', score: 1 },
+    { text: 'Tự đọc rồi ghi tay các ý chính quan trọng, không dùng AI cho việc đọc hiểu', score: 0 },
+    { text: 'Hỏi người viết báo cáo trước, nếu không được thì đọc phần mở đầu và kết luận', score: 0 }
+  ]},
+  { dim: 'T', stem: 'Đồng nghiệp gửi 1 file Excel 500 dòng, nhờ bạn lọc ra dòng bất thường. Bạn làm gì?', options: [
+    { text: 'Scroll qua toàn bộ file, mắt nhìn xem dòng nào khác, hỏi đồng nghiệp khi nghi', score: 0 },
+    { text: 'Mô tả AI: cột nào quan trọng, "bất thường" nghĩa là gì, rồi kiểm danh sách AI đưa', score: 1 },
+    { text: 'Copy file vào AI, gõ "tìm bất thường giúp", lấy kết quả gửi lại cho đồng nghiệp', score: 0 },
+    { text: 'Tự viết công thức Excel hoặc pivot table, không cần dùng AI cho việc dữ liệu này', score: 0 }
+  ]},
+  { dim: 'O', stem: 'Lần gần nhất bạn nhận 1 output AI dài 500 chữ và cần gửi đi, bạn làm gì TRƯỚC KHI GỬI?', options: [
+    { text: 'Đọc lướt 1 lượt xem có gì kỳ lạ, nếu không thấy vấn đề gì thì gửi đi luôn', score: 0 },
+    { text: 'Gửi luôn, AI giờ cũng chính xác rồi, không cần mất thời gian kiểm tra lại', score: 0 },
+    { text: 'Kiểm từng con số và tên riêng, đọc toàn bộ, xóa chi tiết không giải thích được', score: 1 },
+    { text: 'Copy vào Word, chạy spellcheck, nếu không báo lỗi chính tả nào thì gửi đi được', score: 0 }
+  ]},
+  { dim: 'O', stem: 'AI viết giúp bạn 1 SOP onboarding 7 bước. Cách bạn kiểm tra output?', options: [
+    { text: 'Đọc xem có đủ 7 bước không, nếu đếm đủ 7 là coi như xong, gửi sếp duyệt', score: 0 },
+    { text: 'Đọc như nhân viên mới chưa biết gì — chỗ nào chưa rõ, chỗ nào họ sẽ phải hỏi lại?', score: 1 },
+    { text: 'Gửi sếp đọc duyệt trước, nếu sếp OK thì coi như dùng được, mình không cần kiểm', score: 0 },
+    { text: 'So sánh với SOP cũ của công ty, nếu nội dung gần giống SOP cũ thì được dùng rồi', score: 0 }
+  ]},
+  { dim: 'O', stem: 'Bạn đọc output AI và thấy 1 con số thống kê bạn không tự giải thích được. Bạn làm gì?', options: [
+    { text: 'Xóa con số đó ra khỏi output, hoặc tự tra nguồn để xác thực trước khi dùng tiếp', score: 1 },
+    { text: 'Giữ lại vì AI nói vậy chắc có nguồn, nếu ai hỏi thì mình nói "AI tìm được cho em"', score: 0 },
+    { text: 'Hỏi AI thêm "con số này nguồn ở đâu?", AI trả lời gì mình tin vậy, khỏi tra lại', score: 0 },
+    { text: 'Gửi nguyên bản, con số là chi tiết nhỏ không ảnh hưởng đến tổng thể báo cáo lắm', score: 0 }
+  ]},
+  { dim: 'E', stem: 'Lần gần nhất bạn viết 1 prompt cho AI, prompt của bạn gồm BAO NHIÊU phần?', options: [
+    { text: '1 câu ngắn, AI đủ thông minh để tự hiểu phần còn lại, không cần viết dài', score: 0 },
+    { text: 'Tối thiểu 3-5 phần — vai trò, bối cảnh, nhiệm vụ, yêu cầu cụ thể, ràng buộc', score: 1 },
+    { text: '2 phần — việc cần làm + format mong muốn, đủ rồi, thêm nữa mất thời gian', score: 0 },
+    { text: 'Tùy tâm trạng — dài ngắn đều được, quan trọng là AI hiểu được ý mình', score: 0 }
+  ]},
+  { dim: 'E', stem: 'Bạn gõ prompt "viết SOP onboarding" và AI trả kết quả không dùng được. Bạn làm gì TIẾP?', options: [
+    { text: 'Thử gõ lại prompt với từ khác hoặc diễn đạt khác, AI chắc sẽ ra kết quả khác', score: 0 },
+    { text: 'Bỏ cuộc, tự viết SOP từ đầu theo kinh nghiệm — AI không làm được việc này đâu', score: 0 },
+    { text: 'Thêm vào prompt: vai trò mình, bối cảnh công ty, người đọc, ràng buộc — rồi chạy lại', score: 1 },
+    { text: 'Hỏi AI "bạn cần thêm thông tin gì", AI nói cần gì thì mình cung cấp đúng thế thôi', score: 0 }
+  ]},
+  { dim: 'E', stem: 'Bạn có 1 prompt tốt, AI trả kết quả 80% đúng. 20% còn lại bạn muốn sửa. Bạn làm gì?', options: [
+    { text: 'Viết prompt mới từ đầu, thêm câu "giống lần trước nhưng sửa phần X", chạy lại', score: 0 },
+    { text: 'Paste kết quả vào, chỉ chỗ cần sửa: "Phần này đổi thành Y", AI sửa đúng phần đó', score: 1 },
+    { text: 'Accept luôn 80%, 20% sai sót tự sửa bằng tay — nhanh hơn giải thích cho AI', score: 0 },
+    { text: 'Gõ "hay quá, nhưng sửa chỗ X nhé" — AI đủ thông minh tự hiểu ý bạn muốn gì', score: 0 }
+  ]}
+];
+
+// ═══ RENDER ═══
+function renderMCQ() {
+  const host = document.getElementById('mcq-container');
+  MCQ_ITEMS.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML = `
+      <div class="q-num">Câu ${i + 1} · ${item.dim}</div>
+      <div class="q-stem">${item.stem}</div>
+      <div class="options" id="mcq-${i}"></div>`;
+    host.appendChild(card);
+    const optHost = card.querySelector(`#mcq-${i}`);
+    item.options.forEach((opt, j) => {
+      const lbl = document.createElement('label');
+      lbl.className = 'option';
+      lbl.innerHTML = `<input type="radio" name="mcq-${i}" value="${j}"><span>${String.fromCharCode(65 + j)}. ${opt.text}</span>`;
+      optHost.appendChild(lbl);
+    });
+  });
+}
+renderMCQ();
+
+document.addEventListener('change', (e) => {
+  if (e.target.type === 'radio') {
+    const card = e.target.closest('.q-card');
+    if (card) {
+      card.querySelectorAll('.option').forEach(el => el.classList.remove('selected'));
+      e.target.closest('.option')?.classList.add('selected');
+    }
+    if (e.target.name === 'tier') {
+      document.getElementById('gate-note').style.display = e.target.value === 'free' ? 'block' : 'none';
+    }
+  }
+});
+
+// ═══ COLLECT + SUBMIT ═══
+function collectData() {
+  const name = document.getElementById('name').value.trim();
+  const role = document.getElementById('role').value.trim();
+  const email = document.getElementById('email').value.trim();
+  if (!name) return { error: 'Vui lòng điền Họ và tên' };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: 'Email chưa hợp lệ — đây là nơi nhận kết quả' };
+
+  const mcqAnswers = [];
+  let score = 0;
+  const dim = { T: 0, O: 0, E: 0 };
+  for (let i = 0; i < MCQ_ITEMS.length; i++) {
+    const checked = document.querySelector(`input[name="mcq-${i}"]:checked`);
+    if (!checked) return { error: `Chưa trả lời Câu ${i + 1} trong Phần 1` };
+    const j = parseInt(checked.value, 10);
+    const s = MCQ_ITEMS[i].options[j].score;
+    mcqAnswers.push({ q: i + 1, dim: MCQ_ITEMS[i].dim, choice: String.fromCharCode(65 + j), score: s });
+    score += s;
+    dim[MCQ_ITEMS[i].dim] += s;
+  }
+
+  const tierEl = document.querySelector('input[name="tier"]:checked');
+  if (!tierEl) return { error: 'Chưa chọn gói AI đang dùng (Phần 2)' };
+
+  return { ok: true, payload: {
+    ...CONFIG,
+    timestamp: new Date().toISOString(),
+    name, role, email,
+    mcq_answers: mcqAnswers, mcq_score: score, mcq_total: 9,
+    mcq_dim_T: dim.T, mcq_dim_O: dim.O, mcq_dim_E: dim.E,
+    subscription_tier: tierEl.value,
+    s2_project: document.getElementById('s2-project').value.trim(),
+    s2_master_prompt: document.getElementById('s2-master-prompt').value.trim(),
+    s2_quality_memory: document.getElementById('s2-quality-memory').value.trim(),
+    s2_tasks: document.getElementById('s2-tasks').value.trim(),
+    s2_l4_evidence: document.getElementById('s2-l4').value.trim()
+  }};
+}
+
+async function submitAll() {
+  const errEl = document.getElementById('err-msg');
+  errEl.style.display = 'none';
+  const c = collectData();
+  if (c.error) { errEl.textContent = c.error; errEl.style.display = 'block'; return; }
+
+  document.getElementById('btn-submit').disabled = true;
+  document.getElementById('screen-form').style.display = 'none';
+  document.getElementById('screen-loading').style.display = 'block';
+  window.scrollTo({ top: 0 });
+
+  try {
+    // text/plain giữ request ở dạng "simple" → không bị CORS preflight với Apps Script
+    const resp = await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(c.payload)
+    });
+    const result = await resp.json();
+    if (!result.ok) throw new Error(result.error || 'Chấm bài thất bại');
+    showResult(result, c.payload);
+  } catch (err) {
+    console.error(err);
+    document.getElementById('screen-loading').style.display = 'none';
+    document.getElementById('screen-form').style.display = 'block';
+    document.getElementById('btn-submit').disabled = false;
+    errEl.textContent = 'Có lỗi khi gửi bài (' + err.message + '). Vui lòng thử lại — bài làm của bạn vẫn còn nguyên trên trang.';
+    errEl.style.display = 'block';
+  }
+}
+
+// ═══ RESULT ═══
+function showResult(r, payload) {
+  const meta = LEVEL_META[r.level] || LEVEL_META[1];
+  document.getElementById('screen-loading').style.display = 'none';
+  document.getElementById('screen-result').style.display = 'block';
+
+  const lvlEl = document.getElementById('res-level');
+  lvlEl.textContent = meta.name;
+  document.getElementById('res-sub').textContent = meta.sub;
+
+  document.querySelectorAll('#res-ladder .rung').forEach(el => {
+    if (parseInt(el.dataset.l, 10) <= r.level) el.classList.add('active');
+  });
+
+  const dimHost = document.getElementById('res-dims');
+  const DIM_LABELS = { T: 'Độ phức tạp task', O: 'Chất lượng output', E: 'Cách viết prompt' };
+  ['T', 'O', 'E'].forEach(k => {
+    const v = Number(r.dims[k]) || 0;
+    dimHost.insertAdjacentHTML('beforeend', `
+      <div class="dim-card">
+        <div class="dim-k">${k} · ${DIM_LABELS[k]}</div>
+        <div class="dim-v">${v}/3</div>
+        <div class="dim-bar"><div style="width:${Math.round(v / 3 * 100)}%"></div></div>
+      </div>`);
+  });
+
+  document.getElementById('res-review').style.display = r.manual_review ? 'block' : 'none';
+  document.getElementById('res-diag').innerHTML = (r.diagnostic || []).map(x => `<li>${escHtml(x)}</li>`).join('');
+  document.getElementById('res-reco').innerHTML = (r.recommendation || []).map(x => `<li>${escHtml(x)}</li>`).join('');
+  document.getElementById('res-email').innerHTML = r.emailed
+    ? `📬 Bản đầy đủ đã được gửi tới <strong>${escHtml(payload.email)}</strong> từ Tim Trần (Tim on AI). Không thấy? Kiểm tra mục Spam/Quảng cáo.`
+    : '⚠️ Không gửi được email kết quả — vui lòng chụp màn hình trang này. Tim đã nhận được bài của bạn và sẽ gửi lại kết quả.';
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+</script>
+</body>
+</html>

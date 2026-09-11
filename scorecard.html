@@ -101,7 +101,7 @@ p { font-size: 16px; line-height: 1.65; color: var(--dim); margin-bottom: 14px; 
   <!-- 2b · Đang chấm -->
   <section class="screen" id="s-wait">
     <div class="spin"></div>
-    <p style="text-align:center">Mình đang đọc các prompt của bạn… chờ khoảng 5–10 giây nhé.</p>
+    <p style="text-align:center">Mình đang đọc các prompt của bạn… chờ khoảng 10–20 giây nhé.</p>
   </section>
 
   <!-- 2c · Tự chọn việc (không dán prompt, hoặc judge lỗi) -->
@@ -196,7 +196,7 @@ p { font-size: 16px; line-height: 1.65; color: var(--dim); margin-bottom: 14px; 
 // ═══ CONFIG — dán Web App URL sau khi deploy Apps Script (xem đầu file Code.gs) ═══
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzHDX29Ejb21-lw6xSQH6b2FwK93cteLMY6jQsCPDzkLJPhaYqo-DkI6uy14knY2lczGA/exec';
 const SRC = (new URLSearchParams(window.location.search).get('src') || '').trim().slice(0, 20);
-const JUDGE_TIMEOUT_MS = 25000;
+const JUDGE_TIMEOUT_MS = 50000;   // measured 11 Sep: 10–18 s server-side incl. model fallback; 25 s aborted in the live E2E
 
 // ═══ SCORING — Tim, 11 Sep 10:10–10:40. Sequence per TQE instrument v0.5 §1 (ruled 29 Aug): complexity → quality.
 //   Gate 1 (judge reads the 5 first-prompts): ceiling = highest task domain among them.

@@ -150,7 +150,7 @@ function handleLead_(d) {
 // ═══════════════════════════════════════════════════════════
 // Tried in order; a model is skipped for the rest of the call on 404 (gone) or 503 (overloaded). 2.5-flash 404'd for new users on 11 Sep 2026;
 // 3.6-flash returned 503 'high demand' 2 of 3 calls the same day. Verify names with GET ?action=models.
-var JUDGE_MODELS = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-flash-latest'];   // all confirmed via ?action=models 11 Sep 2026
+var JUDGE_MODELS = ['gemini-3.5-flash', 'gemini-3.6-flash', 'gemini-3.5-flash-lite', 'gemini-flash-latest'];   // all confirmed via ?action=models 11 Sep 2026; 3.5 first — 3.6 503'd on most calls that day, each miss costs ~5 s
 
 function runJudge_(prompts) {
   var key = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
@@ -194,7 +194,7 @@ function runJudge_(prompts) {
       var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + key;
       var resp = UrlFetchApp.fetch(url, { method: 'post', contentType: 'application/json', payload: JSON.stringify(body), muteHttpExceptions: true });
       var code = resp.getResponseCode();
-      if (code === 404 || code === 503 || code === 429) { lastErr = new Error('Gemini HTTP ' + code + ' on ' + model); a += thinkingOff ? 1 : 0; Utilities.sleep(600); continue; } // skip this model entirely
+      if (code === 404 || code === 503 || code === 429) { lastErr = new Error('Gemini HTTP ' + code + ' on ' + model); a += thinkingOff ? 1 : 0; Utilities.sleep(300); continue; } // skip this model entirely
       if (code !== 200) throw new Error('Gemini HTTP ' + code + ' on ' + model + ': ' + resp.getContentText().slice(0, 300));
       var text = JSON.parse(resp.getContentText()).candidates[0].content.parts[0].text;
       var v = JSON.parse(text);

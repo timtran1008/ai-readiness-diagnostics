@@ -27,9 +27,10 @@ var JUDGE_LOG = 'Judge log';
 var JUDGE_LOG_HEADERS = ['Timestamp', 'Src', 'N prompts', 'Ceiling', 'Ceiling idx', 'Per-prompt', 'Reason', 'Prompts (JSON)', 'Error'];
 var SENDER = 'Tim Trần — Tim on AI';
 
-// ═══ SESSION FACTS — P101/context.md 11 Sep: NOT a class, a sharing session (Tim 08:55). Formula: where you are → why stuck → cost you don't see → solution → Tim demo → Q&A. Weeknight online, Cấp 1–2 Tuesdays / Cấp 3 Thursdays; dates + price/seats pending Tim ═══
+// ═══ SESSION FACTS — P101/context.md 11 Sep: NOT a class, a sharing session (Tim 08:55). Dates RULED 11 Sep 11:50 (Tim, option 1): pilot 15/17 Sep = warm invites outside the scorecard; scorecard cohort 22 Sep (Cấp 1–2) / 24 Sep (Cấp 3). Formula: where you are → why stuck → cost you don't see → solution → Tim demo → Q&A. Weeknight online, Cấp 1–2 Tuesdays / Cấp 3 Thursdays; dates + price/seats pending Tim ═══
 var WORKSHOP = {
-  date: 'buổi tối trong tuần — Cấp 1–2: tối thứ Ba, Cấp 3: tối thứ Năm (ngày cụ thể mình chốt với nhóm đăng ký)',
+  tue: 'tối thứ Ba (22 Sep)', thu: 'tối thứ Năm (24 Sep)',
+  date: 'Cấp 1–2: tối thứ Ba (22 Sep) · Cấp 3: tối thứ Năm (24 Sep) — online (giờ cụ thể mình gửi kèm link)',
   format: 'online. Đi theo một mạch: bạn đang ở đâu → vì sao kẹt ở đó → cái giá bạn chưa nhìn thấy → cách gỡ → mình demo cách gỡ đó → hỏi đáp',
   seats: '8 chỗ',
   price: 'miễn phí (đợt đầu — Tim, 11 Sep: "free for now")'
@@ -297,7 +298,7 @@ function sendInviteEmail_(email, name, level) {
   var track = level === '3'
     ? 'Bạn ở nhóm Cấp 3, nên buổi tối thứ Năm đi thẳng vào việc dựng hệ thống: file bối cảnh, prompt dùng lại được, quy trình tự chạy — trên chính công việc thực tế của bạn.'
     : 'Bạn ở nhóm Cấp ' + level + ', nên buổi tối thứ Ba bắt đầu từ chỗ bạn đang đứng: một việc lặp lại của bạn, làm xong trong buổi, mang về dùng ngay.';
-  var subject = 'Mời bạn tham dự buổi chia sẻ Tim on AI, ' + WORKSHOP.date.split(' (')[0];
+  var subject = 'Mời bạn tham dự buổi chia sẻ Tim on AI, ' + (level === '3' ? WORKSHOP.thu : WORKSHOP.tue);
   var body =
     'Chào ' + first + ',\n\n' +
     'Hôm trước bạn có làm bài scorecard của mình. Mình sắp mở một buổi chia sẻ riêng cho đúng nhóm của bạn, và có giữ sẵn một chỗ nếu bạn muốn tham gia.\n\n' +

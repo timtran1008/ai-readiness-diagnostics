@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bạn đang dùng AI ở cấp nào? — Tim on AI</title>
+<meta name="robots" content="noindex">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Open+Sans:wght@400;600;700&display=swap');
+:root {
+  --yellow: #FFCC00; --navy: #0B2046; --onyx: #111111;
+  --bg: #f6f6f3; --card: #ffffff; --hover: #f0efe9;
+  --border: #e3e1d8; --text: #111111; --dim: #43506e; --muted: #8b90a1;
+  --glow: rgba(11,32,70,0.06); --danger: #e84d3d; --r: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Open Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+h1, h2, h3 { font-family: 'Montserrat', sans-serif; letter-spacing: -0.02em; color: var(--navy); }
+.container { max-width: 680px; margin: 0 auto; padding: 0 24px 80px; }
+.header { background: var(--navy); border-bottom: 5px solid var(--yellow); margin: 0 -24px 36px; padding: 22px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.wordmark { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 21px; color: #fff; white-space: nowrap; }
+.wordmark .hl { color: var(--yellow); }
+.badge { padding: 7px 14px; background: var(--yellow); border-radius: 100px; font-size: 11px; font-weight: 700; color: var(--navy); letter-spacing: 1.2px; text-transform: uppercase; white-space: nowrap; }
+.screen { display: none; }
+.screen.active { display: block; }
+h1 { font-size: 28px; font-weight: 800; line-height: 1.25; margin-bottom: 18px; }
+h2 { font-size: 22px; font-weight: 800; line-height: 1.3; margin-bottom: 14px; }
+p { font-size: 16px; line-height: 1.65; color: var(--dim); margin-bottom: 14px; }
+.btn { display: block; width: 100%; padding: 17px; margin-top: 24px; background: var(--yellow); color: var(--navy); border: none; border-radius: var(--r); font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 800; cursor: pointer; transition: all .2s; }
+.btn:hover { filter: brightness(1.05); box-shadow: 0 4px 14px rgba(255,204,0,0.45); }
+.btn:disabled { opacity: .55; cursor: wait; }
+.link { display: block; text-align: center; margin-top: 16px; font-size: 14px; color: var(--muted); text-decoration: underline; cursor: pointer; background: none; border: none; font-family: inherit; }
+.progress { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
+.bar { height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 24px; overflow: hidden; }
+.bar > div { height: 100%; background: var(--navy); transition: width .25s; }
+.stem { font-size: 17px; font-weight: 600; line-height: 1.55; margin-bottom: 18px; color: var(--text); }
+.options { display: flex; flex-direction: column; gap: 10px; }
+.option { display: block; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--r); cursor: pointer; font-size: 15px; line-height: 1.5; background: var(--card); transition: all .15s; }
+.option:hover { background: var(--hover); }
+.option.selected { border-color: var(--navy); background: var(--glow); }
+.card { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--navy); border-radius: var(--r); padding: 22px; margin-bottom: 16px; }
+.hero { text-align: center; background: var(--navy); border-radius: var(--r); padding: 30px 20px; margin-bottom: 20px; }
+.hero .eyebrow { font-size: 12px; letter-spacing: 2.5px; color: rgba(255,255,255,0.55); text-transform: uppercase; }
+.hero .level { font-family: 'Montserrat', sans-serif; font-size: 26px; font-weight: 900; color: var(--yellow); margin: 10px 0 6px; }
+.hero .sub { font-size: 13px; color: rgba(255,255,255,0.7); }
+.label { font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--navy); border-bottom: 3px solid var(--yellow); display: inline-block; padding-bottom: 3px; margin-bottom: 10px; }
+.card p { margin-bottom: 0; color: var(--text); }
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.input { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--r); font-family: inherit; font-size: 15px; background: var(--card); color: var(--text); }
+.input:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px var(--glow); }
+.err { color: var(--danger); font-size: 14px; font-weight: 600; margin-top: 12px; text-align: center; display: none; }
+.note { font-size: 13px; color: var(--muted); margin-top: 28px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <span class="wordmark">TIM <span class="hl">ON AI</span></span>
+    <span class="badge">Scorecard</span>
+  </div>
+
+  <!-- 1 · Mở đầu -->
+  <section class="screen active" id="s-intro">
+    <h1>Bạn đang dùng AI ở cấp nào?</h1>
+    <p>12 tình huống công việc thật. 10 phút.</p>
+    <p>Không có đáp án "đúng sách" — chọn cái bạn đã thực sự làm lần gần nhất.</p>
+    <p>Cuối bài mình nói bạn đang đứng ở đâu, kẹt ở đâu, và việc tiếp theo nên làm.</p>
+    <button class="btn" onclick="startQuiz()">Bắt đầu</button>
+  </section>
+
+  <!-- 2 · 12 câu -->
+  <section class="screen" id="s-quiz">
+    <div class="progress" id="q-progress">1 / 12</div>
+    <div class="bar"><div id="q-bar" style="width:0%"></div></div>
+    <div class="stem" id="q-stem"></div>
+    <div class="options" id="q-options"></div>
+    <button class="link" id="q-back" onclick="prevQuestion()">← Câu trước</button>
+  </section>
+
+  <!-- 3 · Kết quả -->
+  <section class="screen" id="s-result">
+    <div class="hero">
+      <div class="eyebrow">Bạn đang ở</div>
+      <div class="level" id="r-title"></div>
+      <div class="sub" id="r-score"></div>
+    </div>
+    <div class="card"><div class="label">Bạn đang đứng ở đâu</div><p id="r-body"></p></div>
+    <div class="card"><div class="label">Điểm nghẽn</div><p id="r-bottleneck"></p></div>
+    <div class="card"><div class="label">Một việc tiếp theo</div><p id="r-next"></p></div>
+    <button class="btn" onclick="showScreen('s-form')">Gửi mình bản đầy đủ →</button>
+  </section>
+
+  <!-- 4 · Để mình gửi bạn bản đầy đủ -->
+  <section class="screen" id="s-form">
+    <h2>Để mình gửi bạn bản đầy đủ</h2>
+    <p>Mình gửi kết quả + lộ trình cho cấp của bạn qua email, và thỉnh thoảng là bài mới. Không spam, không bán email.</p>
+    <div class="card" style="border-left-color: var(--yellow)">
+      <div class="field"><label>Tên bạn</label><input class="input" id="f-name" placeholder="Tên bạn" autocomplete="name"></div>
+      <div class="field"><label>Email</label><input class="input" id="f-email" type="email" placeholder="ban@congty.com" autocomplete="email"></div>
+    </div>
+    <button class="btn" id="f-submit" onclick="submitLead()">Gửi cho mình</button>
+    <div class="err" id="f-err"></div>
+    <button class="link" onclick="showScreen('s-result')">Thôi, mình đọc ở đây đủ rồi</button>
+  </section>
+
+  <!-- 5 · Xong -->
+  <section class="screen" id="s-done">
+    <h2>Đã gửi.</h2>
+    <p>Kiểm tra hộp thư (cả mục Spam) trong vài phút nhé.</p>
+    <p id="d-line" style="color: var(--text); font-weight: 600;"></p>
+    <button class="link" onclick="showScreen('s-result')">Xem lại kết quả</button>
+  </section>
+
+  <p class="note">Đây là công cụ tự đánh giá để gợi ý lộ trình học — không phải chứng chỉ, không dùng để tuyển dụng hay đánh giá nhân sự.</p>
+</div>
+
+<script>
+// ═══ CONFIG — dán Web App URL sau khi deploy Apps Script (xem đầu file Code.gs) ═══
+const GOOGLE_SCRIPT_URL = 'PASTE_APPS_SCRIPT_WEB_APP_URL_HERE';
+const SRC = (new URLSearchParams(window.location.search).get('src') || '').trim().slice(0, 20);
+const CUT = 0.70; // provisional, mirrors STAGE1_CUT in generic-toe-tna.html
+
+// ═══ ITEM BANK — 12 Stage 1 items, verbatim from generic-toe-tna.html (key authored in slot A; shuffled at start) ═══
+const QUESTIONS = [
+  { id: 'T1', dim: 'T', text: 'Lần gần nhất bạn cần soạn email trả lời khiếu nại của khách, bạn đã làm gì?', options: [
+    { text: 'Yêu cầu AI viết email, kèm tóm tắt khiếu nại + tone xin lỗi + hướng giải quyết.', score: 1 },
+    { text: 'Gõ "viết email trả lời khiếu nại của khách" vào AI, rồi tự sửa bản đầu cho khớp tình huống.', score: 0 },
+    { text: 'Dán email khiếu nại vào AI, không hướng dẫn gì thêm — AI sẽ tự suy ra cần làm gì.', score: 0 },
+    { text: 'Mở email mẫu có sẵn, tự điền chi tiết khiếu nại — quyết định không dùng AI cho việc này.', score: 0 } ] },
+  { id: 'T2', dim: 'T', text: 'Lần gần nhất bạn cần dịch một tài liệu ngắn từ tiếng Anh sang tiếng Việt cho team, bạn đã làm gì?', options: [
+    { text: 'Yêu cầu AI dịch sang tiếng Việt, kèm bối cảnh tài liệu (nội bộ/training) và độ chính xác cần.', score: 1 },
+    { text: 'Gõ "dịch đoạn này sang tiếng Việt" vào AI rồi copy bản dịch đầu tiên ra dùng luôn.', score: 0 },
+    { text: 'Dán toàn bộ tài liệu vào AI, không hướng dẫn gì thêm — AI sẽ tự dịch theo cách thích hợp.', score: 0 },
+    { text: 'Tự dịch nháp bằng vốn tiếng Anh có sẵn, không nhờ AI — việc dịch ngắn vầy đủ làm bằng tay.', score: 0 } ] },
+  { id: 'T3', dim: 'T', text: 'Tháng trước team bạn cần AI phân tích dữ liệu bán hàng quý + đưa ra 5 insights chính. Bạn đã dùng AI thế nào?', options: [
+    { text: 'Soạn AI prompt có 5 phần: vai trò + dữ liệu raw + KPI quý + người đọc + format output mong muốn.', score: 1 },
+    { text: 'Gõ "phân tích dữ liệu bán hàng quý 1 và đưa ra 5 insights chính" vào AI rồi xem AI trả gì.', score: 0 },
+    { text: 'Dán dữ liệu thô vào AI, yêu cầu "phân tích chi tiết và đưa ra các insight bán hàng cần thiết".', score: 0 },
+    { text: 'Yêu cầu AI "phân tích sâu, chuyên nghiệp, nhiều chi tiết, kèm đề xuất cụ thể, tone formal".', score: 0 } ] },
+  { id: 'T4', dim: 'T', text: 'Tháng trước team bạn nhận một bản hợp đồng từ đối tác cần review pháp lý + thương mại. Bạn đã dùng AI thế nào?', options: [
+    { text: 'Soạn AI prompt có cấu trúc: vai trò pháp lý + tiêu chí review hợp đồng + format bảng output.', score: 1 },
+    { text: 'Gõ "review hợp đồng và chỉ ra các điều cần lưu ý" vào AI rồi đọc bản trả về một lần.', score: 0 },
+    { text: 'Dán toàn bộ hợp đồng vào AI, yêu cầu "phân tích kỹ và cảnh báo các rủi ro tiềm ẩn nếu có".', score: 0 },
+    { text: 'Yêu cầu AI "review hợp đồng cẩn thận, chuyên nghiệp, đầy đủ, kèm cảnh báo và đề xuất sửa".', score: 0 } ] },
+  { id: 'O1', dim: 'O', text: 'Lần gần nhất AI viết cho bạn một bản tóm tắt cuộc họp, bạn đã làm gì trước khi gửi đi?', options: [
+    { text: 'Đọc lại 1 lần xem nội dung AI viết khớp ý mình, sửa lỗi chính tả nếu có rồi gửi đi.', score: 1 },
+    { text: 'Đọc nhanh xem độ dài vừa không, không cần đọc kỹ — AI viết khá ổn rồi không sai mấy.', score: 0 },
+    { text: 'Viết lại từ đầu dựa trên outline AI gợi ý — không trust thẳng output của AI bao giờ.', score: 0 },
+    { text: 'Chuyển bản AI viết cho 1 đồng nghiệp đọc giúp, nếu họ thấy OK thì mình mới gửi đi.', score: 0 } ] },
+  { id: 'O2', dim: 'O', text: 'Lần gần nhất bạn hỏi AI một câu về quy định nội bộ của công ty (ví dụ: chính sách nghỉ phép), bạn đã làm gì với câu trả lời?', options: [
+    { text: 'Đối chiếu nhanh với 1 tài liệu chính sách nội bộ (sổ tay nhân viên) xem AI có khớp không.', score: 1 },
+    { text: 'Tin AI trả lời rồi truyền đạt lại cho đồng nghiệp — AI thường biết chính sách công ty mà.', score: 0 },
+    { text: 'Bỏ qua câu trả lời AI, đi hỏi bộ phận HR cho chắc — không tin AI cho việc chính sách.', score: 0 },
+    { text: 'Hỏi lại AI 1-2 câu khác về chính sách xem AI có nhất quán không — nếu giống thì tin.', score: 0 } ] },
+  { id: 'O3', dim: 'O', text: 'Tháng trước AI tạo cho bạn một bản proposal cho khách — nội dung đúng nhưng giọng văn quá "AI". Bạn đã xử lý thế nào?', options: [
+    { text: 'Cho AI 1-2 proposal cũ bạn đã viết làm tham chiếu giọng văn, yêu cầu AI viết lại theo giọng đó.', score: 1 },
+    { text: 'Gửi luôn proposal vì nội dung quan trọng hơn giọng văn — khách sẽ tập trung vào ý chính thôi.', score: 0 },
+    { text: 'Viết lại proposal từ đầu — AI không bao giờ bắt được đúng giọng văn của mình đâu.', score: 0 },
+    { text: 'Tự sửa proposal từng câu cho đến khi đọc nghe tự nhiên — không nhờ AI sửa giọng văn nữa.', score: 0 } ] },
+  { id: 'O4', dim: 'O', text: 'Tháng trước AI tạo cho bạn một báo cáo phân tích tài chính 10 trang để gửi ban giám đốc. Bước đầu tiên để kiểm tra chất lượng là gì?', options: [
+    { text: 'Có 2 lớp kiểm tra: tự chạy checklist (số liệu/logic/tone/format) + yêu cầu AI tự rà lỗi lần nữa.', score: 1 },
+    { text: 'Có 1 lớp kiểm tra 3 bước: số liệu khớp + logic mạch lạc + evidence support, sửa rồi gửi đi luôn.', score: 0 },
+    { text: 'Nhờ đồng nghiệp review song song bản AI tạo — báo cáo cấp BGĐ cần ít nhất 2 người check kỹ.', score: 0 },
+    { text: 'Đối chiếu từng số AI tạo với dữ liệu gốc, chạy lại phép tính trong sheet để xác nhận trước.', score: 0 } ] },
+  { id: 'E1', dim: 'E', text: 'Tuần trước bạn dùng AI tạo slide cho buổi họp team. Sau khi AI đưa output đầu tiên, bạn mất bao lâu để hoàn thiện?', options: [
+    { text: 'Khoảng 10-20% thời gian sửa: chỉnh vài chỗ cho khớp context và tone là dùng được luôn.', score: 1 },
+    { text: 'Dùng luôn output đầu, không sửa gì — AI viết tốt rồi, không cần can thiệp nhiều thêm.', score: 0 },
+    { text: 'Sửa 50-70% nội dung: AI cho khung, mình phải viết lại phần lớn cho thực sự dùng được.', score: 0 },
+    { text: 'Không dùng AI cho slide đâu — tự làm bằng tay vẫn nhanh hơn dùng AI hỗ trợ kiểu này.', score: 0 } ] },
+  { id: 'E2', dim: 'E', text: 'Tuần trước bạn đăng 3 bài social media cho công ty (LinkedIn / Facebook). Trung bình mỗi bài, từ ý tưởng đến lúc đăng, mất bao lâu?', options: [
+    { text: 'Khoảng 10-15 phút mỗi bài: prompt AI viết draft, sửa nhẹ tone công ty + thêm emoji rồi đăng.', score: 1 },
+    { text: 'Khoảng 5 phút mỗi bài: copy thẳng draft AI viết, đăng luôn — AI viết caption hợp công ty rồi.', score: 0 },
+    { text: 'Khoảng 30-45 phút mỗi bài: AI cho ý tưởng, mình tự viết lại từ đầu cho hợp giọng công ty hơn.', score: 0 },
+    { text: 'Khoảng 20-30 phút mỗi bài: tự viết bằng tay từ đầu — AI không hiểu được giọng công ty đâu.', score: 0 } ] },
+  { id: 'E3', dim: 'E', text: 'Tháng trước bạn cần viết 10 email follow-up cho 10 khách hàng khác nhau — nội dung tương tự nhưng cần personalize. Bạn đã làm thế nào?', options: [
+    { text: 'Soạn 1 AI prompt mẫu có chỗ trống (tên + công ty + lịch sử), chạy AI 10 lần với data riêng từng khách.', score: 1 },
+    { text: 'Nhờ AI viết từng email một, mỗi email phải gõ riêng context cho từng khách hàng cụ thể.', score: 0 },
+    { text: 'Viết 1 email mẫu nhờ AI, sau đó copy-paste và sửa tên cho 9 email còn lại — nhanh hơn.', score: 0 },
+    { text: 'Tự viết tay cả 10 email — không nhiều việc, không cần phải dùng AI cho việc nhỏ này.', score: 0 } ] },
+  { id: 'E4', dim: 'E', text: 'Tháng trước bạn cần tạo 8 công thức Excel khác nhau cho team (VLOOKUP, IF lồng nhau, SUMIF). Bạn đã dùng AI thế nào?', options: [
+    { text: 'Soạn 1 AI prompt mẫu có chỗ trống (loại công thức + input + output mong muốn), chạy 8 lần khác.', score: 1 },
+    { text: 'Hỏi AI từng công thức một, mỗi lần gõ riêng yêu cầu đầy đủ context cho công thức cụ thể đó.', score: 0 },
+    { text: 'Hỏi AI 1-2 công thức khó nhất, 6 công thức còn lại tự viết bằng cách dò tài liệu sẵn có lâu hơn.', score: 0 },
+    { text: 'Tự viết cả 8 công thức bằng cách dò tài liệu + thử-sai trong sheet — không nhờ AI cho việc này.', score: 0 } ] }
+];
+
+// ═══ RESULT COPY — spec §3 (Tim edits here; Code.gs carries the same text for the email) ═══
+const BANDS = {
+  '1':  { title: 'Cấp 1 — Hỏi', segment: 'A',
+          body: 'Bạn dùng AI như một cái Google biết nói: hỏi, nhận, copy. Lần nào cũng bắt đầu lại từ đầu. Không sao — hầu hết dân văn phòng đang ở đây, và đây là cấp dễ lên nhất.',
+          done: 'Workshop online cuối tuần 7–8/11 của mình bắt đầu đúng từ chỗ bạn đang đứng. Thông tin trong email.' },
+  '2':  { title: 'Cấp 2 — Ra lệnh', segment: 'A',
+          body: 'Bạn biết dặn AI cho rõ, có bối cảnh, có ví dụ. Output khá hơn — nhưng mỗi phiên bạn vẫn phải dặn lại từ đầu. Cái thiếu không phải là prompt hay hơn. Là chỗ để prompt sống.',
+          done: 'Cấp 3 là chỗ workshop 7–8/11 đưa bạn tới. Thông tin trong email.' },
+  '2+': { title: 'Cấp 2+ — sẵn sàng lên Cấp 3', segment: 'B',
+          body: 'Bài này đo được tới đây thôi. Cấp 3 trở lên không đo bằng trắc nghiệm mà bằng thứ bạn đã dựng: file bối cảnh, prompt dùng lại được, quy trình chạy được. Nếu bạn đã có, bạn đang ở Cấp 3. Nếu chưa, bạn biết việc tiếp theo là gì rồi.',
+          done: 'Workshop 7–8/11 có một buổi riêng cho nhóm này. Thông tin trong email.' }
+};
+const BOTTLENECK = {
+  T: 'Bạn giao cho AI toàn việc nhỏ.',
+  O: 'Bạn nhận output mà chưa có chuẩn để chấm.',
+  E: 'Bạn đang tốn công sửa nhiều hơn công dặn.'
+};
+const NEXT = {
+  T: 'Tuần này, chọn một việc bạn vẫn đang tự làm vì "AI không làm nổi đâu" — giao cho AI, kèm đủ bối cảnh, xem nó đi được tới đâu.',
+  O: 'Viết ra 3 dòng "thế nào là đạt" cho một việc bạn hay giao AI. Lần sau chấm output bằng 3 dòng đó, không chấm bằng cảm giác.',
+  E: 'Lấy prompt bạn dùng nhiều nhất, thêm vào: vai trò, người đọc, ví dụ tốt, ví dụ xấu. Lưu lại. Lần sau dán, đừng gõ lại.'
+};
+
+// ═══ STATE ═══
+let idx = 0;
+const answers = new Array(QUESTIONS.length).fill(null); // index into shuffled options
+let result = null;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0 });
+}
+
+function startQuiz() {
+  QUESTIONS.forEach(q => {
+    for (let i = q.options.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [q.options[i], q.options[j]] = [q.options[j], q.options[i]];
+    }
+  });
+  idx = 0;
+  renderQuestion();
+  showScreen('s-quiz');
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[idx];
+  document.getElementById('q-progress').textContent = (idx + 1) + ' / ' + QUESTIONS.length;
+  document.getElementById('q-bar').style.width = Math.round(idx / QUESTIONS.length * 100) + '%';
+  document.getElementById('q-stem').textContent = q.text;
+  const host = document.getElementById('q-options');
+  host.innerHTML = '';
+  q.options.forEach((o, j) => {
+    const el = document.createElement('div');
+    el.className = 'option' + (answers[idx] === j ? ' selected' : '');
+    el.textContent = o.text;
+    el.onclick = () => pick(j, el);
+    host.appendChild(el);
+  });
+  document.getElementById('q-back').style.visibility = idx === 0 ? 'hidden' : 'visible';
+}
+
+function pick(j, el) {
+  answers[idx] = j;
+  document.querySelectorAll('#q-options .option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  setTimeout(() => {
+    if (idx < QUESTIONS.length - 1) { idx++; renderQuestion(); }
+    else finish();
+  }, 220);
+}
+
+function prevQuestion() { if (idx > 0) { idx--; renderQuestion(); } }
+
+function finish() {
+  const dim = { T: 0, O: 0, E: 0 }, tot = { T: 0, O: 0, E: 0 };
+  const raw = {};
+  let correct = 0;
+  QUESTIONS.forEach((q, i) => {
+    const s = q.options[answers[i]].score;
+    correct += s; dim[q.dim] += s; tot[q.dim]++;
+    raw[q.id] = s;
+  });
+  const pct = correct / QUESTIONS.length;
+  const level = pct < 0.50 ? '1' : (pct < CUT ? '2' : '2+');
+  const sub = { T: dim.T / tot.T, O: dim.O / tot.O, E: dim.E / tot.E };
+  const bottleneck = ['T', 'O', 'E'].reduce((a, b) => sub[b] < sub[a] ? b : a);
+  result = {
+    level, segment: BANDS[level].segment,
+    score_pct: Math.round(pct * 100),
+    t_pct: Math.round(sub.T * 100), o_pct: Math.round(sub.O * 100), e_pct: Math.round(sub.E * 100),
+    bottleneck, raw
+  };
+  const B = BANDS[level];
+  document.getElementById('r-title').textContent = B.title;
+  document.getElementById('r-score').textContent = correct + '/' + QUESTIONS.length + ' tình huống';
+  document.getElementById('r-body').textContent = B.body;
+  document.getElementById('r-bottleneck').textContent = BOTTLENECK[bottleneck];
+  document.getElementById('r-next').textContent = NEXT[bottleneck];
+  document.getElementById('d-line').textContent = B.done;
+  showScreen('s-result');
+}
+
+async function submitLead() {
+  const err = document.getElementById('f-err');
+  err.style.display = 'none';
+  const name = document.getElementById('f-name').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  if (!name) { err.textContent = 'Cho mình xin tên bạn nhé.'; err.style.display = 'block'; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Email chưa đúng — đây là nơi mình gửi kết quả.'; err.style.display = 'block'; return; }
+  const btn = document.getElementById('f-submit');
+  btn.disabled = true; btn.textContent = 'Đang gửi…';
+  try {
+    // text/plain keeps the request "simple" → no CORS preflight against Apps Script
+    const resp = await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ timestamp: new Date().toISOString(), name, email, src: SRC, ...result })
+    });
+    const out = await resp.json();
+    if (!out.ok) throw new Error(out.error || 'server');
+    showScreen('s-done');
+  } catch (e) {
+    console.error(e);
+    err.textContent = 'Gửi chưa được. Thử lại giúp mình — kết quả của bạn vẫn còn trên trang.';
+    err.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Gửi cho mình';
+  }
+}
+</script>
+</body>
+</html>

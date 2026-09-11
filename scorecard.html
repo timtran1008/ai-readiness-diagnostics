@@ -56,6 +56,13 @@ p { font-size: 16px; line-height: 1.65; color: var(--dim); margin-bottom: 14px; 
 .rung span { font-size: 13px; color: var(--dim); }
 .rung.here { opacity: 1; border-color: var(--navy); border-left: 4px solid var(--yellow); }
 .rung.between { opacity: .85; border-style: dashed; }
+.ta { width: 100%; min-height: 76px; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--r); font-family: inherit; font-size: 14px; line-height: 1.5; background: var(--card); color: var(--text); resize: vertical; }
+.ta:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px var(--glow); }
+.ta-label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--dim); margin: 14px 0 6px; }
+.hint { font-size: 13px; color: var(--muted); line-height: 1.6; margin-top: 10px; }
+.spin { width: 34px; height: 34px; border: 4px solid var(--border); border-top-color: var(--navy); border-radius: 50%; margin: 30px auto 18px; animation: sp .8s linear infinite; }
+@keyframes sp { to { transform: rotate(360deg); } }
+.quote { font-style: italic; color: var(--dim); border-left: 3px solid var(--yellow); padding: 8px 12px; margin: 10px 0 0; font-size: 14px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
 .note { font-size: 13px; color: var(--muted); margin-top: 28px; line-height: 1.6; }
 </style>
 </head>
@@ -69,39 +76,79 @@ p { font-size: 16px; line-height: 1.65; color: var(--dim); margin-bottom: 14px; 
   <!-- 1 · Mở đầu -->
   <section class="screen active" id="s-intro">
     <h1>Bạn đang dùng AI ở cấp nào?</h1>
-    <p>Tối đa 12 tình huống công việc thật, 4–10 phút — bài dừng sớm khi đã đủ để nói bạn đang ở đâu.</p>
-    <p>Không có đáp án "đúng sách" — chọn cái bạn đã thực sự làm lần gần nhất.</p>
-    <button class="btn" onclick="startQuiz()">Bắt đầu</button>
+    <p>Không trắc nghiệm. Mình nhìn vào việc thật bạn đã giao cho AI.</p>
+    <p>Mở 5 cuộc chat gần nhất của bạn với AI (ChatGPT, Gemini, Claude, Copilot… cái nào cũng được). Copy <b>câu đầu tiên bạn gõ</b> trong mỗi cuộc — nguyên văn, đừng sửa cho đẹp — rồi dán vào đây. Khoảng 3 phút.</p>
+    <button class="btn" onclick="showScreen('s-paste'); document.getElementById('p1').focus()">Bắt đầu</button>
   </section>
 
-  <!-- 2 · 12 câu -->
-  <section class="screen" id="s-quiz">
-    <div class="progress" id="q-progress">1 / 12</div>
-    <div class="bar"><div id="q-bar" style="width:0%"></div></div>
-    <div class="stem" id="q-stem"></div>
-    <div class="options" id="q-options"></div>
-    <button class="link" id="q-back" onclick="prevQuestion()">← Câu trước</button>
+  <!-- 2 · Dán 5 prompt -->
+  <section class="screen" id="s-paste">
+    <div class="progress">Bước 1 / 2</div>
+    <div class="bar"><div style="width:40%"></div></div>
+    <div class="stem">Câu đầu tiên bạn gõ trong 5 cuộc chat gần nhất</div>
+    <div class="ta-label"><span>Chat 1</span><span>gần nhất</span></div><textarea class="ta" id="p1" placeholder="Dán nguyên văn câu đầu tiên bạn gõ…"></textarea>
+    <div class="ta-label"><span>Chat 2</span></div><textarea class="ta" id="p2"></textarea>
+    <div class="ta-label"><span>Chat 3</span></div><textarea class="ta" id="p3"></textarea>
+    <div class="ta-label"><span>Chat 4</span><span>nếu có</span></div><textarea class="ta" id="p4"></textarea>
+    <div class="ta-label"><span>Chat 5</span><span>nếu có</span></div><textarea class="ta" id="p5"></textarea>
+    <p class="hint">Tối thiểu 3. Có tên người, số liệu nhạy cảm thì xoá đi, thay bằng [x] — mình chỉ cần thấy bạn giao <i>việc gì</i>, không cần chi tiết. Prompt bạn dán không hiện ở đâu ngoài kết quả của chính bạn.</p>
+    <button class="btn" id="p-submit" onclick="judge()">Chấm cho mình</button>
+    <div class="err" id="p-err"></div>
   </section>
 
-  <!-- 3 · Kết quả -->
+  <!-- 2b · Đang chấm -->
+  <section class="screen" id="s-wait">
+    <div class="spin"></div>
+    <p style="text-align:center">Mình đang đọc 5 prompt của bạn… khoảng 5–10 giây.</p>
+  </section>
+
+  <!-- 2c · Dự phòng khi judge lỗi: tự chọn -->
+  <section class="screen" id="s-self">
+    <div class="progress">Bước 1 / 2</div>
+    <div class="bar"><div style="width:40%"></div></div>
+    <div class="stem">Máy chấm đang bận. Bạn tự chọn giúp mình: việc <b>lớn nhất</b> bạn giao AI trong 5 cuộc chat đó thuộc loại nào?</div>
+    <div class="options">
+      <div class="option" onclick="selfPick('simple')">Một câu hỏi, một việc nhỏ: dịch, tóm tắt, sửa câu, viết caption, hỏi cho biết.</div>
+      <div class="option" onclick="selfPick('complicated')">Một việc nhiều phần, có chuẩn rõ để biết đạt hay chưa: kế hoạch, đề xuất, báo cáo, chương trình đào tạo, phân tích theo mẫu.</div>
+      <div class="option" onclick="selfPick('complex')">Một việc chưa ai định nghĩa "đạt" là gì, làm ra rồi mới biết: dựng app, thử một hướng mới, chiến lược chưa có tiền lệ.</div>
+    </div>
+  </section>
+
+  <!-- 3 · Cổng 2: chất lượng bản đầu -->
+  <section class="screen" id="s-quality">
+    <div class="progress">Bước 2 / 2</div>
+    <div class="bar"><div style="width:80%"></div></div>
+    <div class="stem">Việc lớn nhất trong 5 prompt của bạn là cái này:</div>
+    <div class="quote" id="q-quote"></div>
+    <p style="margin-top:18px"><b style="color:var(--text)">Với việc đó, bản đầu tiên AI trả về, bạn dùng được bao nhiêu phần trăm?</b><br>Không tính các lần bạn sửa prompt hay hỏi lại — chỉ tính bản trả lời đầu tiên.</p>
+    <div class="options">
+      <div class="option" onclick="pickQuality('<20')">Dưới 20% — gần như phải làm lại.</div>
+      <div class="option" onclick="pickQuality('20-50')">20–50% — có cái khung, nội dung phải viết lại phần lớn.</div>
+      <div class="option" onclick="pickQuality('50-80')">50–80% — dùng được nửa, sửa thêm kha khá.</div>
+      <div class="option" onclick="pickQuality('>80')">Trên 80% — sửa vài chỗ là gửi đi được.</div>
+    </div>
+    <button class="link" onclick="showScreen('s-paste')">← Sửa lại prompt</button>
+  </section>
+
+  <!-- 4 · Kết quả -->
   <section class="screen" id="s-result">
     <div class="hero">
       <div class="eyebrow">Bạn đang ở</div>
       <div class="level" id="r-title"></div>
-      <div class="sub" id="r-score"></div>
+      <div class="sub" id="r-sub"></div>
     </div>
     <div class="ladder">
-      <div class="rung" data-l="1"><b>Cấp 1 — Hỏi</b><span>hỏi, nhận, copy; lần nào cũng từ đầu</span></div>
-      <div class="rung" data-l="2"><b>Cấp 2 — Ra lệnh</b><span>dặn rõ, có bối cảnh, có ví dụ; mỗi phiên dặn lại</span></div>
-      <div class="rung" data-l="3"><b>Cấp 3 — Dựng</b><span>file bối cảnh, prompt dùng lại được, quy trình chạy được</span></div>
+      <div class="rung" data-l="1"><b>Cấp 1 — Hỏi</b><span>việc nhỏ, một câu một việc; lần nào cũng từ đầu</span></div>
+      <div class="rung" data-l="2"><b>Cấp 2 — Ra lệnh</b><span>giao được việc lớn; bản đầu chưa dùng được, còn sửa nhiều</span></div>
+      <div class="rung" data-l="3"><b>Cấp 3 — Dựng</b><span>giao việc lớn, bản đầu dùng được luôn</span></div>
     </div>
     <div class="card"><div class="label">Bạn đang đứng ở đâu</div><p id="r-body"></p></div>
-    <div class="card"><div class="label">Điểm nghẽn</div><p id="r-bottleneck"></p></div>
+    <div class="card"><div class="label">Mình thấy gì trong prompt của bạn</div><p id="r-why"></p><div class="quote" id="r-quote"></div></div>
     <div class="card"><div class="label">Một việc tiếp theo</div><p id="r-next"></p></div>
     <button class="btn" onclick="showScreen('s-form')">Gửi kết quả + thông tin buổi chia sẻ vào email →</button>
   </section>
 
-  <!-- 4 · Để mình gửi bạn bản đầy đủ -->
+  <!-- 5 · Để mình gửi bạn bản đầy đủ -->
   <section class="screen" id="s-form">
     <h2>Để mình gửi kết quả vào email bạn</h2>
     <p>Mình gửi kết quả + lộ trình cho cấp của bạn qua email. Không spam, không bán email.</p>
@@ -114,7 +161,7 @@ p { font-size: 16px; line-height: 1.65; color: var(--dim); margin-bottom: 14px; 
     <button class="link" onclick="showScreen('s-result')">Thôi, mình đọc ở đây đủ rồi</button>
   </section>
 
-  <!-- 5 · Xong -->
+  <!-- 6 · Xong -->
   <section class="screen" id="s-done">
     <h2>Đã gửi.</h2>
     <p>Kiểm tra hộp thư (cả mục Spam) trong vài phút nhé.</p>
@@ -129,266 +176,133 @@ p { font-size: 16px; line-height: 1.65; color: var(--dim); margin-bottom: 14px; 
 // ═══ CONFIG — dán Web App URL sau khi deploy Apps Script (xem đầu file Code.gs) ═══
 const GOOGLE_SCRIPT_URL = 'PASTE_APPS_SCRIPT_WEB_APP_URL_HERE';
 const SRC = (new URLSearchParams(window.location.search).get('src') || '').trim().slice(0, 20);
-// ═══ BRANCHING (Tim, 11 Sep 09:00: "if they score low on T → no reason to move on") ═══
-// Blocks T → O → E, 4 items each. A block PASSES at ≥ BLOCK_PASS scored (skips excluded; all skipped → can't judge → pass through).
-// T fails → Cấp 1 / bottleneck T, stop after 4. O fails → Cấp 2 / O, stop after 8. E fails → Cấp 2 / E. All pass → Cấp 2+.
-const BLOCKS = ['T', 'O', 'E'];
-const BLOCK_PASS = 2;
+const JUDGE_TIMEOUT_MS = 25000;
 
-// ═══ ITEM BANK — 12 items, everyday office tasks (Claude draft 11 Sep, Tim rewrites). 4 scored options shuffled at start; 5th "chưa gặp" stays last, score null = excluded from the denominator. Key answer varies in length/position on purpose. ═══
-const QUESTIONS = [
-  { id: 'T1', dim: 'T', text: 'Lần gần nhất bạn phải viết một email khó nói (từ chối, nhắc việc trễ, báo tin không vui), bạn làm gì?', options: [
-    { text: 'Tự viết, sửa đi sửa lại mấy lần rồi gửi — việc tế nhị vầy mình không giao AI bao giờ.', score: 0 },
-    { text: 'Nhờ AI viết, kèm bối cảnh: người nhận, quan hệ, muốn giữ gì, tránh gì.', score: 1 },
-    { text: 'Gõ "viết email từ chối lịch sự" rồi sửa lại bản đầu cho khớp tình huống.', score: 0 },
-    { text: 'Dán email của người ta vào AI, bảo "trả lời giúp mình".', score: 0 },
-    { text: 'Chưa gặp việc này gần đây.', score: null } ] },
-  { id: 'T2', dim: 'T', text: 'Lần gần nhất bạn nhận một tài liệu dài (báo cáo, biên bản, file vài chục trang) mà không có thời gian đọc, bạn làm gì?', options: [
-    { text: 'Đọc lướt phần mở đầu và kết luận, phần giữa bỏ qua.', score: 0 },
-    { text: 'Dán vào AI, bảo "tóm tắt lại giúp mình", đọc bản tóm tắt là coi như xong tài liệu.', score: 0 },
-    { text: 'Đưa file cho AI, nói rõ mình cần gì từ nó (quyết định gì, cho ai), hỏi đúng chỗ đó.', score: 1 },
-    { text: 'Nhờ đồng nghiệp đã đọc kể lại ý chính.', score: 0 },
-    { text: 'Chưa gặp việc này gần đây.', score: null } ] },
-  { id: 'T3', dim: 'T', text: 'Lần gần nhất bạn chuẩn bị nội dung cho một buổi họp hoặc bài trình bày, AI đứng ở đâu trong quá trình đó?', options: [
-    { text: 'Không có — mình tự làm outline và slide từ đầu như mọi khi, quen tay rồi.', score: 0 },
-    { text: 'AI gợi ý outline, còn lại mình tự viết.', score: 0 },
-    { text: 'Đưa AI mục tiêu, người nghe, thời lượng, tài liệu nền — nó dựng bản đầu, mình chỉnh.', score: 1 },
-    { text: 'Mình gõ "làm slide về chủ đề X" rồi lấy ý từ đó.', score: 0 },
-    { text: 'Chưa gặp việc này gần đây.', score: null } ] },
-  { id: 'T4', dim: 'T', text: 'Tháng qua có việc nào bạn nghĩ "cái này AI không làm nổi" nên tự làm không? Bạn xử lý thế nào?', options: [
-    { text: 'Có, và mình tự làm luôn — có những việc AI không hợp, giải thích còn lâu hơn tự làm.', score: 0 },
-    { text: 'Có, mình thử giao AI một phần nhỏ cho chắc.', score: 0 },
-    { text: 'Có, mình thử giao cả việc kèm đủ bối cảnh, xem nó đi tới đâu rồi mới quyết.', score: 1 },
-    { text: 'Không nghĩ tới chuyện giao AI những việc kiểu đó.', score: 0 },
-    { text: 'Không có việc nào như vậy.', score: null } ] },
-  { id: 'O1', dim: 'O', text: 'Lần gần nhất AI viết cho bạn một văn bản bạn sẽ gửi đi (email, tóm tắt, thông báo), bạn kiểm tra thế nào trước khi gửi?', options: [
-    { text: 'Đọc lại một lần theo đúng ý đã dặn, sửa chỗ lệch, rồi gửi.', score: 1 },
-    { text: 'Đọc lướt xem độ dài ổn không — AI viết khá rồi.', score: 0 },
-    { text: 'Viết lại gần hết theo ý mình — không tin output AI.', score: 0 },
-    { text: 'Chuyển cho một đồng nghiệp đọc giúp cho chắc, họ thấy OK thì mình mới gửi đi.', score: 0 },
-    { text: 'Chưa gặp việc này gần đây.', score: null } ] },
-  { id: 'O2', dim: 'O', text: 'Lần gần nhất AI trả lời bạn một câu có thể sai (số liệu, quy định, cách làm), bạn làm gì trước khi dùng?', options: [
-    { text: 'Dùng luôn — thường nó đúng.', score: 0 },
-    { text: 'Đối chiếu nhanh với một nguồn gốc (tài liệu, người biết việc) rồi dùng.', score: 1 },
-    { text: 'Hỏi lại AI vài lần theo cách khác xem nó có nhất quán không — giống nhau thì tin.', score: 0 },
-    { text: 'Bỏ câu trả lời của AI, đi hỏi người cho chắc.', score: 0 },
-    { text: 'Chưa gặp việc này gần đây.', score: null } ] },
-  { id: 'O3', dim: 'O', text: 'Lần gần nhất AI làm đúng nội dung nhưng giọng văn "AI quá", bạn xử lý thế nào?', options: [
-    { text: 'Tự sửa từng câu cho tự nhiên.', score: 0 },
-    { text: 'Gửi luôn — nội dung quan trọng hơn giọng.', score: 0 },
-    { text: 'Bảo AI "viết tự nhiên hơn, bớt sáo, đừng dùng từ hoa mỹ" rồi lấy bản mới.', score: 0 },
-    { text: 'Đưa AI 1–2 bài cũ mình viết làm mẫu giọng, bảo viết lại theo mẫu.', score: 1 },
-    { text: 'Chưa gặp việc này gần đây.', score: null } ] },
-  { id: 'O4', dim: 'O', text: 'Lần gần nhất bạn muốn AI làm một việc theo đúng cách của bạn hoặc của công ty, bạn đưa cho nó gì trước khi giao?', options: [
-    { text: 'Mô tả bằng lời cách mình muốn, càng chi tiết càng tốt, có khi cả trang yêu cầu.', score: 0 },
-    { text: 'Một sản phẩm mẫu đã đạt (email cũ, slide cũ) kèm câu "làm theo chuẩn này".', score: 1 },
-    { text: 'Không đưa gì — làm xong rồi sửa cho khớp.', score: 0 },
-    { text: 'Bảo AI "làm chuyên nghiệp, đúng chuẩn công ty".', score: 0 },
-    { text: 'Chưa gặp việc này gần đây.', score: null } ] },
-  { id: 'E1', dim: 'E', text: 'Sau khi AI đưa bản đầu tiên, bạn thường mất bao nhiêu công để dùng được?', options: [
-    { text: 'Sửa nhẹ 10–20%: vài chỗ bối cảnh, tone — dùng được.', score: 1 },
-    { text: 'Dùng luôn, không sửa.', score: 0 },
-    { text: 'Sửa hơn nửa — AI cho cái khung, còn mình phải viết lại phần lớn nội dung cho ra hồn.', score: 0 },
-    { text: 'Nhiều khi bỏ, tự làm nhanh hơn.', score: 0 },
-    { text: 'Ít dùng AI nên không rõ.', score: null } ] },
-  { id: 'E2', dim: 'E', text: 'Việc bạn giao AI lặp lại đều đặn (báo cáo tuần, email nhắc, caption) — lần sau bạn bắt đầu thế nào?', options: [
-    { text: 'Gõ lại yêu cầu từ đầu, mỗi lần một kiểu.', score: 0 },
-    { text: 'Lục lại đoạn chat cũ tuần trước, kéo lên tìm prompt lần trước rồi copy lại.', score: 0 },
-    { text: 'Mở prompt đã lưu (hoặc project riêng), điền phần thay đổi, chạy.', score: 1 },
-    { text: 'Nhớ đại khái rồi gõ lại gần giống.', score: 0 },
-    { text: 'Không có việc nào lặp lại như vậy.', score: null } ] },
-  { id: 'E3', dim: 'E', text: 'Lần gần nhất bạn giao AI một việc phức tạp, nhiều điều kiện (kế hoạch, đề xuất, phân tích), bạn mở đầu thế nào?', options: [
-    { text: 'Viết một prompt thật dài, cố nhét hết điều kiện, ràng buộc, ví dụ vào một lần.', score: 0 },
-    { text: 'Bảo AI hỏi mình trước những gì nó cần biết, xong mới cho làm.', score: 1 },
-    { text: 'Gõ yêu cầu ngắn, xem nó ra gì rồi sửa dần.', score: 0 },
-    { text: 'Chia việc nhỏ ra, giao từng phần.', score: 0 },
-    { text: 'Chưa giao AI việc phức tạp.', score: null } ] },
-  { id: 'E4', dim: 'E', text: 'Prompt tốt nhất bạn từng dùng — bây giờ nó ở đâu?', options: [
-    { text: 'Trong lịch sử chat, chắc tìm lại được nếu chịu lục vài chục cuộc trò chuyện.', score: 0 },
-    { text: 'Trong đầu — mình nhớ đại khái.', score: 0 },
-    { text: 'Trong một file, ghi chú hoặc project riêng — mở là dùng.', score: 1 },
-    { text: 'Mất rồi.', score: 0 },
-    { text: 'Chưa dùng AI đủ để có prompt nào.', score: null } ] }
-];
+// ═══ SCORING — Tim, 11 Sep 10:10–10:40. Sequence per TQE instrument v0.5 §1 (ruled 29 Aug): complexity → quality.
+//   Gate 1 (judge reads the 5 first-prompts): ceiling = highest task domain among them.
+//     simple → Cấp 1, stop. complicated / complex → Gate 2.
+//   Gate 2 (self-report, one question): first-response usability on that task. >80% → Cấp 3, else Cấp 2.
+//   Scorecard stops at Cấp 3 (Tim 10:15: "scorecard should stop at level 3 not 2"). E not scored here.
+//   Judge down → self-pick of the 3 buckets (s-self), row flagged judge_error; lead never lost.
+const QUALITY_PASS = '>80';
 
-// ═══ RESULT COPY — spec §3 (Tim edited 11 Sep; Code.gs carries the same text for the email) ═══
+// ═══ RESULT COPY — DRAFT, Tim edits. Code.gs carries the same text for the email. ═══
 const BANDS = {
-  '0':  { title: 'Chưa đo được', segment: 'A',
-          body: 'Bạn chọn "chưa gặp" ở gần hết các tình huống, nên bài này chưa nói được gì về bạn. Nếu bạn ít dùng AI trong công việc thì bạn đang ở Cấp 1 — và đó là cấp dễ lên trình nhất.',
-          done: 'Buổi chia sẻ online tối thứ Ba của mình bắt đầu đúng từ chỗ bạn đang đứng. Thông tin trong email.' },
-  '1':  { title: 'Cấp 1 — Hỏi', segment: 'A',
-          body: 'Bạn dùng AI như một cái Google biết nói: hỏi, nhận, copy. Mỗi lần làm task tương tự thì lại bắt đầu từ đầu. Không sao — hầu hết dân văn phòng đang ở đây, và đây là cấp dễ lên trình nhất.',
-          done: 'Buổi chia sẻ online tối thứ Ba của mình bắt đầu đúng từ chỗ bạn đang đứng. Thông tin trong email.' },
-  '2':  { title: 'Cấp 2 — Ra lệnh', segment: 'A',
-          body: 'Bạn biết dặn AI cho rõ, có bối cảnh, có ví dụ. Output khá hơn — nhưng mỗi phiên bạn vẫn phải dặn kỹ càng lại từ đầu để ra được kết quả tốt. Cái thiếu không phải là prompt hay hơn, cái thiếu là làm thế nào để không phải gõ đi gõ lại.',
-          done: 'Cấp 3 là chỗ buổi chia sẻ tối thứ Ba đưa bạn tới. Thông tin trong email.' },
-  '2+': { title: 'Cấp 2+ — cửa vào Cấp 3', segment: 'B',
-          body: 'Bài này đo được tới đây thôi. Từ đây có hai ngả. Nếu bạn đã dựng được hệ thống của mình — file bối cảnh, prompt dùng lại được, quy trình chạy được — và đang tự hỏi mình cao hơn không: Cấp 3 trở lên mình cần nhìn vào hệ thống AI và cách bạn quản lý dữ liệu thì mới đánh giá được, liên hệ mình nhé. Nếu bạn chưa dựng: bạn đang ở Cấp 2 vững, và Cấp 3 là chỗ buổi chia sẻ tối thứ Năm đưa bạn tới.',
-          done: 'Chưa có hệ thống → buổi chia sẻ tối thứ Năm. Đã có, muốn mình đánh giá → trả lời email này. Thông tin trong email.' }
+  '1': { title: 'Cấp 1 — Hỏi', segment: 'A',
+         body: 'Bạn dùng AI như một cái Google biết nói: hỏi, nhận, copy. Toàn việc một câu một việc. Không sao — hầu hết dân văn phòng đang ở đây, và đây là cấp dễ lên trình nhất: chỉ cần dám giao việc lớn hơn.',
+         next: 'Tuần này chọn một việc lớn hơn bạn vẫn đang tự làm vì "AI không làm nổi đâu" — kế hoạch, đề xuất, báo cáo — giao cho AI, kèm đủ bối cảnh, xem nó đi được tới đâu. AI miễn phí cũng đủ để thử.',
+         done: 'Buổi chia sẻ online tối thứ Ba của mình bắt đầu đúng từ chỗ bạn đang đứng. Thông tin trong email.' },
+  '2': { title: 'Cấp 2 — Ra lệnh', segment: 'A',
+         body: 'Bạn đã dám giao AI việc lớn — đó là bước nhiều người chưa qua. Nhưng bản đầu tiên chưa dùng được, bạn còn phải sửa nhiều, và mỗi lần lại dặn từ đầu. Cái thiếu không phải là prompt hay hơn. Cái thiếu là AI chưa biết thế nào là "đạt" theo chuẩn của bạn.',
+         next: 'Lần sau giao việc, kèm 1 sản phẩm mẫu bạn thấy đạt (email cũ, slide cũ, báo cáo cũ) và nói: "làm theo chuẩn này". Việc phức tạp thì mở đầu bằng: "Trước khi làm, hỏi mình 5 câu để hiểu rõ việc." Chấm output bằng mẫu, không chấm bằng cảm giác.',
+         done: 'Cấp 3 là chỗ buổi chia sẻ tối thứ Ba đưa bạn tới. Thông tin trong email.' },
+  '3': { title: 'Cấp 3 — Dựng', segment: 'B',
+         body: 'Bạn giao việc lớn và bản đầu tiên đã dùng được. Tức là AI đã biết chuẩn của bạn — bối cảnh, mẫu, tiêu chí đã có sẵn đâu đó. Bài này đo được tới đây. Từ Cấp 3 trở lên, câu hỏi không còn là "prompt thế nào" mà là hệ thống của bạn chạy được bao nhiêu việc mà không cần bạn ngồi đó.',
+         next: 'Đếm xem bạn có bao nhiêu việc lặp lại đang chạy bằng một câu lệnh ngắn từ prompt/project đã lưu. Dưới 3 → tuần này dựng thêm 1. Từ 3 trở lên → buổi tối thứ Năm là chỗ để so hệ thống của bạn với người khác.',
+         done: 'Buổi chia sẻ tối thứ Năm của mình dành riêng cho nhóm Cấp 3. Thông tin trong email.' }
 };
-const BOTTLENECK = {
-  T: 'Bạn giao cho AI toàn việc nhỏ. Bạn chưa tận dụng hết sức mạnh của AI, kể cả AI miễn phí.',
-  O: 'Bạn giao việc cho AI mà nó không biết thế nào là chuẩn. Bạn đã thử cho nó 1 sản phẩm mẫu trước khi bảo nó thực hiện tác vụ chưa?',
-  E: 'Bạn đang tốn quá nhiều công sức vào việc sửa output của AI. Nếu việc bạn giao là phức tạp, hãy luyện thói quen cho AI phỏng vấn để hiểu rõ tính chất công việc trước khi nó bắt tay vào làm nhé.',
-  X: 'Ba mảng của bạn — giao việc, đặt chuẩn, sửa output — đang ngang nhau. Không có một điểm nghẽn rõ; cấp của bạn quyết định việc tiếp theo.'
-};
-const NEXT = {
-  T: 'Tuần này chọn một việc lớn hơn bạn vẫn đang tự làm vì "AI không làm nổi đâu" — giao cho AI, kèm đủ bối cảnh, xem nó đi được tới đâu. AI miễn phí cũng đủ để thử.',
-  O: 'Lần sau giao việc, kèm 1 sản phẩm mẫu bạn thấy đạt (email cũ, slide cũ, báo cáo cũ) và nói: "làm theo chuẩn này". Chấm output bằng mẫu, không chấm bằng cảm giác.',
-  E: 'Việc phức tạp thì mở đầu bằng: "Trước khi làm, hỏi mình 5 câu để hiểu rõ việc." Trả lời xong mới cho nó làm. Prompt nào ra kết quả tốt thì lưu lại — lần sau dán, đừng gõ lại.',
-  X: 'Chọn mảng bạn tự thấy yếu nhất trong ba mảng trên và làm đúng một việc cho mảng đó tuần này. Chi tiết trong email.'
+const WHY = {
+  simple: 'Cả {n} prompt đều là việc một bước: hỏi, dịch, tóm tắt, sửa. Việc lớn nhất mình thấy là cái này — và nó vẫn là một câu một việc. Không phải bạn dùng AI sai, mà là bạn chưa giao cho nó việc đáng giao.',
+  complicated: 'Trong {n} prompt có việc nhiều phần, có chuẩn để biết đạt hay chưa — đây là loại việc AI làm được rất tốt nếu được dặn đúng. Việc lớn nhất là cái này.',
+  complex: 'Trong {n} prompt có việc mà "đạt" chưa ai định nghĩa, làm ra rồi mới biết — loại việc ít người dám giao AI. Việc lớn nhất là cái này.'
 };
 
 // ═══ STATE ═══
-let idx = 0;
-const answers = new Array(QUESTIONS.length).fill(null); // index into shuffled options
-let result = null;
+let prompts = [], verdict = null, quality = null, result = null;
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo({ top: 0 });
 }
+function showErr(id, msg) { const e = document.getElementById(id); e.textContent = msg; e.style.display = 'block'; }
 
-function startQuiz() {
-  QUESTIONS.forEach(q => {
-    const last = q.options[q.options.length - 1].score === null ? q.options.pop() : null;
-    for (let i = q.options.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [q.options[i], q.options[j]] = [q.options[j], q.options[i]];
-    }
-    if (last) q.options.push(last);
-  });
-  idx = 0;
-  renderQuestion();
-  showScreen('s-quiz');
+async function post(payload, timeoutMs) {
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), timeoutMs || 15000);
+  try {
+    // text/plain keeps the request "simple" → no CORS preflight against Apps Script
+    const resp = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), signal: ctl.signal });
+    return await resp.json();
+  } finally { clearTimeout(t); }
 }
 
-function renderQuestion() {
-  const q = QUESTIONS[idx];
-  const bi = BLOCKS.indexOf(q.dim), per = QUESTIONS.length / BLOCKS.length;
-  document.getElementById('q-progress').textContent = 'Phần ' + (bi + 1) + '/' + BLOCKS.length + ' · câu ' + (idx - bi * per + 1) + '/' + per;
-  document.getElementById('q-bar').style.width = Math.round(idx / QUESTIONS.length * 100) + '%';
-  document.getElementById('q-stem').textContent = q.text;
-  const host = document.getElementById('q-options');
-  host.innerHTML = '';
-  q.options.forEach((o, j) => {
-    const el = document.createElement('div');
-    el.className = 'option' + (answers[idx] === j ? ' selected' : '');
-    el.textContent = o.text;
-    el.onclick = () => pick(j, el);
-    host.appendChild(el);
-  });
-  document.getElementById('q-back').style.visibility = idx === 0 ? 'hidden' : 'visible';
-}
-
-function pick(j, el) {
-  answers[idx] = j;
-  document.querySelectorAll('#q-options .option').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
-  setTimeout(() => {
-    const endOfBlock = QUESTIONS[idx + 1] === undefined || QUESTIONS[idx + 1].dim !== QUESTIONS[idx].dim;
-    if (endOfBlock && evalBlocks().stop !== null) finish();
-    else if (idx < QUESTIONS.length - 1) { idx++; renderQuestion(); }
-    else finish();
-  }, 220);
-}
-
-function prevQuestion() { if (idx > 0) { idx--; renderQuestion(); } }
-
-// Walk answered blocks in order; returns per-block {correct, answered, pass} and the first failing block (stop) or null.
-function evalBlocks() {
-  const blocks = {}; let stop = null;
-  for (const d of BLOCKS) {
-    let c = 0, n = 0;
-    QUESTIONS.forEach((q, i) => {
-      if (q.dim !== d || answers[i] === null) return;
-      const sc = q.options[answers[i]].score;
-      if (sc === null) return;
-      c += sc; n++;
-    });
-    const pass = n === 0 ? true : c >= BLOCK_PASS;
-    blocks[d] = { correct: c, answered: n, pass };
-    if (!pass) { stop = d; break; }
+// ═══ GATE 1 — judge ═══
+async function judge() {
+  document.getElementById('p-err').style.display = 'none';
+  prompts = [1, 2, 3, 4, 5].map(i => document.getElementById('p' + i).value.trim().slice(0, 2000)).filter(p => p.length >= 8);
+  if (prompts.length < 3) { showErr('p-err', 'Cho mình ít nhất 3 prompt nhé — mỗi cái vài chữ là được.'); return; }
+  const btn = document.getElementById('p-submit'); btn.disabled = true;
+  showScreen('s-wait');
+  try {
+    const out = await post({ action: 'judge', prompts, src: SRC }, JUDGE_TIMEOUT_MS);
+    if (!out.ok || !out.verdict || !['simple', 'complicated', 'complex'].includes(out.verdict.ceiling)) throw new Error(out.error || 'judge');
+    verdict = out.verdict; verdict.error = '';
+  } catch (e) {
+    console.error(e);
+    verdict = null;
+    btn.disabled = false;
+    showScreen('s-self');
+    return;
   }
-  return { blocks, stop };
+  btn.disabled = false;
+  afterGate1();
 }
+
+function selfPick(ceiling) {
+  const idx = prompts.reduce((b, p, i) => p.length > prompts[b].length ? i : b, 0); // longest as the stand-in quote
+  verdict = { ceiling, ceiling_index: idx, reason_vn: '', self_pick: true, error: 'judge_failed→self_pick' };
+  afterGate1();
+}
+
+function afterGate1() {
+  const q = prompts[verdict.ceiling_index] || prompts[0];
+  if (verdict.ceiling === 'simple') { quality = null; finish(); return; }
+  document.getElementById('q-quote').textContent = q;
+  showScreen('s-quality');
+}
+
+// ═══ GATE 2 — quality ═══
+function pickQuality(band) { quality = band; finish(); }
 
 function finish() {
-  const { blocks, stop } = evalBlocks();
-  const seen = BLOCKS.slice(0, stop ? BLOCKS.indexOf(stop) + 1 : BLOCKS.length);
-  const raw = {};
-  let correct = 0, answered = 0, asked = 0;
-  QUESTIONS.forEach((q, i) => {
-    if (!seen.includes(q.dim)) return;
-    asked++;
-    const sc = q.options[answers[i]].score;
-    if (sc === null) { raw[q.id] = '-'; return; }
-    correct += sc; answered++; raw[q.id] = sc;
-  });
-  const pct = answered ? correct / answered : 0;
-  let level, bottleneck;
-  if (answered < 2) { level = '0'; bottleneck = 'X'; }
-  else if (stop === 'T') { level = '1'; bottleneck = 'T'; }
-  else if (stop === 'O') { level = '2'; bottleneck = 'O'; }
-  else if (stop === 'E') { level = '2'; bottleneck = 'E'; }
-  else {
-    level = '2+';
-    // all passed: bottleneck = unique weakest block that isn't perfect, else X
-    const sub = BLOCKS.filter(d => blocks[d].answered).map(d => [d, blocks[d].correct / blocks[d].answered]);
-    const min = Math.min(...sub.map(x => x[1]));
-    const lows = sub.filter(x => x[1] === min);
-    bottleneck = (lows.length === 1 && min < 1) ? lows[0][0] : 'X';
-  }
-  const p100 = d => blocks[d] && blocks[d].answered ? Math.round(blocks[d].correct / blocks[d].answered * 100) : '';
-  result = {
-    level, segment: BANDS[level].segment,
-    score_pct: Math.round(pct * 100), answered, asked,
-    t_pct: p100('T'), o_pct: p100('O'), e_pct: p100('E'),
-    bottleneck, raw
-  };
+  const level = verdict.ceiling === 'simple' ? '1' : (quality === QUALITY_PASS ? '3' : '2');
   const B = BANDS[level];
+  const q = prompts[verdict.ceiling_index] || prompts[0];
+  result = {
+    level, segment: B.segment,
+    ceiling: verdict.ceiling, ceiling_prompt: q,
+    judge_reason: verdict.reason_vn || '', judge_error: verdict.error || '',
+    quality: quality || '', prompts
+  };
   document.getElementById('r-title').textContent = B.title;
-  const skipped = asked - answered;
-  document.getElementById('r-score').textContent = correct + '/' + answered + ' tình huống' + (skipped ? ' (bỏ qua ' + skipped + ' chưa gặp)' : '') + (asked < QUESTIONS.length ? ' · dừng sau phần ' + seen.length + '/3' : '');
-  document.querySelectorAll('.rung').forEach(r => {
-    r.classList.remove('here', 'between');
-    if (level === '2+') { if (r.dataset.l === '2') r.classList.add('here'); if (r.dataset.l === '3') r.classList.add('between'); }
-    else if (r.dataset.l === (level === '0' ? '1' : level)) r.classList.add('here');
-  });
+  document.getElementById('r-sub').textContent = 'đọc từ ' + prompts.length + ' prompt' + (quality ? ' · bản đầu dùng được ' + quality.replace('<', 'dưới ').replace('>', 'trên ') + '%' : '');
+  document.querySelectorAll('.rung').forEach(r => r.classList.toggle('here', r.dataset.l === level));
   document.getElementById('r-body').textContent = B.body;
-  document.getElementById('r-bottleneck').textContent = BOTTLENECK[bottleneck];
-  document.getElementById('r-next').textContent = NEXT[bottleneck];
+  document.getElementById('r-why').textContent = (verdict.reason_vn || WHY[verdict.ceiling]).replace('{n}', prompts.length);
+  document.getElementById('r-quote').textContent = q;
+  document.getElementById('r-next').textContent = B.next;
   document.getElementById('d-line').textContent = B.done;
   showScreen('s-result');
 }
 
+// ═══ LEAD ═══
 async function submitLead() {
-  const err = document.getElementById('f-err');
-  err.style.display = 'none';
+  const err = document.getElementById('f-err'); err.style.display = 'none';
   const name = document.getElementById('f-name').value.trim();
   const email = document.getElementById('f-email').value.trim();
-  if (!name) { err.textContent = 'Cho mình xin tên bạn nhé.'; err.style.display = 'block'; return; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Email chưa đúng — đây là nơi mình gửi kết quả.'; err.style.display = 'block'; return; }
+  if (!name) { showErr('f-err', 'Cho mình xin tên bạn nhé.'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('f-err', 'Email chưa đúng — đây là nơi mình gửi kết quả.'); return; }
   const btn = document.getElementById('f-submit');
   btn.disabled = true; btn.textContent = 'Đang gửi…';
   try {
-    // text/plain keeps the request "simple" → no CORS preflight against Apps Script
-    const resp = await fetch(GOOGLE_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ timestamp: new Date().toISOString(), name, email, src: SRC, ...result })
-    });
-    const out = await resp.json();
+    const out = await post({ action: 'lead', timestamp: new Date().toISOString(), name, email, src: SRC, ...result });
     if (!out.ok) throw new Error(out.error || 'server');
     showScreen('s-done');
   } catch (e) {
     console.error(e);
-    err.textContent = 'Gửi chưa được. Thử lại giúp mình — kết quả của bạn vẫn còn trên trang.';
-    err.style.display = 'block';
-  } finally {
-    btn.disabled = false; btn.textContent = 'Gửi cho mình';
-  }
+    showErr('f-err', 'Gửi chưa được. Thử lại giúp mình — kết quả của bạn vẫn còn trên trang.');
+  } finally { btn.disabled = false; btn.textContent = 'Gửi cho mình'; }
 }
 </script>
 </body>

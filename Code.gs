@@ -20,10 +20,10 @@ var HEADERS = ['Timestamp', 'Name', 'Email', 'Level', 'Segment', 'Score %', 'T%'
 var COL = { STATUS: 14, NOTE: 15, EMAIL: 3, NAME: 2, LEVEL: 4 }; // 1-based
 var SENDER = 'Tim Trần — Tim on AI';
 
-// ═══ WORKSHOP FACTS — P101/context.md 11 Sep 08:30: weeknight online classes, Cấp 1–2 Tuesdays / Cấp 3 Thursdays (no weekends), 8 seats, 2.5M/seat; Nov dates TBD ═══
+// ═══ SESSION FACTS — P101/context.md 11 Sep: NOT a class, a sharing session (Tim 08:55). Formula: where you are → why stuck → cost you don't see → solution → Tim demo → Q&A. Weeknight online, Cấp 1–2 Tuesdays / Cấp 3 Thursdays; dates + price/seats pending Tim ═══
 var WORKSHOP = {
   date: 'buổi tối trong tuần — Cấp 1–2: tối thứ Ba, Cấp 3: tối thứ Năm (ngày cụ thể mình chốt với nhóm đăng ký)',
-  format: 'online, làm việc trực tiếp trên tài liệu thật của bạn',
+  format: 'online. Đi theo một mạch: bạn đang ở đâu → vì sao kẹt ở đó → cái giá bạn chưa nhìn thấy → cách gỡ → mình demo cách gỡ đó → hỏi đáp',
   seats: '8 chỗ',
   price: '2.500.000đ / chỗ'
 };
@@ -32,16 +32,16 @@ var WORKSHOP = {
 var BANDS = {
   '0':  { title: 'Chưa đo được', segment: 'A',
           body: 'Bạn chọn "chưa gặp" ở gần hết 12 tình huống, nên bài này chưa nói được gì về bạn. Nếu bạn ít dùng AI trong công việc thì bạn đang ở Cấp 1 — và đó là cấp dễ lên trình nhất.',
-          done: 'Lớp online tối thứ Ba của mình bắt đầu đúng từ chỗ bạn đang đứng. Thông tin trong email.' },
+          done: 'Buổi chia sẻ online tối thứ Ba của mình bắt đầu đúng từ chỗ bạn đang đứng. Thông tin trong email.' },
   '1':  { title: 'Cấp 1 — Hỏi', segment: 'A',
           body: 'Bạn dùng AI như một cái Google biết nói: hỏi, nhận, copy. Mỗi lần làm task tương tự thì lại bắt đầu từ đầu. Không sao — hầu hết dân văn phòng đang ở đây, và đây là cấp dễ lên trình nhất.',
-          done: 'Lớp online tối thứ Ba của mình bắt đầu đúng từ chỗ bạn đang đứng. Thông tin trong email.' },
+          done: 'Buổi chia sẻ online tối thứ Ba của mình bắt đầu đúng từ chỗ bạn đang đứng. Thông tin trong email.' },
   '2':  { title: 'Cấp 2 — Ra lệnh', segment: 'A',
           body: 'Bạn biết dặn AI cho rõ, có bối cảnh, có ví dụ. Output khá hơn — nhưng mỗi phiên bạn vẫn phải dặn kỹ càng lại từ đầu để ra được kết quả tốt. Cái thiếu không phải là prompt hay hơn, cái thiếu là làm thế nào để không phải gõ đi gõ lại.',
-          done: 'Cấp 3 là chỗ lớp tối thứ Ba đưa bạn tới. Thông tin trong email.' },
+          done: 'Cấp 3 là chỗ buổi chia sẻ tối thứ Ba đưa bạn tới. Thông tin trong email.' },
   '2+': { title: 'Cấp 2+ — cửa vào Cấp 3', segment: 'B',
-          body: 'Bài này đo được tới đây thôi. Từ đây có hai ngả. Nếu bạn đã dựng được hệ thống của mình — file bối cảnh, prompt dùng lại được, quy trình chạy được — và đang tự hỏi mình cao hơn không: Cấp 3 trở lên mình cần nhìn vào hệ thống AI và cách bạn quản lý dữ liệu thì mới đánh giá được, liên hệ mình nhé. Nếu bạn chưa dựng: bạn đang ở Cấp 2 vững, và Cấp 3 là chỗ lớp tối thứ Năm đưa bạn tới.',
-          done: 'Chưa có hệ thống → lớp tối thứ Năm. Đã có, muốn mình đánh giá → trả lời email này. Thông tin trong email.' }
+          body: 'Bài này đo được tới đây thôi. Từ đây có hai ngả. Nếu bạn đã dựng được hệ thống của mình — file bối cảnh, prompt dùng lại được, quy trình chạy được — và đang tự hỏi mình cao hơn không: Cấp 3 trở lên mình cần nhìn vào hệ thống AI và cách bạn quản lý dữ liệu thì mới đánh giá được, liên hệ mình nhé. Nếu bạn chưa dựng: bạn đang ở Cấp 2 vững, và Cấp 3 là chỗ buổi chia sẻ tối thứ Năm đưa bạn tới.',
+          done: 'Chưa có hệ thống → buổi chia sẻ tối thứ Năm. Đã có, muốn mình đánh giá → trả lời email này. Thông tin trong email.' }
 };
 var BOTTLENECK = {
   T: 'Bạn giao cho AI toàn việc nhỏ. Bạn chưa tận dụng hết sức mạnh của AI, kể cả AI miễn phí.',
@@ -126,7 +126,7 @@ function sendResultEmail_(email, name, level, bottleneck, scorePct) {
     'Một việc tiếp theo: ' + (NEXT[bottleneck] || NEXT.X) + '\n\n' +
     '---\n\n' +
     B.done + '\n\n' +
-    'Workshop Tim on AI\n' +
+    'Buổi chia sẻ Tim on AI\n' +
     '· Thời gian: ' + WORKSHOP.date + '\n' +
     '· Hình thức: ' + WORKSHOP.format + '\n' +
     '· Sĩ số: ' + WORKSHOP.seats + '\n' +

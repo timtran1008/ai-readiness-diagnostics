@@ -31,7 +31,7 @@ var WORKSHOP = {
 // ═══ RESULT COPY — same text as scorecard.html §3 (Tim edits both places, or edit here and mirror) ═══
 var BANDS = {
   '0':  { title: 'Chưa đo được', segment: 'A',
-          body: 'Bạn chọn "chưa gặp" ở gần hết 12 tình huống, nên bài này chưa nói được gì về bạn. Nếu bạn ít dùng AI trong công việc thì bạn đang ở Cấp 1 — và đó là cấp dễ lên trình nhất.',
+          body: 'Bạn chọn "chưa gặp" ở gần hết các tình huống, nên bài này chưa nói được gì về bạn. Nếu bạn ít dùng AI trong công việc thì bạn đang ở Cấp 1 — và đó là cấp dễ lên trình nhất.',
           done: 'Buổi chia sẻ online tối thứ Ba của mình bắt đầu đúng từ chỗ bạn đang đứng. Thông tin trong email.' },
   '1':  { title: 'Cấp 1 — Hỏi', segment: 'A',
           body: 'Bạn dùng AI như một cái Google biết nói: hỏi, nhận, copy. Mỗi lần làm task tương tự thì lại bắt đầu từ đầu. Không sao — hầu hết dân văn phòng đang ở đây, và đây là cấp dễ lên trình nhất.',

@@ -69,7 +69,7 @@ p { font-size: 16px; line-height: 1.65; color: var(--dim); margin-bottom: 14px; 
   <!-- 1 · Mở đầu -->
   <section class="screen active" id="s-intro">
     <h1>Bạn đang dùng AI ở cấp nào?</h1>
-    <p>12 tình huống công việc thật. 10 phút.</p>
+    <p>Tối đa 12 tình huống công việc thật, 4–10 phút — bài dừng sớm khi đã đủ để nói bạn đang ở đâu.</p>
     <p>Không có đáp án "đúng sách" — chọn cái bạn đã thực sự làm lần gần nhất.</p>
     <button class="btn" onclick="startQuiz()">Bắt đầu</button>
   </section>
@@ -129,7 +129,11 @@ p { font-size: 16px; line-height: 1.65; color: var(--dim); margin-bottom: 14px; 
 // ═══ CONFIG — dán Web App URL sau khi deploy Apps Script (xem đầu file Code.gs) ═══
 const GOOGLE_SCRIPT_URL = 'PASTE_APPS_SCRIPT_WEB_APP_URL_HERE';
 const SRC = (new URLSearchParams(window.location.search).get('src') || '').trim().slice(0, 20);
-const CUT = 0.70; // provisional, mirrors STAGE1_CUT in generic-toe-tna.html
+// ═══ BRANCHING (Tim, 11 Sep 09:00: "if they score low on T → no reason to move on") ═══
+// Blocks T → O → E, 4 items each. A block PASSES at ≥ BLOCK_PASS scored (skips excluded; all skipped → can't judge → pass through).
+// T fails → Cấp 1 / bottleneck T, stop after 4. O fails → Cấp 2 / O, stop after 8. E fails → Cấp 2 / E. All pass → Cấp 2+.
+const BLOCKS = ['T', 'O', 'E'];
+const BLOCK_PASS = 2;
 
 // ═══ ITEM BANK — 12 items, everyday office tasks (Claude draft 11 Sep, Tim rewrites). 4 scored options shuffled at start; 5th "chưa gặp" stays last, score null = excluded from the denominator. Key answer varies in length/position on purpose. ═══
 const QUESTIONS = [
@@ -210,7 +214,7 @@ const QUESTIONS = [
 // ═══ RESULT COPY — spec §3 (Tim edited 11 Sep; Code.gs carries the same text for the email) ═══
 const BANDS = {
   '0':  { title: 'Chưa đo được', segment: 'A',
-          body: 'Bạn chọn "chưa gặp" ở gần hết 12 tình huống, nên bài này chưa nói được gì về bạn. Nếu bạn ít dùng AI trong công việc thì bạn đang ở Cấp 1 — và đó là cấp dễ lên trình nhất.',
+          body: 'Bạn chọn "chưa gặp" ở gần hết các tình huống, nên bài này chưa nói được gì về bạn. Nếu bạn ít dùng AI trong công việc thì bạn đang ở Cấp 1 — và đó là cấp dễ lên trình nhất.',
           done: 'Buổi chia sẻ online tối thứ Ba của mình bắt đầu đúng từ chỗ bạn đang đứng. Thông tin trong email.' },
   '1':  { title: 'Cấp 1 — Hỏi', segment: 'A',
           body: 'Bạn dùng AI như một cái Google biết nói: hỏi, nhận, copy. Mỗi lần làm task tương tự thì lại bắt đầu từ đầu. Không sao — hầu hết dân văn phòng đang ở đây, và đây là cấp dễ lên trình nhất.',
@@ -262,7 +266,8 @@ function startQuiz() {
 
 function renderQuestion() {
   const q = QUESTIONS[idx];
-  document.getElementById('q-progress').textContent = (idx + 1) + ' / ' + QUESTIONS.length;
+  const bi = BLOCKS.indexOf(q.dim), per = QUESTIONS.length / BLOCKS.length;
+  document.getElementById('q-progress').textContent = 'Phần ' + (bi + 1) + '/' + BLOCKS.length + ' · câu ' + (idx - bi * per + 1) + '/' + per;
   document.getElementById('q-bar').style.width = Math.round(idx / QUESTIONS.length * 100) + '%';
   document.getElementById('q-stem').textContent = q.text;
   const host = document.getElementById('q-options');
@@ -282,46 +287,70 @@ function pick(j, el) {
   document.querySelectorAll('#q-options .option').forEach(o => o.classList.remove('selected'));
   el.classList.add('selected');
   setTimeout(() => {
-    if (idx < QUESTIONS.length - 1) { idx++; renderQuestion(); }
+    const endOfBlock = QUESTIONS[idx + 1] === undefined || QUESTIONS[idx + 1].dim !== QUESTIONS[idx].dim;
+    if (endOfBlock && evalBlocks().stop !== null) finish();
+    else if (idx < QUESTIONS.length - 1) { idx++; renderQuestion(); }
     else finish();
   }, 220);
 }
 
 function prevQuestion() { if (idx > 0) { idx--; renderQuestion(); } }
 
+// Walk answered blocks in order; returns per-block {correct, answered, pass} and the first failing block (stop) or null.
+function evalBlocks() {
+  const blocks = {}; let stop = null;
+  for (const d of BLOCKS) {
+    let c = 0, n = 0;
+    QUESTIONS.forEach((q, i) => {
+      if (q.dim !== d || answers[i] === null) return;
+      const sc = q.options[answers[i]].score;
+      if (sc === null) return;
+      c += sc; n++;
+    });
+    const pass = n === 0 ? true : c >= BLOCK_PASS;
+    blocks[d] = { correct: c, answered: n, pass };
+    if (!pass) { stop = d; break; }
+  }
+  return { blocks, stop };
+}
+
 function finish() {
-  const dim = { T: 0, O: 0, E: 0 }, tot = { T: 0, O: 0, E: 0 };
+  const { blocks, stop } = evalBlocks();
+  const seen = BLOCKS.slice(0, stop ? BLOCKS.indexOf(stop) + 1 : BLOCKS.length);
   const raw = {};
-  let correct = 0, answered = 0;
+  let correct = 0, answered = 0, asked = 0;
   QUESTIONS.forEach((q, i) => {
-    const s = q.options[answers[i]].score;
-    if (s === null) { raw[q.id] = '-'; return; }       // "chưa gặp" — out of the denominator
-    correct += s; answered++; dim[q.dim] += s; tot[q.dim]++;
-    raw[q.id] = s;
+    if (!seen.includes(q.dim)) return;
+    asked++;
+    const sc = q.options[answers[i]].score;
+    if (sc === null) { raw[q.id] = '-'; return; }
+    correct += sc; answered++; raw[q.id] = sc;
   });
   const pct = answered ? correct / answered : 0;
-  const level = answered < 4 ? '0' : (pct < 0.50 ? '1' : (pct < CUT ? '2' : '2+'));
-  const sub = {};
-  ['T', 'O', 'E'].forEach(d => { sub[d] = tot[d] ? dim[d] / tot[d] : null; });
-  // bottleneck = unique lowest sub-score; ties or nothing to compare → X (neutral line)
-  const scored = ['T', 'O', 'E'].filter(d => sub[d] !== null);
-  let bottleneck = 'X';
-  if (scored.length) {
-    const min = Math.min(...scored.map(d => sub[d]));
-    const lows = scored.filter(d => sub[d] === min);
-    if (lows.length === 1) bottleneck = lows[0];
+  let level, bottleneck;
+  if (answered < 2) { level = '0'; bottleneck = 'X'; }
+  else if (stop === 'T') { level = '1'; bottleneck = 'T'; }
+  else if (stop === 'O') { level = '2'; bottleneck = 'O'; }
+  else if (stop === 'E') { level = '2'; bottleneck = 'E'; }
+  else {
+    level = '2+';
+    // all passed: bottleneck = unique weakest block that isn't perfect, else X
+    const sub = BLOCKS.filter(d => blocks[d].answered).map(d => [d, blocks[d].correct / blocks[d].answered]);
+    const min = Math.min(...sub.map(x => x[1]));
+    const lows = sub.filter(x => x[1] === min);
+    bottleneck = (lows.length === 1 && min < 1) ? lows[0][0] : 'X';
   }
-  const p100 = v => v === null ? '' : Math.round(v * 100);
+  const p100 = d => blocks[d] && blocks[d].answered ? Math.round(blocks[d].correct / blocks[d].answered * 100) : '';
   result = {
     level, segment: BANDS[level].segment,
-    score_pct: Math.round(pct * 100), answered,
-    t_pct: p100(sub.T), o_pct: p100(sub.O), e_pct: p100(sub.E),
+    score_pct: Math.round(pct * 100), answered, asked,
+    t_pct: p100('T'), o_pct: p100('O'), e_pct: p100('E'),
     bottleneck, raw
   };
   const B = BANDS[level];
   document.getElementById('r-title').textContent = B.title;
-  const skipped = QUESTIONS.length - answered;
-  document.getElementById('r-score').textContent = correct + '/' + answered + ' tình huống' + (skipped ? ' (bỏ qua ' + skipped + ' chưa gặp)' : '');
+  const skipped = asked - answered;
+  document.getElementById('r-score').textContent = correct + '/' + answered + ' tình huống' + (skipped ? ' (bỏ qua ' + skipped + ' chưa gặp)' : '') + (asked < QUESTIONS.length ? ' · dừng sau phần ' + seen.length + '/3' : '');
   document.querySelectorAll('.rung').forEach(r => {
     r.classList.remove('here', 'between');
     if (level === '2+') { if (r.dataset.l === '2') r.classList.add('here'); if (r.dataset.l === '3') r.classList.add('between'); }

@@ -150,7 +150,7 @@ function handleLead_(d) {
 // ═══════════════════════════════════════════════════════════
 // Tried in order; a model is skipped for the rest of the call on 404 (gone) or 503 (overloaded). 2.5-flash 404'd for new users on 11 Sep 2026;
 // 3.6-flash returned 503 'high demand' 2 of 3 calls the same day. Verify names with GET ?action=models.
-var JUDGE_MODELS = ['gemini-3.6-flash', 'gemini-3.6-flash-lite', 'gemini-3.5-flash', 'gemini-3-flash'];
+var JUDGE_MODELS = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-flash-latest'];   // all confirmed via ?action=models 11 Sep 2026
 
 function runJudge_(prompts) {
   var key = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');

@@ -24,7 +24,7 @@ var HEADERS = ['Timestamp', 'Name', 'Email', 'Level', 'Segment', 'Ceiling', 'Cei
                'Auto-email sent', 'Trạng thái', 'Ghi chú'];
 var COL = { STATUS: 18, NOTE: 19, EMAIL: 3, NAME: 2, LEVEL: 4, SENT: 17 }; // 1-based
 var JUDGE_LOG = 'Judge log';
-var JUDGE_LOG_HEADERS = ['Timestamp', 'Src', 'N prompts', 'Ceiling', 'Ceiling idx', 'Per-prompt', 'Reason', 'Prompts (JSON)', 'Error'];
+var JUDGE_LOG_HEADERS = ['Timestamp', 'Src', 'N prompts', 'Ceiling', 'Ceiling idx', 'Per-prompt', 'Reason', 'Prompts (JSON)', 'Error', 'Model'];
 var SENDER = 'Tim Trần — Tim on AI';
 
 // ═══ SESSION FACTS — P101/context.md 11 Sep: NOT a class, a sharing session (Tim 08:55). Dates RULED 11 Sep 11:50 (Tim, option 1): pilot 15/17 Sep = warm invites outside the scorecard; scorecard cohort 22 Sep (Cấp 1–2) / 24 Sep (Cấp 3). Formula: where you are → why stuck → cost you don't see → solution → Tim demo → Q&A. Weeknight online, Cấp 1–2 Tuesdays / Cấp 3 Thursdays; dates + price/seats pending Tim ═══
@@ -68,8 +68,18 @@ function doPost(e) {
   return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
 }
 
-function doGet() {
-  return ContentService.createTextOutput(JSON.stringify({ ok: true, service: 'tim-on-ai-scorecard' })).setMimeType(ContentService.MimeType.JSON);
+function doGet(e) {
+  var out = { ok: true, service: 'tim-on-ai-scorecard' };
+  if (e && e.parameter && e.parameter.action === 'models') {
+    try {
+      var key = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
+      var r = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key=' + key, { muteHttpExceptions: true });
+      var list = JSON.parse(r.getContentText()).models || [];
+      out.models = list.filter(function (m) { return (m.supportedGenerationMethods || []).indexOf('generateContent') >= 0; }).map(function (m) { return m.name.replace('models/', ''); });
+      out.chain = JUDGE_MODELS;
+    } catch (err) { out.ok = false; out.error = String(err); }
+  }
+  return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
 }
 
 // Abuse caps (Execute as Me + Anyone = open endpoint). CacheService counters, 6 h window.
@@ -138,7 +148,9 @@ function handleLead_(d) {
 // 1b. Gemini judge — TASK COMPLEXITY ONLY (Tim 10:35: "the prompt is to check task complexity only")
 //     Domain codes per TQE instrument v0.5 §3 (Code D): simple / complicated / complex.
 // ═══════════════════════════════════════════════════════════
-var JUDGE_MODEL = 'gemini-3.6-flash';   // 2.5-flash returned 404 'no longer available to new users' on 11 Sep 2026
+// Tried in order; a model is skipped for the rest of the call on 404 (gone) or 503 (overloaded). 2.5-flash 404'd for new users on 11 Sep 2026;
+// 3.6-flash returned 503 'high demand' 2 of 3 calls the same day. Verify names with GET ?action=models.
+var JUDGE_MODELS = ['gemini-3.6-flash', 'gemini-3.6-flash-lite', 'gemini-3.5-flash', 'gemini-3-flash'];
 
 function runJudge_(prompts) {
   var key = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
@@ -169,18 +181,21 @@ function runJudge_(prompts) {
     '{"prompts":[{"i":1,"domain":"simple|complicated|complex","task_vn":"việc gì, 5-10 từ"}],"ceiling":"simple|complicated|complex","ceiling_index":1,"reason_vn":"..."}'
   ].join('\n');
 
-  var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + JUDGE_MODEL + ':generateContent?key=' + key;
   var order = { simple: 0, complicated: 1, complex: 2 };
-
   var lastErr = null;
-  for (var attempt = 0; attempt < 3; attempt++) {
+  var attempts = [];   // [model, thinkingOff]
+  JUDGE_MODELS.forEach(function (m) { attempts.push([m, true]); attempts.push([m, false]); });
+  for (var a = 0; a < attempts.length; a++) {
+    var model = attempts[a][0], thinkingOff = attempts[a][1];
     try {
-      // attempt 0: thinking off (fast). If the model rejects thinkingConfig (HTTP 400), later attempts drop it.
       var gen = { temperature: 0.1, responseMimeType: 'application/json' };
-      if (attempt === 0) gen.thinkingConfig = { thinkingBudget: 0 };
+      if (thinkingOff) gen.thinkingConfig = { thinkingBudget: 0 };
       var body = { contents: [{ parts: [{ text: prompt }] }], generationConfig: gen };
+      var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + key;
       var resp = UrlFetchApp.fetch(url, { method: 'post', contentType: 'application/json', payload: JSON.stringify(body), muteHttpExceptions: true });
-      if (resp.getResponseCode() !== 200) throw new Error('Gemini HTTP ' + resp.getResponseCode() + ': ' + resp.getContentText().slice(0, 300));
+      var code = resp.getResponseCode();
+      if (code === 404 || code === 503 || code === 429) { lastErr = new Error('Gemini HTTP ' + code + ' on ' + model); a += thinkingOff ? 1 : 0; Utilities.sleep(600); continue; } // skip this model entirely
+      if (code !== 200) throw new Error('Gemini HTTP ' + code + ' on ' + model + ': ' + resp.getContentText().slice(0, 300));
       var text = JSON.parse(resp.getContentText()).candidates[0].content.parts[0].text;
       var v = JSON.parse(text);
       if (!Array.isArray(v.prompts) || !v.prompts.length) throw new Error('Judge JSON thiếu prompts');
@@ -196,10 +211,11 @@ function runJudge_(prompts) {
       v.ceiling = Object.keys(order)[best];
       v.ceiling_index = bestIdx;
       v.reason_vn = String(v.reason_vn || '').slice(0, 600);
+      v.model = model;
       return v;
     } catch (err) {
       lastErr = err;
-      Utilities.sleep(1500);
+      Utilities.sleep(800);
     }
   }
   throw lastErr;
@@ -214,7 +230,7 @@ function logJudge_(src, prompts, verdict, error) {
     verdict ? verdict.ceiling : '', verdict ? verdict.ceiling_index : '',
     verdict ? verdict.prompts.map(function (p) { return p.domain + ':' + (p.task_vn || ''); }).join(' | ') : '',
     verdict ? verdict.reason_vn : '',
-    JSON.stringify(prompts).slice(0, 12000), error || ''
+    JSON.stringify(prompts).slice(0, 12000), error || '', verdict ? (verdict.model || '') : ''
   ]);
 }
 

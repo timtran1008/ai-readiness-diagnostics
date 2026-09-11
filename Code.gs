@@ -19,9 +19,10 @@
  */
 
 var SHEET_NAME = 'Leads';
-var HEADERS = ['Timestamp', 'Name', 'Email', 'Level', 'Segment', 'Ceiling', 'Ceiling prompt', 'Judge reason', 'Quality band',
-               'Src', 'Prompts (JSON)', 'Judge error', 'Auto-email sent', 'Trạng thái', 'Ghi chú'];
-var COL = { STATUS: 14, NOTE: 15, EMAIL: 3, NAME: 2, LEVEL: 4, SENT: 13 }; // 1-based
+var HEADERS = ['Timestamp', 'Name', 'Email', 'Level', 'Segment', 'Ceiling', 'Ceiling prompt', 'Judge reason',
+               'Follow-ups', 'In system', 'Paying', 'Input mode', 'Src', 'Prompts (JSON)', 'Picked tasks', 'Judge error',
+               'Auto-email sent', 'Trạng thái', 'Ghi chú'];
+var COL = { STATUS: 18, NOTE: 19, EMAIL: 3, NAME: 2, LEVEL: 4, SENT: 17 }; // 1-based
 var JUDGE_LOG = 'Judge log';
 var JUDGE_LOG_HEADERS = ['Timestamp', 'Src', 'N prompts', 'Ceiling', 'Ceiling idx', 'Per-prompt', 'Reason', 'Prompts (JSON)', 'Error'];
 var SENDER = 'Tim Trần — Tim on AI';
@@ -47,7 +48,9 @@ var BANDS = {
   '3': { title: 'Cấp 3 — Dựng', segment: 'B',
          body: 'Bạn giao việc lớn và bản đầu tiên đã dùng được. Tức là AI đã biết chuẩn của bạn — bối cảnh, mẫu, tiêu chí đã có sẵn đâu đó. Bài này đo được tới đây. Từ Cấp 3 trở lên, câu hỏi không còn là "prompt thế nào" mà là hệ thống của bạn chạy được bao nhiêu việc mà không cần bạn ngồi đó.',
          next: 'Đếm xem bạn có bao nhiêu việc lặp lại đang chạy bằng một câu lệnh ngắn từ prompt/project đã lưu. Dưới 3 → tuần này dựng thêm 1. Từ 3 trở lên → buổi tối thứ Năm là chỗ để so hệ thống của bạn với người khác.',
-         done: 'Buổi chia sẻ tối thứ Năm của mình dành riêng cho nhóm Cấp 3. Thông tin trong email.' }
+         done: 'Buổi chia sẻ tối thứ Năm của mình dành riêng cho nhóm Cấp 3. Thông tin trong email.' },
+  near: 'Riêng bạn: bản đầu đã dùng được rồi — tức là bạn dặn AI tốt. Cái còn thiếu là một chỗ để AI nhớ chuẩn của bạn mà không cần bạn dặn lại: Project, Gem, hay một file bối cảnh. Dựng cái đó xong là Cấp 3.',
+  nearNext: 'Lấy đúng prompt vừa rồi, tách phần bối cảnh + chuẩn ra thành một file hoặc Project instructions. Lần sau chỉ gõ việc, không gõ lại bối cảnh. Một việc thôi, tuần này.'
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -105,9 +108,10 @@ function handleLead_(d) {
     String(d.ceiling || ''),
     String(d.ceiling_prompt || '').slice(0, 2000),
     String(d.judge_reason || '').slice(0, 1000),
-    String(d.quality || ''),
+    String(d.followups || ''), String(d.in_system || ''), String(d.paying || ''), String(d.input_mode || ''),
     String(d.src || ''),
     JSON.stringify(d.prompts || []).slice(0, 12000),
+    (d.picked || []).join(' | ').slice(0, 2000),
     String(d.judge_error || ''),
     '', 'Mới', ''
   ];
@@ -120,7 +124,7 @@ function handleLead_(d) {
     if (c.get('sent:' + email.toLowerCase())) throw new Error('duplicate_within_6h');   // one result email per address per 6 h
     if (!bump_('email6h', CAP_EMAIL_PER_6H)) throw new Error('email_cap');
     c.put('sent:' + email.toLowerCase(), '1', 21600);
-    sendResultEmail_(email, row[1], level, String(d.ceiling_prompt || ''), String(d.judge_reason || ''), String(d.quality || ''));
+    sendResultEmail_(email, row[1], level, String(d.ceiling_prompt || ''), String(d.judge_reason || ''), String(d.followups || ''), String(d.in_system || ''));
     sent = '✓';
   } catch (err) {
     sheet.getRange(r, COL.NOTE).setValue('email_failed: ' + err);
@@ -225,18 +229,22 @@ function getSheet_() {
 // ═══════════════════════════════════════════════════════════
 // 2. Result email — plain text, VN, Chú Tim voice (DRAFT — Tim edits)
 // ═══════════════════════════════════════════════════════════
-function sendResultEmail_(email, name, level, ceilingPrompt, judgeReason, quality) {
+function sendResultEmail_(email, name, level, ceilingPrompt, judgeReason, followups, inSystem) {
   var B = BANDS[level];
   var first = firstName_(name);
   var subject = 'Kết quả scorecard của bạn: ' + B.title;
-  var qLine = quality ? ' Bản đầu tiên AI trả về bạn dùng được ' + quality.replace('<', 'dưới ').replace('>', 'trên ') + '%.' : '';
+  var FU = { '0-1': 'gõ thêm 0–1 lần là dùng được', '2-4': 'phải gõ thêm 2–4 lần', '5+': 'phải gõ thêm 5 lần trở lên', 'gave-up': 'cuối cùng bỏ, tự làm' };
+  var qLine = followups ? ' Trong cuộc chat đó bạn ' + (FU[followups] || followups) + '.' : '';
+  var near = level === '2' && followups === '0-1';
+  var bodyText = B.body + (near ? ' ' + BANDS.near : '');
+  var nextText = near ? BANDS.nearNext : B.next;
   var body =
     'Chào ' + first + ',\n\n' +
     'Kết quả của bạn: ' + B.title + '.\n\n' +
-    B.body + '\n\n' +
+    bodyText + '\n\n' +
     'Mình thấy gì trong prompt của bạn: ' + (judgeReason || 'Việc lớn nhất bạn giao AI là cái dưới đây.') + qLine + '\n' +
     (ceilingPrompt ? '> ' + ceilingPrompt.replace(/\n/g, '\n> ') + '\n\n' : '\n') +
-    'Một việc tiếp theo: ' + B.next + '\n\n' +
+    'Một việc tiếp theo: ' + nextText + '\n\n' +
     '---\n\n' +
     B.done + '\n\n' +
     'Buổi chia sẻ Tim on AI\n' +
@@ -314,7 +322,7 @@ function firstName_(name) {
 // ═══════════════════════════════════════════════════════════
 function testEmail() {
   var me = Session.getEffectiveUser().getEmail();
-  sendResultEmail_(me, 'Trần Quang Tim', '2', 'Lên kế hoạch onboarding 3 tháng cho 20 nhân viên mới phòng sales', 'Việc lớn nhất mình thấy là kế hoạch onboarding — việc nhiều phần, có chuẩn rõ.', '50-80');
+  sendResultEmail_(me, 'Trần Quang Tim', '2', 'Lên kế hoạch onboarding 3 tháng cho 20 nhân viên mới phòng sales', 'Việc lớn nhất mình thấy là kế hoạch onboarding — việc nhiều phần, có chuẩn rõ.', '0-1', 'no');
   sendInviteEmail_(me, 'Trần Quang Tim', '2');
   Logger.log('Sent result + invite test emails to ' + me);
 }

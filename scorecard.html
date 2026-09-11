@@ -94,6 +94,7 @@ p { font-size: 16px; line-height: 1.65; color: var(--dim); margin-bottom: 14px; 
     <p class="hint">Tối thiểu 3. Có tên người, số liệu nhạy cảm thì xoá đi, thay bằng [x] — mình chỉ cần thấy bạn giao <i>việc gì</i>, không cần chi tiết. Prompt bạn dán được một AI chấm tự động và lưu vào bảng của mình để chấm cho đúng hơn — không đăng ở đâu, không gửi cho ai khác.</p>
     <button class="btn" id="p-submit" onclick="judge()">Chấm cho mình</button>
     <div class="err" id="p-err"></div>
+    <button class="link" onclick="renderSelf(false); showScreen('s-self')">Không tiện mở lại chat? Tự chọn việc bạn hay giao AI →</button>
     <button class="link" onclick="noChats()">Mình chưa có đủ 3 cuộc chat với AI</button>
   </section>
 
@@ -103,32 +104,50 @@ p { font-size: 16px; line-height: 1.65; color: var(--dim); margin-bottom: 14px; 
     <p style="text-align:center">Mình đang đọc 5 prompt của bạn… khoảng 5–10 giây.</p>
   </section>
 
-  <!-- 2c · Dự phòng khi judge lỗi: tự chọn -->
+  <!-- 2c · Tự chọn việc (không dán prompt, hoặc judge lỗi) -->
   <section class="screen" id="s-self">
     <div class="progress">Bước 1 / 2</div>
     <div class="bar"><div style="width:40%"></div></div>
-    <div class="stem">Máy chấm đang bận. Bạn tự chọn giúp mình: việc <b>lớn nhất</b> bạn giao AI trong 5 cuộc chat đó thuộc loại nào?</div>
-    <div class="options">
-      <div class="option" onclick="selfPick('simple')">Một câu hỏi, một việc nhỏ: dịch, tóm tắt, sửa câu, viết caption, hỏi cho biết.</div>
-      <div class="option" onclick="selfPick('complicated')">Một việc nhiều phần, có chuẩn rõ để biết đạt hay chưa: kế hoạch, đề xuất, báo cáo, chương trình đào tạo, phân tích theo mẫu.</div>
-      <div class="option" onclick="selfPick('complex')">Một việc chưa ai định nghĩa "đạt" là gì, làm ra rồi mới biết: dựng app, thử một hướng mới, chiến lược chưa có tiền lệ.</div>
-    </div>
+    <div class="stem" id="self-stem">Bạn thường giao AI những việc nào? Chọn tất cả việc bạn đã làm với AI trong tháng qua.</div>
+    <div class="options" id="self-options"></div>
+    <button class="btn" onclick="selfSubmit()">Tiếp tục</button>
+    <div class="err" id="self-err"></div>
+    <button class="link" onclick="showScreen('s-paste')">← Quay lại dán prompt</button>
   </section>
 
-  <!-- 3 · Cổng 2: chất lượng bản đầu -->
+  <!-- 3 · Cổng 2a: số lần gõ thêm trong CHÍNH cuộc chat đó -->
   <section class="screen" id="s-quality">
     <div class="progress">Bước 2 / 2</div>
-    <div class="bar"><div style="width:80%"></div></div>
-    <div class="stem">Việc lớn nhất trong 5 prompt của bạn là cái này:</div>
+    <div class="bar"><div style="width:70%"></div></div>
+    <div class="stem" id="q-stem">Việc lớn nhất trong 5 prompt của bạn là cái này:</div>
     <div class="quote" id="q-quote"></div>
-    <p style="margin-top:18px"><b style="color:var(--text)">Với việc đó, bản đầu tiên AI trả về, bạn dùng được bao nhiêu phần trăm?</b><br>Không tính các lần bạn sửa prompt hay hỏi lại — chỉ tính bản trả lời đầu tiên.</p>
+    <p style="margin-top:18px"><b style="color:var(--text)">Mở lại đúng cuộc chat đó. Sau câu đầu tiên, bạn phải gõ thêm bao nhiêu lần nữa mới ra được bản dùng được?</b><br>Đếm mọi lần bạn gõ: sửa yêu cầu, hỏi lại, "làm lại", "ngắn hơn"… Chỉ cuộc chat đó, không tính việc khác.</p>
     <div class="options">
-      <div class="option" onclick="pickQuality('<20')">Dưới 20% — gần như phải làm lại.</div>
-      <div class="option" onclick="pickQuality('20-50')">20–50% — có cái khung, nội dung phải viết lại phần lớn.</div>
-      <div class="option" onclick="pickQuality('50-80')">50–80% — dùng được nửa, sửa thêm kha khá.</div>
-      <div class="option" onclick="pickQuality('>80')">Trên 80% — sửa vài chỗ là gửi đi được.</div>
+      <div class="option" onclick="pickFollowups('0-1')">0–1 lần — bản đầu (hoặc bản sửa một lần) là dùng được.</div>
+      <div class="option" onclick="pickFollowups('2-4')">2–4 lần — phải dặn thêm vài vòng.</div>
+      <div class="option" onclick="pickFollowups('5+')">5 lần trở lên — cãi nhau với nó một hồi.</div>
+      <div class="option" onclick="pickFollowups('gave-up')">Bỏ, tự làm.</div>
     </div>
-    <button class="link" onclick="showScreen('s-paste')">← Sửa lại prompt</button>
+    <button class="link" id="q-back" onclick="showScreen('s-paste')">← Sửa lại prompt</button>
+  </section>
+
+  <!-- 3b · Cổng 2b: hệ thống có sẵn? + đang trả phí? -->
+  <section class="screen" id="s-system">
+    <div class="progress">Bước 2 / 2</div>
+    <div class="bar"><div style="width:85%"></div></div>
+    <div class="stem">Hai câu cuối.</div>
+    <p><b style="color:var(--text)">Cuộc chat đó nằm trong một Project / Gem / Custom GPT / không gian có sẵn bối cảnh và chuẩn của bạn không?</b></p>
+    <div class="options" id="sys-options">
+      <div class="option" onclick="pickRadio('sys-options', this, 'system', 'yes')">Có — mình đã dựng sẵn bối cảnh, AI tự đọc mỗi lần.</div>
+      <div class="option" onclick="pickRadio('sys-options', this, 'system', 'no')">Không — chat thường, mình dặn trong prompt.</div>
+    </div>
+    <p style="margin-top:22px"><b style="color:var(--text)">Bạn đang trả phí cho AI nào không?</b></p>
+    <div class="options" id="pay-options">
+      <div class="option" onclick="pickRadio('pay-options', this, 'paying', 'yes')">Có — mình (hoặc công ty) đang trả gói Plus / Pro / tương đương.</div>
+      <div class="option" onclick="pickRadio('pay-options', this, 'paying', 'no')">Không — mình dùng bản miễn phí.</div>
+    </div>
+    <button class="btn" onclick="systemSubmit()">Xem kết quả</button>
+    <div class="err" id="sys-err"></div>
   </section>
 
   <!-- 4 · Kết quả -->
@@ -141,7 +160,7 @@ p { font-size: 16px; line-height: 1.65; color: var(--dim); margin-bottom: 14px; 
     <div class="ladder">
       <div class="rung" data-l="1"><b>Cấp 1 — Hỏi</b><span>việc nhỏ, một câu một việc; lần nào cũng từ đầu</span></div>
       <div class="rung" data-l="2"><b>Cấp 2 — Ra lệnh</b><span>giao được việc lớn; bản đầu chưa dùng được, còn sửa nhiều</span></div>
-      <div class="rung" data-l="3"><b>Cấp 3 — Dựng</b><span>giao việc lớn, bản đầu dùng được luôn</span></div>
+      <div class="rung" data-l="3"><b>Cấp 3 — Dựng</b><span>giao việc lớn, bản đầu dùng được, AI có sẵn bối cảnh + chuẩn của bạn</span></div>
     </div>
     <div class="card"><div class="label">Bạn đang đứng ở đâu</div><p id="r-body"></p></div>
     <div class="card"><div class="label">Mình thấy gì trong prompt của bạn</div><p id="r-why"></p><div class="quote" id="r-quote"></div></div>
@@ -185,7 +204,24 @@ const JUDGE_TIMEOUT_MS = 25000;
 //   Gate 2 (self-report, one question): first-response usability on that task. >80% → Cấp 3, else Cấp 2.
 //   Scorecard stops at Cấp 3 (Tim 10:15: "scorecard should stop at level 3 not 2"). E not scored here.
 //   Judge down → self-pick of the 3 buckets (s-self), row flagged judge_error; lead never lost.
-const QUALITY_PASS = '>80';
+//   Rev 6 (Tim 11:05): Gate 2a = follow-up count in THAT chat (0–1 passes). Gate 2b = chat lived in a Project/Gem/Custom GPT (yes) → Cấp 3;
+//   pass 2a but no system → Cấp 2 (near). "Paying for AI?" recorded, not scored. No-paste path = multi-select of concrete tasks (TASKS), coded per domain.
+const FOLLOWUP_PASS = '0-1';
+const TASKS = [
+  { t: 'Dịch, sửa câu, sửa ngữ pháp', d: 'simple' },
+  { t: 'Tóm tắt một đoạn, một file', d: 'simple' },
+  { t: 'Viết caption, tin nhắn, email ngắn', d: 'simple' },
+  { t: 'Hỏi kiến thức, hỏi cách làm', d: 'simple' },
+  { t: 'Viết email khó (từ chối, đàm phán, báo tin xấu) có bối cảnh cụ thể', d: 'complicated' },
+  { t: 'Lập kế hoạch: đào tạo, dự án, onboarding, sự kiện', d: 'complicated' },
+  { t: 'Viết đề xuất, báo cáo cho sếp theo mẫu hoặc chuẩn có sẵn', d: 'complicated' },
+  { t: 'Phân tích dữ liệu, bảng số theo câu hỏi cụ thể', d: 'complicated' },
+  { t: 'Soạn tài liệu dài: quy trình, hợp đồng, giáo trình', d: 'complicated' },
+  { t: 'Dựng app, tool, automation từ ý tưởng', d: 'complex' },
+  { t: 'Chiến lược, hướng đi mới chưa có tiền lệ', d: 'complex' },
+  { t: 'Viết nội dung sáng tạo không có mẫu (bài dài, kịch bản, khoá học mới)', d: 'complex' }
+];
+const ORDER = { simple: 0, complicated: 1, complex: 2 };
 
 // ═══ RESULT COPY — DRAFT, Tim edits. Code.gs carries the same text for the email. ═══
 const BANDS = {
@@ -200,16 +236,19 @@ const BANDS = {
   '3': { title: 'Cấp 3 — Dựng', segment: 'B',
          body: 'Bạn giao việc lớn và bản đầu tiên đã dùng được. Tức là AI đã biết chuẩn của bạn — bối cảnh, mẫu, tiêu chí đã có sẵn đâu đó. Bài này đo được tới đây. Từ Cấp 3 trở lên, câu hỏi không còn là "prompt thế nào" mà là hệ thống của bạn chạy được bao nhiêu việc mà không cần bạn ngồi đó.',
          next: 'Đếm xem bạn có bao nhiêu việc lặp lại đang chạy bằng một câu lệnh ngắn từ prompt/project đã lưu. Dưới 3 → tuần này dựng thêm 1. Từ 3 trở lên → buổi tối thứ Năm là chỗ để so hệ thống của bạn với người khác.',
-         done: 'Buổi chia sẻ tối thứ Năm của mình dành riêng cho nhóm Cấp 3. Thông tin trong email.' }
+         done: 'Buổi chia sẻ tối thứ Năm của mình dành riêng cho nhóm Cấp 3. Thông tin trong email.' },
+  near: 'Riêng bạn: bản đầu đã dùng được rồi — tức là bạn dặn AI tốt. Cái còn thiếu là một chỗ để AI nhớ chuẩn của bạn mà không cần bạn dặn lại: Project, Gem, hay một file bối cảnh. Dựng cái đó xong là Cấp 3.',
+  nearNext: 'Lấy đúng prompt vừa rồi, tách phần bối cảnh + chuẩn ra thành một file hoặc Project instructions. Lần sau chỉ gõ việc, không gõ lại bối cảnh. Một việc thôi, tuần này.'
 };
 const WHY = {
-  simple: 'Cả {n} prompt đều là việc một bước: hỏi, dịch, tóm tắt, sửa. Việc lớn nhất mình thấy là cái này — và nó vẫn là một câu một việc. Không phải bạn dùng AI sai, mà là bạn chưa giao cho nó việc đáng giao.',
-  complicated: 'Trong {n} prompt có việc nhiều phần, có chuẩn để biết đạt hay chưa — đây là loại việc AI làm được rất tốt nếu được dặn đúng. Việc lớn nhất là cái này.',
-  complex: 'Trong {n} prompt có việc mà "đạt" chưa ai định nghĩa, làm ra rồi mới biết — loại việc ít người dám giao AI. Việc lớn nhất là cái này.'
+  simple: 'Cả {n} việc đều là việc một bước: hỏi, dịch, tóm tắt, sửa. Việc lớn nhất mình thấy là cái này — và nó vẫn là một câu một việc. Không phải bạn dùng AI sai, mà là bạn chưa giao cho nó việc đáng giao.',
+  complicated: 'Trong {n} việc có việc nhiều phần, có chuẩn để biết đạt hay chưa — đây là loại việc AI làm được rất tốt nếu được dặn đúng. Việc lớn nhất là cái này.',
+  complex: 'Trong {n} việc có việc mà "đạt" chưa ai định nghĩa, làm ra rồi mới biết — loại việc ít người dám giao AI. Việc lớn nhất là cái này.'
 };
 
 // ═══ STATE ═══
-let prompts = [], verdict = null, quality = null, result = null;
+let prompts = [], verdict = null, followups = null, result = null;
+const radio = { system: null, paying: null };
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -238,11 +277,12 @@ async function judge() {
   try {
     const out = await post({ action: 'judge', prompts, src: SRC }, JUDGE_TIMEOUT_MS);
     if (!out.ok || !out.verdict || !['simple', 'complicated', 'complex'].includes(out.verdict.ceiling)) throw new Error(out.error || 'judge');
-    verdict = out.verdict; verdict.error = '';
+    verdict = out.verdict; verdict.error = ''; verdict.mode = 'judge';
   } catch (e) {
     console.error(e);
-    verdict = null;
+    verdict = { error: 'judge_failed→self_select' };
     btn.disabled = false;
+    renderSelf(true);
     showScreen('s-self');
     return;
   }
@@ -252,43 +292,78 @@ async function judge() {
 
 function noChats() {
   prompts = [];
-  verdict = { ceiling: 'simple', ceiling_index: 0, reason_vn: 'Bạn chưa dùng AI đủ để có 3 cuộc chat — tức là bạn đang ở vạch xuất phát, và đó là chỗ dễ lên trình nhất.', error: 'no_chats' };
+  verdict = { ceiling: 'simple', ceiling_index: 0, reason_vn: 'Bạn chưa dùng AI đủ để có 3 cuộc chat — tức là bạn đang ở vạch xuất phát, và đó là chỗ dễ lên trình nhất.', mode: 'no_chats', error: '' };
   finish();
 }
 
-function selfPick(ceiling) {
-  const idx = prompts.reduce((b, p, i) => p.length > prompts[b].length ? i : b, 0); // longest as the stand-in quote
-  verdict = { ceiling, ceiling_index: idx, reason_vn: '', self_pick: true, error: 'judge_failed→self_pick' };
+function renderSelf(reason) {
+  document.getElementById('self-stem').textContent = (reason ? 'Máy chấm đang bận. ' : '') + 'Bạn thường giao AI những việc nào? Chọn tất cả việc bạn đã làm với AI trong tháng qua.';
+  const host = document.getElementById('self-options');
+  if (host.children.length) return;
+  TASKS.forEach((k, i) => {
+    const el = document.createElement('div');
+    el.className = 'option'; el.textContent = k.t; el.dataset.i = i;
+    el.onclick = () => el.classList.toggle('selected');
+    host.appendChild(el);
+  });
+}
+function selfSubmit() {
+  const picked = [...document.querySelectorAll('#self-options .option.selected')].map(el => TASKS[el.dataset.i]);
+  if (!picked.length) { showErr('self-err', 'Chọn ít nhất một việc nhé.'); return; }
+  const top = picked.reduce((b, k) => ORDER[k.d] > ORDER[b.d] ? k : b, picked[0]);
+  prompts = [];
+  verdict = { ceiling: top.d, ceiling_index: 0, reason_vn: '', mode: 'self_select', error: verdict && verdict.error ? verdict.error : '',
+              ceiling_task: top.t, picked: picked.map(k => k.t) };
   afterGate1();
 }
 
+function ceilingText() { return verdict.ceiling_task || prompts[verdict.ceiling_index] || prompts[0] || ''; }
+
 function afterGate1() {
-  const q = prompts[verdict.ceiling_index] || prompts[0];
-  if (verdict.ceiling === 'simple') { quality = null; finish(); return; }
+  if (verdict.ceiling === 'simple') { followups = null; radio.system = null; radio.paying = null; finish(); return; }
+  const q = ceilingText();
+  document.getElementById('q-stem').textContent = verdict.mode === 'judge' ? 'Việc lớn nhất trong ' + prompts.length + ' prompt của bạn là cái này:' : 'Việc lớn nhất bạn chọn:';
   document.getElementById('q-quote').textContent = q;
+  document.getElementById('q-back').style.display = verdict.mode === 'judge' ? '' : 'none';
   showScreen('s-quality');
 }
 
-// ═══ GATE 2 — quality ═══
-function pickQuality(band) { quality = band; finish(); }
+// ═══ GATE 2a — follow-ups in that chat ═══
+function pickFollowups(band) { followups = band; showScreen('s-system'); }
+
+// ═══ GATE 2b — system + paying ═══
+function pickRadio(hostId, el, key, val) {
+  document.querySelectorAll('#' + hostId + ' .option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected'); radio[key] = val;
+}
+function systemSubmit() {
+  if (!radio.system || !radio.paying) { showErr('sys-err', 'Trả lời cả hai câu giúp mình nhé.'); return; }
+  finish();
+}
 
 function finish() {
-  const level = verdict.ceiling === 'simple' ? '1' : (quality === QUALITY_PASS ? '3' : '2');
+  let level;
+  if (verdict.ceiling === 'simple') level = '1';
+  else if (followups === FOLLOWUP_PASS && radio.system === 'yes') level = '3';
+  else level = '2';
+  const near = level === '2' && followups === FOLLOWUP_PASS; // passed quality, no system yet
   const B = BANDS[level];
-  const q = prompts[verdict.ceiling_index] || prompts[0] || '';
+  const q = ceilingText();
   result = {
     level, segment: B.segment,
     ceiling: verdict.ceiling, ceiling_prompt: q,
-    judge_reason: verdict.reason_vn || '', judge_error: verdict.error || '',
-    quality: quality || '', prompts
+    judge_reason: verdict.reason_vn || '', judge_error: verdict.error || '', input_mode: verdict.mode || '',
+    followups: followups || '', in_system: radio.system || '', paying: radio.paying || '',
+    prompts, picked: verdict.picked || []
   };
+  const FU = { '0-1': 'gõ thêm 0–1 lần', '2-4': 'gõ thêm 2–4 lần', '5+': 'gõ thêm 5+ lần', 'gave-up': 'bỏ, tự làm' };
   document.getElementById('r-title').textContent = B.title;
-  document.getElementById('r-sub').textContent = (prompts.length ? 'đọc từ ' + prompts.length + ' prompt' : 'chưa có prompt để đọc') + (quality ? ' · bản đầu dùng được ' + quality.replace('<', 'dưới ').replace('>', 'trên ') + '%' : '');
+  document.getElementById('r-sub').textContent = (verdict.mode === 'judge' ? 'đọc từ ' + prompts.length + ' prompt' : verdict.mode === 'self_select' ? 'từ việc bạn chọn' : 'chưa có prompt để đọc') + (followups ? ' · ' + FU[followups] : '') + (radio.system ? (radio.system === 'yes' ? ' · có hệ thống' : ' · chưa có hệ thống') : '');
   document.querySelectorAll('.rung').forEach(r => r.classList.toggle('here', r.dataset.l === level));
-  document.getElementById('r-body').textContent = B.body;
-  document.getElementById('r-why').textContent = (verdict.reason_vn || WHY[verdict.ceiling]).replace('{n}', prompts.length);
-  document.getElementById('r-quote').textContent = q || ''; document.getElementById('r-quote').style.display = q ? '' : 'none';
-  document.getElementById('r-next').textContent = B.next;
+  document.getElementById('r-body').textContent = B.body + (near ? ' ' + BANDS.near : '');
+  document.getElementById('r-why').textContent = (verdict.reason_vn || WHY[verdict.ceiling]).replace('{n}', prompts.length || verdict.picked?.length || '');
+  document.getElementById('r-quote').textContent = q; document.getElementById('r-quote').style.display = q ? '' : 'none';
+  document.getElementById('r-next').textContent = near ? BANDS.nearNext : B.next;
   document.getElementById('d-line').textContent = B.done;
   showScreen('s-result');
 }

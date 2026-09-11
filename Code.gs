@@ -2,7 +2,10 @@
  * Tim on AI — Scorecard MVP backend (scorecard.html → Sheet → email → one-click invite)
  * Spec: Things/02_Areas/P101_personal-brand/1-engines/scorecard/scorecard-mvp-spec-2026-09-11.md
  *
- * SETUP (Tim, ~5 min):
+ * DEPLOYED 11 Sep 2026 (v4) — Sheet 'Scorecard — Leads', project 'Scorecard backend', account tqt323@gmail.com. Web app URL is in scorecard.html.
+ * To ship a code change: paste here → Save → Deploy → Manage deployments → Edit → Version: New version → Deploy (URL stays).
+ *
+ * SETUP (first time, ~5 min):
  *   1. sheets.new → name it "Scorecard — Leads". Leave the first tab as is; the script creates
  *      the "Leads" tab + headers on first run.
  *   2. Extensions → Apps Script → replace Code.gs with this file → Ctrl+S.

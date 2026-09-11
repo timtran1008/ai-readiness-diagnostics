@@ -50,6 +50,12 @@ p { font-size: 16px; line-height: 1.65; color: var(--dim); margin-bottom: 14px; 
 .input { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--r); font-family: inherit; font-size: 15px; background: var(--card); color: var(--text); }
 .input:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px var(--glow); }
 .err { color: var(--danger); font-size: 14px; font-weight: 600; margin-top: 12px; text-align: center; display: none; }
+.ladder { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.rung { display: flex; flex-direction: column; gap: 2px; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--r); background: var(--card); opacity: .55; }
+.rung b { font-family: 'Montserrat', sans-serif; font-size: 13px; color: var(--navy); }
+.rung span { font-size: 13px; color: var(--dim); }
+.rung.here { opacity: 1; border-color: var(--navy); border-left: 4px solid var(--yellow); }
+.rung.between { opacity: .85; border-style: dashed; }
 .note { font-size: 13px; color: var(--muted); margin-top: 28px; line-height: 1.6; }
 </style>
 </head>
@@ -84,15 +90,20 @@ p { font-size: 16px; line-height: 1.65; color: var(--dim); margin-bottom: 14px; 
       <div class="level" id="r-title"></div>
       <div class="sub" id="r-score"></div>
     </div>
+    <div class="ladder">
+      <div class="rung" data-l="1"><b>Cấp 1 — Hỏi</b><span>hỏi, nhận, copy; lần nào cũng từ đầu</span></div>
+      <div class="rung" data-l="2"><b>Cấp 2 — Ra lệnh</b><span>dặn rõ, có bối cảnh, có ví dụ; mỗi phiên dặn lại</span></div>
+      <div class="rung" data-l="3"><b>Cấp 3 — Dựng</b><span>file bối cảnh, prompt dùng lại được, quy trình chạy được</span></div>
+    </div>
     <div class="card"><div class="label">Bạn đang đứng ở đâu</div><p id="r-body"></p></div>
     <div class="card"><div class="label">Điểm nghẽn</div><p id="r-bottleneck"></p></div>
     <div class="card"><div class="label">Một việc tiếp theo</div><p id="r-next"></p></div>
-    <button class="btn" onclick="showScreen('s-form')">Gửi mình bản đầy đủ →</button>
+    <button class="btn" onclick="showScreen('s-form')">Gửi kết quả + thông tin lớp vào email →</button>
   </section>
 
   <!-- 4 · Để mình gửi bạn bản đầy đủ -->
   <section class="screen" id="s-form">
-    <h2>Để mình gửi bạn bản đầy đủ</h2>
+    <h2>Để mình gửi kết quả vào email bạn</h2>
     <p>Mình gửi kết quả + lộ trình cho cấp của bạn qua email. Không spam, không bán email.</p>
     <div class="card" style="border-left-color: var(--yellow)">
       <div class="field"><label>Tên bạn</label><input class="input" id="f-name" placeholder="Tên bạn" autocomplete="name"></div>
@@ -120,91 +131,108 @@ const GOOGLE_SCRIPT_URL = 'PASTE_APPS_SCRIPT_WEB_APP_URL_HERE';
 const SRC = (new URLSearchParams(window.location.search).get('src') || '').trim().slice(0, 20);
 const CUT = 0.70; // provisional, mirrors STAGE1_CUT in generic-toe-tna.html
 
-// ═══ ITEM BANK — 12 Stage 1 items, verbatim from generic-toe-tna.html (key authored in slot A; shuffled at start) ═══
+// ═══ ITEM BANK — 12 items, everyday office tasks (Claude draft 11 Sep, Tim rewrites). 4 scored options shuffled at start; 5th "chưa gặp" stays last, score null = excluded from the denominator. Key answer varies in length/position on purpose. ═══
 const QUESTIONS = [
-  { id: 'T1', dim: 'T', text: 'Lần gần nhất bạn cần soạn email trả lời khiếu nại của khách, bạn đã làm gì?', options: [
-    { text: 'Yêu cầu AI viết email, kèm tóm tắt khiếu nại + tone xin lỗi + hướng giải quyết.', score: 1 },
-    { text: 'Gõ "viết email trả lời khiếu nại của khách" vào AI, rồi tự sửa bản đầu cho khớp tình huống.', score: 0 },
-    { text: 'Dán email khiếu nại vào AI, không hướng dẫn gì thêm — AI sẽ tự suy ra cần làm gì.', score: 0 },
-    { text: 'Mở email mẫu có sẵn, tự điền chi tiết khiếu nại — quyết định không dùng AI cho việc này.', score: 0 } ] },
-  { id: 'T2', dim: 'T', text: 'Lần gần nhất bạn cần dịch một tài liệu ngắn từ tiếng Anh sang tiếng Việt cho team, bạn đã làm gì?', options: [
-    { text: 'Yêu cầu AI dịch sang tiếng Việt, kèm bối cảnh tài liệu (nội bộ/training) và độ chính xác cần.', score: 1 },
-    { text: 'Gõ "dịch đoạn này sang tiếng Việt" vào AI rồi copy bản dịch đầu tiên ra dùng luôn.', score: 0 },
-    { text: 'Dán toàn bộ tài liệu vào AI, không hướng dẫn gì thêm — AI sẽ tự dịch theo cách thích hợp.', score: 0 },
-    { text: 'Tự dịch nháp bằng vốn tiếng Anh có sẵn, không nhờ AI — việc dịch ngắn vầy đủ làm bằng tay.', score: 0 } ] },
-  { id: 'T3', dim: 'T', text: 'Tháng trước team bạn cần AI phân tích dữ liệu bán hàng quý + đưa ra 5 insights chính. Bạn đã dùng AI thế nào?', options: [
-    { text: 'Soạn AI prompt có 5 phần: vai trò + dữ liệu raw + KPI quý + người đọc + format output mong muốn.', score: 1 },
-    { text: 'Gõ "phân tích dữ liệu bán hàng quý 1 và đưa ra 5 insights chính" vào AI rồi xem AI trả gì.', score: 0 },
-    { text: 'Dán dữ liệu thô vào AI, yêu cầu "phân tích chi tiết và đưa ra các insight bán hàng cần thiết".', score: 0 },
-    { text: 'Yêu cầu AI "phân tích sâu, chuyên nghiệp, nhiều chi tiết, kèm đề xuất cụ thể, tone formal".', score: 0 } ] },
-  { id: 'T4', dim: 'T', text: 'Tháng trước team bạn nhận một bản hợp đồng từ đối tác cần review pháp lý + thương mại. Bạn đã dùng AI thế nào?', options: [
-    { text: 'Soạn AI prompt có cấu trúc: vai trò pháp lý + tiêu chí review hợp đồng + format bảng output.', score: 1 },
-    { text: 'Gõ "review hợp đồng và chỉ ra các điều cần lưu ý" vào AI rồi đọc bản trả về một lần.', score: 0 },
-    { text: 'Dán toàn bộ hợp đồng vào AI, yêu cầu "phân tích kỹ và cảnh báo các rủi ro tiềm ẩn nếu có".', score: 0 },
-    { text: 'Yêu cầu AI "review hợp đồng cẩn thận, chuyên nghiệp, đầy đủ, kèm cảnh báo và đề xuất sửa".', score: 0 } ] },
-  { id: 'O1', dim: 'O', text: 'Lần gần nhất AI viết cho bạn một bản tóm tắt cuộc họp, bạn đã làm gì trước khi gửi đi?', options: [
-    { text: 'Đọc lại 1 lần xem nội dung AI viết khớp ý mình, sửa lỗi chính tả nếu có rồi gửi đi.', score: 1 },
-    { text: 'Đọc nhanh xem độ dài vừa không, không cần đọc kỹ — AI viết khá ổn rồi không sai mấy.', score: 0 },
-    { text: 'Viết lại từ đầu dựa trên outline AI gợi ý — không trust thẳng output của AI bao giờ.', score: 0 },
-    { text: 'Chuyển bản AI viết cho 1 đồng nghiệp đọc giúp, nếu họ thấy OK thì mình mới gửi đi.', score: 0 } ] },
-  { id: 'O2', dim: 'O', text: 'Lần gần nhất bạn hỏi AI một câu về quy định nội bộ của công ty (ví dụ: chính sách nghỉ phép), bạn đã làm gì với câu trả lời?', options: [
-    { text: 'Đối chiếu nhanh với 1 tài liệu chính sách nội bộ (sổ tay nhân viên) xem AI có khớp không.', score: 1 },
-    { text: 'Tin AI trả lời rồi truyền đạt lại cho đồng nghiệp — AI thường biết chính sách công ty mà.', score: 0 },
-    { text: 'Bỏ qua câu trả lời AI, đi hỏi bộ phận HR cho chắc — không tin AI cho việc chính sách.', score: 0 },
-    { text: 'Hỏi lại AI 1-2 câu khác về chính sách xem AI có nhất quán không — nếu giống thì tin.', score: 0 } ] },
-  { id: 'O3', dim: 'O', text: 'Tháng trước AI tạo cho bạn một bản proposal cho khách — nội dung đúng nhưng giọng văn quá "AI". Bạn đã xử lý thế nào?', options: [
-    { text: 'Cho AI 1-2 proposal cũ bạn đã viết làm tham chiếu giọng văn, yêu cầu AI viết lại theo giọng đó.', score: 1 },
-    { text: 'Gửi luôn proposal vì nội dung quan trọng hơn giọng văn — khách sẽ tập trung vào ý chính thôi.', score: 0 },
-    { text: 'Viết lại proposal từ đầu — AI không bao giờ bắt được đúng giọng văn của mình đâu.', score: 0 },
-    { text: 'Tự sửa proposal từng câu cho đến khi đọc nghe tự nhiên — không nhờ AI sửa giọng văn nữa.', score: 0 } ] },
-  { id: 'O4', dim: 'O', text: 'Tháng trước AI tạo cho bạn một báo cáo phân tích tài chính 10 trang để gửi ban giám đốc. Bước đầu tiên để kiểm tra chất lượng là gì?', options: [
-    { text: 'Có 2 lớp kiểm tra: tự chạy checklist (số liệu/logic/tone/format) + yêu cầu AI tự rà lỗi lần nữa.', score: 1 },
-    { text: 'Có 1 lớp kiểm tra 3 bước: số liệu khớp + logic mạch lạc + evidence support, sửa rồi gửi đi luôn.', score: 0 },
-    { text: 'Nhờ đồng nghiệp review song song bản AI tạo — báo cáo cấp BGĐ cần ít nhất 2 người check kỹ.', score: 0 },
-    { text: 'Đối chiếu từng số AI tạo với dữ liệu gốc, chạy lại phép tính trong sheet để xác nhận trước.', score: 0 } ] },
-  { id: 'E1', dim: 'E', text: 'Tuần trước bạn dùng AI tạo slide cho buổi họp team. Sau khi AI đưa output đầu tiên, bạn mất bao lâu để hoàn thiện?', options: [
-    { text: 'Khoảng 10-20% thời gian sửa: chỉnh vài chỗ cho khớp context và tone là dùng được luôn.', score: 1 },
-    { text: 'Dùng luôn output đầu, không sửa gì — AI viết tốt rồi, không cần can thiệp nhiều thêm.', score: 0 },
-    { text: 'Sửa 50-70% nội dung: AI cho khung, mình phải viết lại phần lớn cho thực sự dùng được.', score: 0 },
-    { text: 'Không dùng AI cho slide đâu — tự làm bằng tay vẫn nhanh hơn dùng AI hỗ trợ kiểu này.', score: 0 } ] },
-  { id: 'E2', dim: 'E', text: 'Tuần trước bạn đăng 3 bài social media cho công ty (LinkedIn / Facebook). Trung bình mỗi bài, từ ý tưởng đến lúc đăng, mất bao lâu?', options: [
-    { text: 'Khoảng 10-15 phút mỗi bài: prompt AI viết draft, sửa nhẹ tone công ty + thêm emoji rồi đăng.', score: 1 },
-    { text: 'Khoảng 5 phút mỗi bài: copy thẳng draft AI viết, đăng luôn — AI viết caption hợp công ty rồi.', score: 0 },
-    { text: 'Khoảng 30-45 phút mỗi bài: AI cho ý tưởng, mình tự viết lại từ đầu cho hợp giọng công ty hơn.', score: 0 },
-    { text: 'Khoảng 20-30 phút mỗi bài: tự viết bằng tay từ đầu — AI không hiểu được giọng công ty đâu.', score: 0 } ] },
-  { id: 'E3', dim: 'E', text: 'Tháng trước bạn cần viết 10 email follow-up cho 10 khách hàng khác nhau — nội dung tương tự nhưng cần personalize. Bạn đã làm thế nào?', options: [
-    { text: 'Soạn 1 AI prompt mẫu có chỗ trống (tên + công ty + lịch sử), chạy AI 10 lần với data riêng từng khách.', score: 1 },
-    { text: 'Nhờ AI viết từng email một, mỗi email phải gõ riêng context cho từng khách hàng cụ thể.', score: 0 },
-    { text: 'Viết 1 email mẫu nhờ AI, sau đó copy-paste và sửa tên cho 9 email còn lại — nhanh hơn.', score: 0 },
-    { text: 'Tự viết tay cả 10 email — không nhiều việc, không cần phải dùng AI cho việc nhỏ này.', score: 0 } ] },
-  { id: 'E4', dim: 'E', text: 'Tháng trước bạn cần tạo 8 công thức Excel khác nhau cho team (VLOOKUP, IF lồng nhau, SUMIF). Bạn đã dùng AI thế nào?', options: [
-    { text: 'Soạn 1 AI prompt mẫu có chỗ trống (loại công thức + input + output mong muốn), chạy 8 lần khác.', score: 1 },
-    { text: 'Hỏi AI từng công thức một, mỗi lần gõ riêng yêu cầu đầy đủ context cho công thức cụ thể đó.', score: 0 },
-    { text: 'Hỏi AI 1-2 công thức khó nhất, 6 công thức còn lại tự viết bằng cách dò tài liệu sẵn có lâu hơn.', score: 0 },
-    { text: 'Tự viết cả 8 công thức bằng cách dò tài liệu + thử-sai trong sheet — không nhờ AI cho việc này.', score: 0 } ] }
+  { id: 'T1', dim: 'T', text: 'Lần gần nhất bạn phải viết một email khó nói (từ chối, nhắc việc trễ, báo tin không vui), bạn làm gì?', options: [
+    { text: 'Tự viết, sửa đi sửa lại mấy lần rồi gửi — việc tế nhị vầy mình không giao AI bao giờ.', score: 0 },
+    { text: 'Nhờ AI viết, kèm bối cảnh: người nhận, quan hệ, muốn giữ gì, tránh gì.', score: 1 },
+    { text: 'Gõ "viết email từ chối lịch sự" rồi sửa lại bản đầu cho khớp tình huống.', score: 0 },
+    { text: 'Dán email của người ta vào AI, bảo "trả lời giúp mình".', score: 0 },
+    { text: 'Chưa gặp việc này gần đây.', score: null } ] },
+  { id: 'T2', dim: 'T', text: 'Lần gần nhất bạn nhận một tài liệu dài (báo cáo, biên bản, file vài chục trang) mà không có thời gian đọc, bạn làm gì?', options: [
+    { text: 'Đọc lướt phần mở đầu và kết luận, phần giữa bỏ qua.', score: 0 },
+    { text: 'Dán vào AI, bảo "tóm tắt lại giúp mình", đọc bản tóm tắt là coi như xong tài liệu.', score: 0 },
+    { text: 'Đưa file cho AI, nói rõ mình cần gì từ nó (quyết định gì, cho ai), hỏi đúng chỗ đó.', score: 1 },
+    { text: 'Nhờ đồng nghiệp đã đọc kể lại ý chính.', score: 0 },
+    { text: 'Chưa gặp việc này gần đây.', score: null } ] },
+  { id: 'T3', dim: 'T', text: 'Lần gần nhất bạn chuẩn bị nội dung cho một buổi họp hoặc bài trình bày, AI đứng ở đâu trong quá trình đó?', options: [
+    { text: 'Không có — mình tự làm outline và slide từ đầu như mọi khi, quen tay rồi.', score: 0 },
+    { text: 'AI gợi ý outline, còn lại mình tự viết.', score: 0 },
+    { text: 'Đưa AI mục tiêu, người nghe, thời lượng, tài liệu nền — nó dựng bản đầu, mình chỉnh.', score: 1 },
+    { text: 'Mình gõ "làm slide về chủ đề X" rồi lấy ý từ đó.', score: 0 },
+    { text: 'Chưa gặp việc này gần đây.', score: null } ] },
+  { id: 'T4', dim: 'T', text: 'Tháng qua có việc nào bạn nghĩ "cái này AI không làm nổi" nên tự làm không? Bạn xử lý thế nào?', options: [
+    { text: 'Có, và mình tự làm luôn — có những việc AI không hợp, giải thích còn lâu hơn tự làm.', score: 0 },
+    { text: 'Có, mình thử giao AI một phần nhỏ cho chắc.', score: 0 },
+    { text: 'Có, mình thử giao cả việc kèm đủ bối cảnh, xem nó đi tới đâu rồi mới quyết.', score: 1 },
+    { text: 'Không nghĩ tới chuyện giao AI những việc kiểu đó.', score: 0 },
+    { text: 'Không có việc nào như vậy.', score: null } ] },
+  { id: 'O1', dim: 'O', text: 'Lần gần nhất AI viết cho bạn một văn bản bạn sẽ gửi đi (email, tóm tắt, thông báo), bạn kiểm tra thế nào trước khi gửi?', options: [
+    { text: 'Đọc lại một lần theo đúng ý đã dặn, sửa chỗ lệch, rồi gửi.', score: 1 },
+    { text: 'Đọc lướt xem độ dài ổn không — AI viết khá rồi.', score: 0 },
+    { text: 'Viết lại gần hết theo ý mình — không tin output AI.', score: 0 },
+    { text: 'Chuyển cho một đồng nghiệp đọc giúp cho chắc, họ thấy OK thì mình mới gửi đi.', score: 0 },
+    { text: 'Chưa gặp việc này gần đây.', score: null } ] },
+  { id: 'O2', dim: 'O', text: 'Lần gần nhất AI trả lời bạn một câu có thể sai (số liệu, quy định, cách làm), bạn làm gì trước khi dùng?', options: [
+    { text: 'Dùng luôn — thường nó đúng.', score: 0 },
+    { text: 'Đối chiếu nhanh với một nguồn gốc (tài liệu, người biết việc) rồi dùng.', score: 1 },
+    { text: 'Hỏi lại AI vài lần theo cách khác xem nó có nhất quán không — giống nhau thì tin.', score: 0 },
+    { text: 'Bỏ câu trả lời của AI, đi hỏi người cho chắc.', score: 0 },
+    { text: 'Chưa gặp việc này gần đây.', score: null } ] },
+  { id: 'O3', dim: 'O', text: 'Lần gần nhất AI làm đúng nội dung nhưng giọng văn "AI quá", bạn xử lý thế nào?', options: [
+    { text: 'Tự sửa từng câu cho tự nhiên.', score: 0 },
+    { text: 'Gửi luôn — nội dung quan trọng hơn giọng.', score: 0 },
+    { text: 'Bảo AI "viết tự nhiên hơn, bớt sáo, đừng dùng từ hoa mỹ" rồi lấy bản mới.', score: 0 },
+    { text: 'Đưa AI 1–2 bài cũ mình viết làm mẫu giọng, bảo viết lại theo mẫu.', score: 1 },
+    { text: 'Chưa gặp việc này gần đây.', score: null } ] },
+  { id: 'O4', dim: 'O', text: 'Lần gần nhất bạn muốn AI làm một việc theo đúng cách của bạn hoặc của công ty, bạn đưa cho nó gì trước khi giao?', options: [
+    { text: 'Mô tả bằng lời cách mình muốn, càng chi tiết càng tốt, có khi cả trang yêu cầu.', score: 0 },
+    { text: 'Một sản phẩm mẫu đã đạt (email cũ, slide cũ) kèm câu "làm theo chuẩn này".', score: 1 },
+    { text: 'Không đưa gì — làm xong rồi sửa cho khớp.', score: 0 },
+    { text: 'Bảo AI "làm chuyên nghiệp, đúng chuẩn công ty".', score: 0 },
+    { text: 'Chưa gặp việc này gần đây.', score: null } ] },
+  { id: 'E1', dim: 'E', text: 'Sau khi AI đưa bản đầu tiên, bạn thường mất bao nhiêu công để dùng được?', options: [
+    { text: 'Sửa nhẹ 10–20%: vài chỗ bối cảnh, tone — dùng được.', score: 1 },
+    { text: 'Dùng luôn, không sửa.', score: 0 },
+    { text: 'Sửa hơn nửa — AI cho cái khung, còn mình phải viết lại phần lớn nội dung cho ra hồn.', score: 0 },
+    { text: 'Nhiều khi bỏ, tự làm nhanh hơn.', score: 0 },
+    { text: 'Ít dùng AI nên không rõ.', score: null } ] },
+  { id: 'E2', dim: 'E', text: 'Việc bạn giao AI lặp lại đều đặn (báo cáo tuần, email nhắc, caption) — lần sau bạn bắt đầu thế nào?', options: [
+    { text: 'Gõ lại yêu cầu từ đầu, mỗi lần một kiểu.', score: 0 },
+    { text: 'Lục lại đoạn chat cũ tuần trước, kéo lên tìm prompt lần trước rồi copy lại.', score: 0 },
+    { text: 'Mở prompt đã lưu (hoặc project riêng), điền phần thay đổi, chạy.', score: 1 },
+    { text: 'Nhớ đại khái rồi gõ lại gần giống.', score: 0 },
+    { text: 'Không có việc nào lặp lại như vậy.', score: null } ] },
+  { id: 'E3', dim: 'E', text: 'Lần gần nhất bạn giao AI một việc phức tạp, nhiều điều kiện (kế hoạch, đề xuất, phân tích), bạn mở đầu thế nào?', options: [
+    { text: 'Viết một prompt thật dài, cố nhét hết điều kiện, ràng buộc, ví dụ vào một lần.', score: 0 },
+    { text: 'Bảo AI hỏi mình trước những gì nó cần biết, xong mới cho làm.', score: 1 },
+    { text: 'Gõ yêu cầu ngắn, xem nó ra gì rồi sửa dần.', score: 0 },
+    { text: 'Chia việc nhỏ ra, giao từng phần.', score: 0 },
+    { text: 'Chưa giao AI việc phức tạp.', score: null } ] },
+  { id: 'E4', dim: 'E', text: 'Prompt tốt nhất bạn từng dùng — bây giờ nó ở đâu?', options: [
+    { text: 'Trong lịch sử chat, chắc tìm lại được nếu chịu lục vài chục cuộc trò chuyện.', score: 0 },
+    { text: 'Trong đầu — mình nhớ đại khái.', score: 0 },
+    { text: 'Trong một file, ghi chú hoặc project riêng — mở là dùng.', score: 1 },
+    { text: 'Mất rồi.', score: 0 },
+    { text: 'Chưa dùng AI đủ để có prompt nào.', score: null } ] }
 ];
 
-// ═══ RESULT COPY — spec §3 (Tim edits here; Code.gs carries the same text for the email) ═══
+// ═══ RESULT COPY — spec §3 (Tim edited 11 Sep; Code.gs carries the same text for the email) ═══
 const BANDS = {
+  '0':  { title: 'Chưa đo được', segment: 'A',
+          body: 'Bạn chọn "chưa gặp" ở gần hết 12 tình huống, nên bài này chưa nói được gì về bạn. Nếu bạn ít dùng AI trong công việc thì bạn đang ở Cấp 1 — và đó là cấp dễ lên trình nhất.',
+          done: 'Lớp online tối thứ Ba của mình bắt đầu đúng từ chỗ bạn đang đứng. Thông tin trong email.' },
   '1':  { title: 'Cấp 1 — Hỏi', segment: 'A',
           body: 'Bạn dùng AI như một cái Google biết nói: hỏi, nhận, copy. Mỗi lần làm task tương tự thì lại bắt đầu từ đầu. Không sao — hầu hết dân văn phòng đang ở đây, và đây là cấp dễ lên trình nhất.',
           done: 'Lớp online tối thứ Ba của mình bắt đầu đúng từ chỗ bạn đang đứng. Thông tin trong email.' },
   '2':  { title: 'Cấp 2 — Ra lệnh', segment: 'A',
           body: 'Bạn biết dặn AI cho rõ, có bối cảnh, có ví dụ. Output khá hơn — nhưng mỗi phiên bạn vẫn phải dặn kỹ càng lại từ đầu để ra được kết quả tốt. Cái thiếu không phải là prompt hay hơn, cái thiếu là làm thế nào để không phải gõ đi gõ lại.',
           done: 'Cấp 3 là chỗ lớp tối thứ Ba đưa bạn tới. Thông tin trong email.' },
-  '2+': { title: 'Cấp 2+ — sẵn sàng lên Cấp 3', segment: 'B',
-          body: 'Bài này đo được tới đây thôi. Cấp 3 trở lên mình cần nhìn vào hệ thống AI và cách bạn quản lý dữ liệu thì mới đánh giá được. Nếu bạn muốn mình đánh giá, liên hệ mình nhé.',
-          done: 'Nhóm này có lớp riêng tối thứ Năm. Thông tin trong email.' }
+  '2+': { title: 'Cấp 2+ — cửa vào Cấp 3', segment: 'B',
+          body: 'Bài này đo được tới đây thôi. Từ đây có hai ngả. Nếu bạn đã dựng được hệ thống của mình — file bối cảnh, prompt dùng lại được, quy trình chạy được — và đang tự hỏi mình cao hơn không: Cấp 3 trở lên mình cần nhìn vào hệ thống AI và cách bạn quản lý dữ liệu thì mới đánh giá được, liên hệ mình nhé. Nếu bạn chưa dựng: bạn đang ở Cấp 2 vững, và Cấp 3 là chỗ lớp tối thứ Năm đưa bạn tới.',
+          done: 'Chưa có hệ thống → lớp tối thứ Năm. Đã có, muốn mình đánh giá → trả lời email này. Thông tin trong email.' }
 };
 const BOTTLENECK = {
   T: 'Bạn giao cho AI toàn việc nhỏ. Bạn chưa tận dụng hết sức mạnh của AI, kể cả AI miễn phí.',
   O: 'Bạn giao việc cho AI mà nó không biết thế nào là chuẩn. Bạn đã thử cho nó 1 sản phẩm mẫu trước khi bảo nó thực hiện tác vụ chưa?',
-  E: 'Bạn đang tốn quá nhiều công sức vào việc sửa output của AI. Nếu việc bạn giao là phức tạp, hãy luyện thói quen cho AI phỏng vấn để hiểu rõ tính chất công việc trước khi nó bắt tay vào làm nhé.'
+  E: 'Bạn đang tốn quá nhiều công sức vào việc sửa output của AI. Nếu việc bạn giao là phức tạp, hãy luyện thói quen cho AI phỏng vấn để hiểu rõ tính chất công việc trước khi nó bắt tay vào làm nhé.',
+  X: 'Ba mảng của bạn — giao việc, đặt chuẩn, sửa output — đang ngang nhau. Không có một điểm nghẽn rõ; cấp của bạn quyết định việc tiếp theo.'
 };
 const NEXT = {
-  T: 'Tuần này, chọn một việc bạn vẫn đang tự làm vì "AI không làm nổi đâu" — giao cho AI, kèm đủ bối cảnh, xem nó đi được tới đâu.',
-  O: 'Viết ra 3 dòng "thế nào là đạt" cho một việc bạn hay giao AI. Lần sau chấm output bằng 3 dòng đó, không chấm bằng cảm giác.',
-  E: 'Lấy prompt bạn dùng nhiều nhất, thêm vào: vai trò, người đọc, ví dụ tốt, ví dụ xấu. Lưu lại. Lần sau dán, đừng gõ lại.'
+  T: 'Tuần này chọn một việc lớn hơn bạn vẫn đang tự làm vì "AI không làm nổi đâu" — giao cho AI, kèm đủ bối cảnh, xem nó đi được tới đâu. AI miễn phí cũng đủ để thử.',
+  O: 'Lần sau giao việc, kèm 1 sản phẩm mẫu bạn thấy đạt (email cũ, slide cũ, báo cáo cũ) và nói: "làm theo chuẩn này". Chấm output bằng mẫu, không chấm bằng cảm giác.',
+  E: 'Việc phức tạp thì mở đầu bằng: "Trước khi làm, hỏi mình 5 câu để hiểu rõ việc." Trả lời xong mới cho nó làm. Prompt nào ra kết quả tốt thì lưu lại — lần sau dán, đừng gõ lại.',
+  X: 'Chọn mảng bạn tự thấy yếu nhất trong ba mảng trên và làm đúng một việc cho mảng đó tuần này. Chi tiết trong email.'
 };
 
 // ═══ STATE ═══
@@ -220,10 +248,12 @@ function showScreen(id) {
 
 function startQuiz() {
   QUESTIONS.forEach(q => {
+    const last = q.options[q.options.length - 1].score === null ? q.options.pop() : null;
     for (let i = q.options.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [q.options[i], q.options[j]] = [q.options[j], q.options[i]];
     }
+    if (last) q.options.push(last);
   });
   idx = 0;
   renderQuestion();
@@ -262,25 +292,41 @@ function prevQuestion() { if (idx > 0) { idx--; renderQuestion(); } }
 function finish() {
   const dim = { T: 0, O: 0, E: 0 }, tot = { T: 0, O: 0, E: 0 };
   const raw = {};
-  let correct = 0;
+  let correct = 0, answered = 0;
   QUESTIONS.forEach((q, i) => {
     const s = q.options[answers[i]].score;
-    correct += s; dim[q.dim] += s; tot[q.dim]++;
+    if (s === null) { raw[q.id] = '-'; return; }       // "chưa gặp" — out of the denominator
+    correct += s; answered++; dim[q.dim] += s; tot[q.dim]++;
     raw[q.id] = s;
   });
-  const pct = correct / QUESTIONS.length;
-  const level = pct < 0.50 ? '1' : (pct < CUT ? '2' : '2+');
-  const sub = { T: dim.T / tot.T, O: dim.O / tot.O, E: dim.E / tot.E };
-  const bottleneck = ['T', 'O', 'E'].reduce((a, b) => sub[b] < sub[a] ? b : a);
+  const pct = answered ? correct / answered : 0;
+  const level = answered < 4 ? '0' : (pct < 0.50 ? '1' : (pct < CUT ? '2' : '2+'));
+  const sub = {};
+  ['T', 'O', 'E'].forEach(d => { sub[d] = tot[d] ? dim[d] / tot[d] : null; });
+  // bottleneck = unique lowest sub-score; ties or nothing to compare → X (neutral line)
+  const scored = ['T', 'O', 'E'].filter(d => sub[d] !== null);
+  let bottleneck = 'X';
+  if (scored.length) {
+    const min = Math.min(...scored.map(d => sub[d]));
+    const lows = scored.filter(d => sub[d] === min);
+    if (lows.length === 1) bottleneck = lows[0];
+  }
+  const p100 = v => v === null ? '' : Math.round(v * 100);
   result = {
     level, segment: BANDS[level].segment,
-    score_pct: Math.round(pct * 100),
-    t_pct: Math.round(sub.T * 100), o_pct: Math.round(sub.O * 100), e_pct: Math.round(sub.E * 100),
+    score_pct: Math.round(pct * 100), answered,
+    t_pct: p100(sub.T), o_pct: p100(sub.O), e_pct: p100(sub.E),
     bottleneck, raw
   };
   const B = BANDS[level];
   document.getElementById('r-title').textContent = B.title;
-  document.getElementById('r-score').textContent = correct + '/' + QUESTIONS.length + ' tình huống';
+  const skipped = QUESTIONS.length - answered;
+  document.getElementById('r-score').textContent = correct + '/' + answered + ' tình huống' + (skipped ? ' (bỏ qua ' + skipped + ' chưa gặp)' : '');
+  document.querySelectorAll('.rung').forEach(r => {
+    r.classList.remove('here', 'between');
+    if (level === '2+') { if (r.dataset.l === '2') r.classList.add('here'); if (r.dataset.l === '3') r.classList.add('between'); }
+    else if (r.dataset.l === (level === '0' ? '1' : level)) r.classList.add('here');
+  });
   document.getElementById('r-body').textContent = B.body;
   document.getElementById('r-bottleneck').textContent = BOTTLENECK[bottleneck];
   document.getElementById('r-next').textContent = NEXT[bottleneck];

@@ -30,25 +30,30 @@ var WORKSHOP = {
 
 // ═══ RESULT COPY — same text as scorecard.html §3 (Tim edits both places, or edit here and mirror) ═══
 var BANDS = {
-  '1':  { title: 'Cấp 1 — Hỏi',
+  '0':  { title: 'Chưa đo được', segment: 'A',
+          body: 'Bạn chọn "chưa gặp" ở gần hết 12 tình huống, nên bài này chưa nói được gì về bạn. Nếu bạn ít dùng AI trong công việc thì bạn đang ở Cấp 1 — và đó là cấp dễ lên trình nhất.',
+          done: 'Lớp online tối thứ Ba của mình bắt đầu đúng từ chỗ bạn đang đứng. Thông tin trong email.' },
+  '1':  { title: 'Cấp 1 — Hỏi', segment: 'A',
           body: 'Bạn dùng AI như một cái Google biết nói: hỏi, nhận, copy. Mỗi lần làm task tương tự thì lại bắt đầu từ đầu. Không sao — hầu hết dân văn phòng đang ở đây, và đây là cấp dễ lên trình nhất.',
-          done: 'Lớp online tối thứ Ba của mình bắt đầu đúng từ chỗ bạn đang đứng.' },
-  '2':  { title: 'Cấp 2 — Ra lệnh',
+          done: 'Lớp online tối thứ Ba của mình bắt đầu đúng từ chỗ bạn đang đứng. Thông tin trong email.' },
+  '2':  { title: 'Cấp 2 — Ra lệnh', segment: 'A',
           body: 'Bạn biết dặn AI cho rõ, có bối cảnh, có ví dụ. Output khá hơn — nhưng mỗi phiên bạn vẫn phải dặn kỹ càng lại từ đầu để ra được kết quả tốt. Cái thiếu không phải là prompt hay hơn, cái thiếu là làm thế nào để không phải gõ đi gõ lại.',
-          done: 'Cấp 3 là chỗ lớp tối thứ Ba đưa bạn tới.' },
-  '2+': { title: 'Cấp 2+ — sẵn sàng lên Cấp 3',
-          body: 'Bài này đo được tới đây thôi. Cấp 3 trở lên mình cần nhìn vào hệ thống AI và cách bạn quản lý dữ liệu thì mới đánh giá được. Nếu bạn muốn mình đánh giá, liên hệ mình nhé.',
-          done: 'Nhóm này có lớp riêng tối thứ Năm.' }
+          done: 'Cấp 3 là chỗ lớp tối thứ Ba đưa bạn tới. Thông tin trong email.' },
+  '2+': { title: 'Cấp 2+ — cửa vào Cấp 3', segment: 'B',
+          body: 'Bài này đo được tới đây thôi. Từ đây có hai ngả. Nếu bạn đã dựng được hệ thống của mình — file bối cảnh, prompt dùng lại được, quy trình chạy được — và đang tự hỏi mình cao hơn không: Cấp 3 trở lên mình cần nhìn vào hệ thống AI và cách bạn quản lý dữ liệu thì mới đánh giá được, liên hệ mình nhé. Nếu bạn chưa dựng: bạn đang ở Cấp 2 vững, và Cấp 3 là chỗ lớp tối thứ Năm đưa bạn tới.',
+          done: 'Chưa có hệ thống → lớp tối thứ Năm. Đã có, muốn mình đánh giá → trả lời email này. Thông tin trong email.' }
 };
 var BOTTLENECK = {
   T: 'Bạn giao cho AI toàn việc nhỏ. Bạn chưa tận dụng hết sức mạnh của AI, kể cả AI miễn phí.',
   O: 'Bạn giao việc cho AI mà nó không biết thế nào là chuẩn. Bạn đã thử cho nó 1 sản phẩm mẫu trước khi bảo nó thực hiện tác vụ chưa?',
-  E: 'Bạn đang tốn quá nhiều công sức vào việc sửa output của AI. Nếu việc bạn giao là phức tạp, hãy luyện thói quen cho AI phỏng vấn để hiểu rõ tính chất công việc trước khi nó bắt tay vào làm nhé.'
+  E: 'Bạn đang tốn quá nhiều công sức vào việc sửa output của AI. Nếu việc bạn giao là phức tạp, hãy luyện thói quen cho AI phỏng vấn để hiểu rõ tính chất công việc trước khi nó bắt tay vào làm nhé.',
+  X: 'Ba mảng của bạn — giao việc, đặt chuẩn, sửa output — đang ngang nhau. Không có một điểm nghẽn rõ; cấp của bạn quyết định việc tiếp theo.'
 };
 var NEXT = {
-  T: 'Tuần này, chọn một việc bạn vẫn đang tự làm vì "AI không làm nổi đâu" — giao cho AI, kèm đủ bối cảnh, xem nó đi được tới đâu.',
-  O: 'Viết ra 3 dòng "thế nào là đạt" cho một việc bạn hay giao AI. Lần sau chấm output bằng 3 dòng đó, không chấm bằng cảm giác.',
-  E: 'Lấy prompt bạn dùng nhiều nhất, thêm vào: vai trò, người đọc, ví dụ tốt, ví dụ xấu. Lưu lại. Lần sau dán, đừng gõ lại.'
+  T: 'Tuần này chọn một việc lớn hơn bạn vẫn đang tự làm vì "AI không làm nổi đâu" — giao cho AI, kèm đủ bối cảnh, xem nó đi được tới đâu. AI miễn phí cũng đủ để thử.',
+  O: 'Lần sau giao việc, kèm 1 sản phẩm mẫu bạn thấy đạt (email cũ, slide cũ, báo cáo cũ) và nói: "làm theo chuẩn này". Chấm output bằng mẫu, không chấm bằng cảm giác.',
+  E: 'Việc phức tạp thì mở đầu bằng: "Trước khi làm, hỏi mình 5 câu để hiểu rõ việc." Trả lời xong mới cho nó làm. Prompt nào ra kết quả tốt thì lưu lại — lần sau dán, đừng gõ lại.',
+  X: 'Chọn mảng bạn tự thấy yếu nhất trong ba mảng trên và làm đúng một việc cho mảng đó tuần này. Chi tiết trong email.'
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -81,7 +86,7 @@ function doPost(e) {
 
     var sent = '✗';
     try {
-      sendResultEmail_(email, row[1], level, String(d.bottleneck || 'T'), Number(d.score_pct) || 0);
+      sendResultEmail_(email, row[1], level, String(d.bottleneck || 'X'), Number(d.score_pct) || 0);
       sent = '✓';
     } catch (err) {
       sheet.getRange(r, COL.NOTE).setValue('email_failed: ' + err);
@@ -112,13 +117,13 @@ function getSheet_() {
 function sendResultEmail_(email, name, level, bottleneck, scorePct) {
   var B = BANDS[level];
   var first = firstName_(name);
-  var subject = 'Kết quả scorecard của bạn: Cấp ' + level;
+  var subject = level === '0' ? 'Kết quả scorecard của bạn' : 'Kết quả scorecard của bạn: Cấp ' + level;
   var body =
     'Chào ' + first + ',\n\n' +
-    'Kết quả của bạn: ' + B.title + ' (' + scorePct + '% trên 12 tình huống).\n\n' +
+    'Kết quả của bạn: ' + B.title + ' (' + scorePct + '% các tình huống bạn đã gặp).\n\n' +
     B.body + '\n\n' +
-    'Điểm nghẽn: ' + (BOTTLENECK[bottleneck] || BOTTLENECK.T) + '\n\n' +
-    'Một việc tiếp theo: ' + (NEXT[bottleneck] || NEXT.T) + '\n\n' +
+    'Điểm nghẽn: ' + (BOTTLENECK[bottleneck] || BOTTLENECK.X) + '\n\n' +
+    'Một việc tiếp theo: ' + (NEXT[bottleneck] || NEXT.X) + '\n\n' +
     '---\n\n' +
     B.done + '\n\n' +
     'Workshop Tim on AI\n' +

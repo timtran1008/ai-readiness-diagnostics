@@ -264,7 +264,7 @@ function sendResultEmail_(email, name, level, ceilingPrompt, judgeReason, follow
 function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('Scorecard')
-    .addItem('Gửi lời mời workshop cho dòng đã chọn', 'sendInviteToSelected')
+    .addItem('Gửi lời mời buổi chia sẻ cho dòng đã chọn', 'sendInviteToSelected')
     .addToUi();
 }
 
@@ -282,7 +282,7 @@ function sendInviteToSelected() {
       if (!email) { skipped.push(r + ': không có email'); continue; }
       try {
         sendInviteEmail_(email, String(vals[COL.NAME - 1] || ''), String(vals[COL.LEVEL - 1] || '1'));
-        sheet.getRange(r, COL.STATUS).setValue('Đã mời workshop');
+        sheet.getRange(r, COL.STATUS).setValue('Đã mời buổi chia sẻ');
         sheet.getRange(r, COL.NOTE).setValue(('Mời ' + new Date().toISOString().slice(0, 10) + '. ' + String(vals[COL.NOTE - 1] || '')).trim());
         sent++;
       } catch (err) { skipped.push(r + ': ' + err); }

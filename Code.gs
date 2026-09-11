@@ -64,9 +64,24 @@ function doPost(e) {
   return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
 }
 
+function doGet() {
+  return ContentService.createTextOutput(JSON.stringify({ ok: true, service: 'tim-on-ai-scorecard' })).setMimeType(ContentService.MimeType.JSON);
+}
+
+// Abuse caps (Execute as Me + Anyone = open endpoint). CacheService counters, 6 h window.
+var CAP_JUDGE_PER_6H = 150;   // Gemini free tier ≈ 250 req/day; fallback self-pick takes over past this
+var CAP_EMAIL_PER_6H = 40;    // MailApp quota 100/day
+function bump_(key, cap) {
+  var c = CacheService.getScriptCache();
+  var n = Number(c.get(key) || 0) + 1;
+  c.put(key, String(n), 21600);
+  return n <= cap;
+}
+
 function handleJudge_(d) {
   var prompts = (d.prompts || []).map(function (p) { return String(p || '').trim().slice(0, 2000); }).filter(function (p) { return p.length >= 8; }).slice(0, 5);
   if (prompts.length < 3) throw new Error('Cần ít nhất 3 prompt');
+  if (!bump_('judge6h', CAP_JUDGE_PER_6H)) return { ok: false, error: 'judge_cap' };
   var verdict = null, error = '';
   try { verdict = runJudge_(prompts); } catch (err) { error = String(err); }
   try { logJudge_(d.src, prompts, verdict, error); } catch (_) {}
@@ -101,6 +116,10 @@ function handleLead_(d) {
 
   var sent = '✗';
   try {
+    var c = CacheService.getScriptCache();
+    if (c.get('sent:' + email.toLowerCase())) throw new Error('duplicate_within_6h');   // one result email per address per 6 h
+    if (!bump_('email6h', CAP_EMAIL_PER_6H)) throw new Error('email_cap');
+    c.put('sent:' + email.toLowerCase(), '1', 21600);
     sendResultEmail_(email, row[1], level, String(d.ceiling_prompt || ''), String(d.judge_reason || ''), String(d.quality || ''));
     sent = '✓';
   } catch (err) {
@@ -134,18 +153,19 @@ function runJudge_(prompts) {
     '- Chấm VIỆC được giao, không chấm cách viết. Prompt ngắn cũng có thể là việc complicated ("lên kế hoạch onboarding cho 20 nhân viên mới" là complicated dù chỉ 1 dòng). Prompt dài kể lể vẫn có thể là việc simple.',
     '- Phân vân giữa simple và complicated → chọn simple. Phân vân giữa complicated và complex → chọn complicated. (Bài này là sàng lọc, chấm chặt.)',
     '- Prompt vô nghĩa, rỗng, chỉ chào hỏi → domain "simple".',
-    '- ceiling = loại cao nhất trong các prompt (complex > complicated > simple). ceiling_index = số thứ tự (bắt đầu từ 0) của prompt đại diện cho ceiling; nếu nhiều prompt cùng loại, chọn cái rõ nhất.',
+    '- Nếu đoạn dán là câu TRẢ LỜI của AI hoặc cả cuộc hội thoại (không phải câu người dùng gõ): suy ra việc người dùng đã yêu cầu nếu thấy được, rồi chấm việc đó; không suy ra được → "simple".',
+    '- ceiling = loại cao nhất trong các prompt (complex > complicated > simple). ceiling_index = số thứ tự của prompt đại diện cho ceiling, đánh số như trong danh sách (Prompt 1 = 1); nếu nhiều prompt cùng loại, chọn cái rõ nhất.',
     '- reason_vn: 1–2 câu tiếng Việt, nói với người dùng (dùng "bạn", "mình" = giám khảo), nêu việc lớn nhất bạn thấy và vì sao nó thuộc loại đó. Không dùng từ simple/complicated/complex trong câu — nói bằng lời thường: "việc một bước", "việc nhiều phần có chuẩn rõ", "việc chưa ai định nghĩa đạt là gì".',
     '',
     '## Prompt của người dùng',
     listed,
     '',
     'Trả về DUY NHẤT một JSON object đúng schema:',
-    '{"prompts":[{"i":0,"domain":"simple|complicated|complex","task_vn":"việc gì, 5-10 từ"}],"ceiling":"simple|complicated|complex","ceiling_index":0,"reason_vn":"..."}'
+    '{"prompts":[{"i":1,"domain":"simple|complicated|complex","task_vn":"việc gì, 5-10 từ"}],"ceiling":"simple|complicated|complex","ceiling_index":1,"reason_vn":"..."}'
   ].join('\n');
 
   var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + JUDGE_MODEL + ':generateContent?key=' + key;
-  var body = { contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.1, responseMimeType: 'application/json' } };
+  var body = { contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.1, responseMimeType: 'application/json', thinkingConfig: { thinkingBudget: 0 } } };
   var order = { simple: 0, complicated: 1, complex: 2 };
 
   var lastErr = null;
@@ -161,9 +181,9 @@ function runJudge_(prompts) {
       v.prompts.forEach(function (p, k) {
         var dom = order.hasOwnProperty(p.domain) ? p.domain : 'simple';
         p.domain = dom;
-        var i = (typeof p.i === 'number' && p.i >= 0 && p.i < prompts.length) ? p.i : k;
-        if (order[dom] > best || (k === 0)) { best = order[dom]; bestIdx = i; }
-        else if (order[dom] === best && v.ceiling_index === i) bestIdx = i; // model's pick among ties
+        var i = (typeof p.i === 'number' && p.i >= 1 && p.i <= prompts.length) ? p.i - 1 : k;  // model is 1-based, page is 0-based
+        if (k === 0 || order[dom] > best) { best = order[dom]; bestIdx = i; }
+        else if (order[dom] === best && Number(v.ceiling_index) - 1 === i) bestIdx = i; // model's pick among ties
       });
       v.ceiling = Object.keys(order)[best];
       v.ceiling_index = bestIdx;

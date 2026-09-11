@@ -91,9 +91,10 @@ p { font-size: 16px; line-height: 1.65; color: var(--dim); margin-bottom: 14px; 
     <div class="ta-label"><span>Chat 3</span></div><textarea class="ta" id="p3"></textarea>
     <div class="ta-label"><span>Chat 4</span><span>nếu có</span></div><textarea class="ta" id="p4"></textarea>
     <div class="ta-label"><span>Chat 5</span><span>nếu có</span></div><textarea class="ta" id="p5"></textarea>
-    <p class="hint">Tối thiểu 3. Có tên người, số liệu nhạy cảm thì xoá đi, thay bằng [x] — mình chỉ cần thấy bạn giao <i>việc gì</i>, không cần chi tiết. Prompt bạn dán không hiện ở đâu ngoài kết quả của chính bạn.</p>
+    <p class="hint">Tối thiểu 3. Có tên người, số liệu nhạy cảm thì xoá đi, thay bằng [x] — mình chỉ cần thấy bạn giao <i>việc gì</i>, không cần chi tiết. Prompt bạn dán được một AI chấm tự động và lưu vào bảng của mình để chấm cho đúng hơn — không đăng ở đâu, không gửi cho ai khác.</p>
     <button class="btn" id="p-submit" onclick="judge()">Chấm cho mình</button>
     <div class="err" id="p-err"></div>
+    <button class="link" onclick="noChats()">Mình chưa có đủ 3 cuộc chat với AI</button>
   </section>
 
   <!-- 2b · Đang chấm -->
@@ -249,6 +250,12 @@ async function judge() {
   afterGate1();
 }
 
+function noChats() {
+  prompts = [];
+  verdict = { ceiling: 'simple', ceiling_index: 0, reason_vn: 'Bạn chưa dùng AI đủ để có 3 cuộc chat — tức là bạn đang ở vạch xuất phát, và đó là chỗ dễ lên trình nhất.', error: 'no_chats' };
+  finish();
+}
+
 function selfPick(ceiling) {
   const idx = prompts.reduce((b, p, i) => p.length > prompts[b].length ? i : b, 0); // longest as the stand-in quote
   verdict = { ceiling, ceiling_index: idx, reason_vn: '', self_pick: true, error: 'judge_failed→self_pick' };
@@ -268,7 +275,7 @@ function pickQuality(band) { quality = band; finish(); }
 function finish() {
   const level = verdict.ceiling === 'simple' ? '1' : (quality === QUALITY_PASS ? '3' : '2');
   const B = BANDS[level];
-  const q = prompts[verdict.ceiling_index] || prompts[0];
+  const q = prompts[verdict.ceiling_index] || prompts[0] || '';
   result = {
     level, segment: B.segment,
     ceiling: verdict.ceiling, ceiling_prompt: q,
@@ -276,11 +283,11 @@ function finish() {
     quality: quality || '', prompts
   };
   document.getElementById('r-title').textContent = B.title;
-  document.getElementById('r-sub').textContent = 'đọc từ ' + prompts.length + ' prompt' + (quality ? ' · bản đầu dùng được ' + quality.replace('<', 'dưới ').replace('>', 'trên ') + '%' : '');
+  document.getElementById('r-sub').textContent = (prompts.length ? 'đọc từ ' + prompts.length + ' prompt' : 'chưa có prompt để đọc') + (quality ? ' · bản đầu dùng được ' + quality.replace('<', 'dưới ').replace('>', 'trên ') + '%' : '');
   document.querySelectorAll('.rung').forEach(r => r.classList.toggle('here', r.dataset.l === level));
   document.getElementById('r-body').textContent = B.body;
   document.getElementById('r-why').textContent = (verdict.reason_vn || WHY[verdict.ceiling]).replace('{n}', prompts.length);
-  document.getElementById('r-quote').textContent = q;
+  document.getElementById('r-quote').textContent = q || ''; document.getElementById('r-quote').style.display = q ? '' : 'none';
   document.getElementById('r-next').textContent = B.next;
   document.getElementById('d-line').textContent = B.done;
   showScreen('s-result');

@@ -91,7 +91,7 @@ p { font-size: 16px; line-height: 1.65; color: var(--dim); margin-bottom: 14px; 
     <div class="ta-label"><span>Chat 3</span></div><textarea class="ta" id="p3"></textarea>
     <div class="ta-label"><span>Chat 4</span><span>nếu có</span></div><textarea class="ta" id="p4"></textarea>
     <div class="ta-label"><span>Chat 5</span><span>nếu có</span></div><textarea class="ta" id="p5"></textarea>
-    <p class="hint">Tối thiểu 3. Có tên người, số liệu nhạy cảm thì xoá đi, thay bằng [x] — mình chỉ cần thấy bạn giao <i>việc gì</i>, không cần chi tiết. Prompt bạn dán được một AI chấm tự động và lưu vào bảng của mình để chấm cho đúng hơn — không đăng ở đâu, không gửi cho ai khác.</p>
+    <p class="hint">Tối thiểu 3. Có tên người, số liệu nhạy cảm thì xoá đi, thay bằng [x] — mình chỉ cần thấy bạn giao <i>việc gì</i>, không cần chi tiết. Prompt bạn dán sẽ được AI tự động phân loại và lưu vào bảng dữ liệu của mình để cải thiện độ chính xác — không đăng ở đâu, không chia sẻ với ai khác.</p>
     <button class="btn" id="p-submit" onclick="judge()">Chấm cho mình</button>
     <div class="err" id="p-err"></div>
     <button class="link" onclick="renderSelf(false); showScreen('s-self')">Không tiện mở lại chat? Tự chọn việc bạn hay giao AI →</button>
@@ -101,7 +101,7 @@ p { font-size: 16px; line-height: 1.65; color: var(--dim); margin-bottom: 14px; 
   <!-- 2b · Đang chấm -->
   <section class="screen" id="s-wait">
     <div class="spin"></div>
-    <p style="text-align:center">Mình đang đọc 5 prompt của bạn… khoảng 5–10 giây.</p>
+    <p style="text-align:center">Mình đang đọc các prompt của bạn… chờ khoảng 5–10 giây nhé.</p>
   </section>
 
   <!-- 2c · Tự chọn việc (không dán prompt, hoặc judge lỗi) -->
@@ -121,12 +121,12 @@ p { font-size: 16px; line-height: 1.65; color: var(--dim); margin-bottom: 14px; 
     <div class="bar"><div style="width:70%"></div></div>
     <div class="stem" id="q-stem">Việc lớn nhất trong 5 prompt của bạn là cái này:</div>
     <div class="quote" id="q-quote"></div>
-    <p style="margin-top:18px"><b style="color:var(--text)">Mở lại đúng cuộc chat đó. Sau câu đầu tiên, bạn phải gõ thêm bao nhiêu lần nữa mới ra được bản dùng được?</b><br>Đếm mọi lần bạn gõ: sửa yêu cầu, hỏi lại, "làm lại", "ngắn hơn"… Chỉ cuộc chat đó, không tính việc khác.</p>
+    <p style="margin-top:18px"><b style="color:var(--text)">Mở lại đúng cuộc chat đó. Sau câu đầu tiên, bạn phải gõ thêm bao nhiêu lần mới ra kết quả dùng được?</b><br>Đếm mọi lần bạn gõ: sửa yêu cầu, hỏi lại, "làm lại", "ngắn hơn"… Chỉ cuộc chat đó, không tính việc khác.</p>
     <div class="options">
-      <div class="option" onclick="pickFollowups('0-1')">0–1 lần — bản đầu (hoặc bản sửa một lần) là dùng được.</div>
+      <div class="option" onclick="pickFollowups('0-1')">0–1 lần — bản đầu (hoặc sửa thêm 1 lần) là dùng được ngay.</div>
       <div class="option" onclick="pickFollowups('2-4')">2–4 lần — phải dặn thêm vài vòng.</div>
       <div class="option" onclick="pickFollowups('5+')">5 lần trở lên — cãi nhau với nó một hồi.</div>
-      <div class="option" onclick="pickFollowups('gave-up')">Bỏ, tự làm.</div>
+      <div class="option" onclick="pickFollowups('gave-up')">Bỏ ngang, tự làm lấy.</div>
     </div>
     <button class="link" id="q-back" onclick="showScreen('s-paste')">← Sửa lại prompt</button>
   </section>
@@ -136,12 +136,12 @@ p { font-size: 16px; line-height: 1.65; color: var(--dim); margin-bottom: 14px; 
     <div class="progress">Bước 2 / 2</div>
     <div class="bar"><div style="width:85%"></div></div>
     <div class="stem">Hai câu cuối.</div>
-    <p><b style="color:var(--text)">Cuộc chat đó nằm trong một Project / Gem / Custom GPT / không gian có sẵn bối cảnh và chuẩn của bạn không?</b></p>
+    <p><b style="color:var(--text)">Cuộc chat đó có nằm trong một Project, Gem, Custom GPT hay nơi nào lưu sẵn bối cảnh và chuẩn của bạn không?</b></p>
     <div class="options" id="sys-options">
       <div class="option" onclick="pickRadio('sys-options', this, 'system', 'yes')">Có — mình đã dựng sẵn bối cảnh, AI tự đọc mỗi lần.</div>
       <div class="option" onclick="pickRadio('sys-options', this, 'system', 'no')">Không — chat thường, mình dặn trong prompt.</div>
     </div>
-    <p style="margin-top:22px"><b style="color:var(--text)">Bạn đang trả phí cho AI nào không?</b></p>
+    <p style="margin-top:22px"><b style="color:var(--text)">Bạn có đang trả phí sử dụng công cụ AI nào không?</b></p>
     <div class="options" id="pay-options">
       <div class="option" onclick="pickRadio('pay-options', this, 'paying', 'yes')">Có — mình (hoặc công ty) đang trả gói Plus / Pro / tương đương.</div>
       <div class="option" onclick="pickRadio('pay-options', this, 'paying', 'no')">Không — mình dùng bản miễn phí.</div>
@@ -160,7 +160,7 @@ p { font-size: 16px; line-height: 1.65; color: var(--dim); margin-bottom: 14px; 
     <div class="ladder">
       <div class="rung" data-l="1"><b>Cấp 1 — Hỏi</b><span>việc nhỏ, một câu một việc; lần nào cũng từ đầu</span></div>
       <div class="rung" data-l="2"><b>Cấp 2 — Ra lệnh</b><span>giao được việc lớn; bản đầu chưa dùng được, còn sửa nhiều</span></div>
-      <div class="rung" data-l="3"><b>Cấp 3 — Dựng</b><span>giao việc lớn, bản đầu dùng được, AI có sẵn bối cảnh + chuẩn của bạn</span></div>
+      <div class="rung" data-l="3"><b>Cấp 3 — Dựng</b><span>giao việc lớn, bản đầu dùng được ngay; AI có sẵn bối cảnh và tiêu chuẩn của bạn</span></div>
     </div>
     <div class="card"><div class="label">Bạn đang đứng ở đâu</div><p id="r-body"></p></div>
     <div class="card"><div class="label">Mình thấy gì trong prompt của bạn</div><p id="r-why"></p><div class="quote" id="r-quote"></div></div>
@@ -214,11 +214,11 @@ const TASKS = [
   { t: 'Hỏi kiến thức, hỏi cách làm', d: 'simple' },
   { t: 'Viết email khó (từ chối, đàm phán, báo tin xấu) có bối cảnh cụ thể', d: 'complicated' },
   { t: 'Lập kế hoạch: đào tạo, dự án, onboarding, sự kiện', d: 'complicated' },
-  { t: 'Viết đề xuất, báo cáo cho sếp theo mẫu hoặc chuẩn có sẵn', d: 'complicated' },
+  { t: 'Viết đề xuất, báo cáo theo mẫu hoặc tiêu chuẩn có sẵn', d: 'complicated' },
   { t: 'Phân tích dữ liệu, bảng số theo câu hỏi cụ thể', d: 'complicated' },
   { t: 'Soạn tài liệu dài: quy trình, hợp đồng, giáo trình', d: 'complicated' },
   { t: 'Dựng app, tool, automation từ ý tưởng', d: 'complex' },
-  { t: 'Chiến lược, hướng đi mới chưa có tiền lệ', d: 'complex' },
+  { t: 'Xây dựng chiến lược, hướng đi mới chưa có tiền lệ', d: 'complex' },
   { t: 'Viết nội dung sáng tạo không có mẫu (bài dài, kịch bản, khoá học mới)', d: 'complex' }
 ];
 const ORDER = { simple: 0, complicated: 1, complex: 2 };
@@ -226,18 +226,18 @@ const ORDER = { simple: 0, complicated: 1, complex: 2 };
 // ═══ RESULT COPY — DRAFT, Tim edits. Code.gs carries the same text for the email. ═══
 const BANDS = {
   '1': { title: 'Cấp 1 — Hỏi', segment: 'A',
-         body: 'Bạn dùng AI như một cái Google biết nói: hỏi, nhận, copy. Toàn việc một câu một việc. Không sao — hầu hết dân văn phòng đang ở đây, và đây là cấp dễ lên trình nhất: chỉ cần dám giao việc lớn hơn.',
-         next: 'Tuần này chọn một việc lớn hơn bạn vẫn đang tự làm vì "AI không làm nổi đâu" — kế hoạch, đề xuất, báo cáo — giao cho AI, kèm đủ bối cảnh, xem nó đi được tới đâu. AI miễn phí cũng đủ để thử.',
+         body: 'Bạn dùng AI như một cái Google biết nói: hỏi, nhận, copy. Toàn các việc hỏi-đáp một bước. Không sao — hầu hết dân văn phòng đang ở đây, và đây là cấp dễ tăng cấp nhất: chỉ cần bắt đầu giao cho AI việc lớn hơn.',
+         next: 'Tuần này, chọn 1 việc bạn vẫn tự làm vì nghĩ "AI không làm nổi đâu" (kế hoạch, đề xuất, báo cáo), giao cho AI kèm đủ bối cảnh xem nó làm tới đâu. Bản AI miễn phí là đủ để thử.',
          done: 'Buổi chia sẻ online tối thứ Ba của mình bắt đầu đúng từ chỗ bạn đang đứng. Thông tin trong email.' },
   '2': { title: 'Cấp 2 — Ra lệnh', segment: 'A',
-         body: 'Bạn đã dám giao AI việc lớn — đó là bước nhiều người chưa qua. Nhưng bản đầu tiên chưa dùng được, bạn còn phải sửa nhiều, và mỗi lần lại dặn từ đầu. Cái thiếu không phải là prompt hay hơn. Cái thiếu là AI chưa biết thế nào là "đạt" theo chuẩn của bạn.',
-         next: 'Lần sau giao việc, kèm 1 sản phẩm mẫu bạn thấy đạt (email cũ, slide cũ, báo cáo cũ) và nói: "làm theo chuẩn này". Việc phức tạp thì mở đầu bằng: "Trước khi làm, hỏi mình 5 câu để hiểu rõ việc." Chấm output bằng mẫu, không chấm bằng cảm giác.',
+         body: 'Bạn đã giao được việc lớn cho AI — đó là bước nhiều người chưa làm được. Nhưng bản đầu tiên chưa dùng được ngay, bạn phải sửa lại nhiều và lần nào cũng phải dặn từ đầu. Cái thiếu không phải là prompt hay hơn, mà là AI chưa biết thế nào là "đạt" theo chuẩn của bạn.',
+         next: 'Lần sau giao việc, hãy đính kèm 1 file mẫu bạn thấy đạt (email cũ, slide cũ, báo cáo cũ) và dặn: "Làm theo chuẩn này". Với việc phức tạp, hãy mở đầu bằng: "Trước khi làm, hỏi mình 5 câu để hiểu rõ bối cảnh." Chấm output bằng mẫu, đừng chấm bằng cảm giác.',
          done: 'Cấp 3 là chỗ buổi chia sẻ tối thứ Ba đưa bạn tới. Thông tin trong email.' },
   '3': { title: 'Cấp 3 — Dựng', segment: 'B',
-         body: 'Bạn giao việc lớn và bản đầu tiên đã dùng được. Tức là AI đã biết chuẩn của bạn — bối cảnh, mẫu, tiêu chí đã có sẵn đâu đó. Bài này đo được tới đây. Từ Cấp 3 trở lên, câu hỏi không còn là "prompt thế nào" mà là hệ thống của bạn chạy được bao nhiêu việc mà không cần bạn ngồi đó.',
-         next: 'Đếm xem bạn có bao nhiêu việc lặp lại đang chạy bằng một câu lệnh ngắn từ prompt/project đã lưu. Dưới 3 → tuần này dựng thêm 1. Từ 3 trở lên → buổi tối thứ Năm là chỗ để so hệ thống của bạn với người khác.',
+         body: 'Bạn giao được việc lớn và bản đầu tiên dùng được ngay. Nghĩa là AI đã nắm được chuẩn của bạn — bối cảnh, mẫu và tiêu chí đã có sẵn. Bài đánh giá này chỉ đo được đến đây. Từ Cấp 3, câu hỏi không còn là "viết prompt ra sao" mà là hệ thống của bạn tự chạy được bao nhiêu việc mà không cần bạn can thiệp.',
+         next: 'Đếm xem bạn có bao nhiêu việc lặp lại đang chạy được bằng 1 câu lệnh ngắn từ Project/prompt đã lưu. Dưới 3 → tuần này dựng thêm 1. Từ 3 trở lên → buổi chia sẻ tối thứ Năm là chỗ để so hệ thống của bạn với người khác.',
          done: 'Buổi chia sẻ tối thứ Năm của mình dành riêng cho nhóm Cấp 3. Thông tin trong email.' },
-  near: 'Riêng bạn: bản đầu đã dùng được rồi — tức là bạn dặn AI tốt. Cái còn thiếu là một chỗ để AI nhớ chuẩn của bạn mà không cần bạn dặn lại: Project, Gem, hay một file bối cảnh. Dựng cái đó xong là Cấp 3.',
+  near: 'Riêng với bạn: bản đầu tiên đã dùng được ngay — chứng tỏ bạn dặn AI rất tốt. Thứ duy nhất bạn còn thiếu là một nơi lưu sẵn chuẩn để AI nhớ mà không cần dặn lại: Project, Gem, hoặc file bối cảnh. Dựng xong cái đó là bạn sang Cấp 3.',
   nearNext: 'Lấy đúng prompt vừa rồi, tách phần bối cảnh + chuẩn ra thành một file hoặc Project instructions. Lần sau chỉ gõ việc, không gõ lại bối cảnh. Một việc thôi, tuần này.'
 };
 const WHY = {
@@ -297,7 +297,7 @@ function noChats() {
 }
 
 function renderSelf(reason) {
-  document.getElementById('self-stem').textContent = (reason ? 'Máy chấm đang bận. ' : '') + 'Bạn thường giao AI những việc nào? Chọn tất cả việc bạn đã làm với AI trong tháng qua.';
+  document.getElementById('self-stem').textContent = (reason ? 'Hệ thống chấm tự động đang bận. ' : '') + 'Bạn thường giao AI những việc nào? Chọn tất cả việc bạn đã làm với AI trong tháng qua.';
   const host = document.getElementById('self-options');
   if (host.children.length) return;
   TASKS.forEach((k, i) => {

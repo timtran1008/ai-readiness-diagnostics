@@ -38,18 +38,18 @@ var WORKSHOP = {
 // ═══ RESULT COPY — same text as scorecard.html BANDS (DRAFT — Tim edits both places, or edit here and mirror) ═══
 var BANDS = {
   '1': { title: 'Cấp 1 — Hỏi', segment: 'A',
-         body: 'Bạn dùng AI như một cái Google biết nói: hỏi, nhận, copy. Toàn việc một câu một việc. Không sao — hầu hết dân văn phòng đang ở đây, và đây là cấp dễ lên trình nhất: chỉ cần dám giao việc lớn hơn.',
-         next: 'Tuần này chọn một việc lớn hơn bạn vẫn đang tự làm vì "AI không làm nổi đâu" — kế hoạch, đề xuất, báo cáo — giao cho AI, kèm đủ bối cảnh, xem nó đi được tới đâu. AI miễn phí cũng đủ để thử.',
+         body: 'Bạn dùng AI như một cái Google biết nói: hỏi, nhận, copy. Toàn các việc hỏi-đáp một bước. Không sao — hầu hết dân văn phòng đang ở đây, và đây là cấp dễ tăng cấp nhất: chỉ cần bắt đầu giao cho AI việc lớn hơn.',
+         next: 'Tuần này, chọn 1 việc bạn vẫn tự làm vì nghĩ "AI không làm nổi đâu" (kế hoạch, đề xuất, báo cáo), giao cho AI kèm đủ bối cảnh xem nó làm tới đâu. Bản AI miễn phí là đủ để thử.',
          done: 'Buổi chia sẻ online tối thứ Ba của mình bắt đầu đúng từ chỗ bạn đang đứng. Thông tin trong email.' },
   '2': { title: 'Cấp 2 — Ra lệnh', segment: 'A',
-         body: 'Bạn đã dám giao AI việc lớn — đó là bước nhiều người chưa qua. Nhưng bản đầu tiên chưa dùng được, bạn còn phải sửa nhiều, và mỗi lần lại dặn từ đầu. Cái thiếu không phải là prompt hay hơn. Cái thiếu là AI chưa biết thế nào là "đạt" theo chuẩn của bạn.',
-         next: 'Lần sau giao việc, kèm 1 sản phẩm mẫu bạn thấy đạt (email cũ, slide cũ, báo cáo cũ) và nói: "làm theo chuẩn này". Việc phức tạp thì mở đầu bằng: "Trước khi làm, hỏi mình 5 câu để hiểu rõ việc." Chấm output bằng mẫu, không chấm bằng cảm giác.',
+         body: 'Bạn đã giao được việc lớn cho AI — đó là bước nhiều người chưa làm được. Nhưng bản đầu tiên chưa dùng được ngay, bạn phải sửa lại nhiều và lần nào cũng phải dặn từ đầu. Cái thiếu không phải là prompt hay hơn, mà là AI chưa biết thế nào là "đạt" theo chuẩn của bạn.',
+         next: 'Lần sau giao việc, hãy đính kèm 1 file mẫu bạn thấy đạt (email cũ, slide cũ, báo cáo cũ) và dặn: "Làm theo chuẩn này". Với việc phức tạp, hãy mở đầu bằng: "Trước khi làm, hỏi mình 5 câu để hiểu rõ bối cảnh." Chấm output bằng mẫu, đừng chấm bằng cảm giác.',
          done: 'Cấp 3 là chỗ buổi chia sẻ tối thứ Ba đưa bạn tới. Thông tin trong email.' },
   '3': { title: 'Cấp 3 — Dựng', segment: 'B',
-         body: 'Bạn giao việc lớn và bản đầu tiên đã dùng được. Tức là AI đã biết chuẩn của bạn — bối cảnh, mẫu, tiêu chí đã có sẵn đâu đó. Bài này đo được tới đây. Từ Cấp 3 trở lên, câu hỏi không còn là "prompt thế nào" mà là hệ thống của bạn chạy được bao nhiêu việc mà không cần bạn ngồi đó.',
-         next: 'Đếm xem bạn có bao nhiêu việc lặp lại đang chạy bằng một câu lệnh ngắn từ prompt/project đã lưu. Dưới 3 → tuần này dựng thêm 1. Từ 3 trở lên → buổi tối thứ Năm là chỗ để so hệ thống của bạn với người khác.',
+         body: 'Bạn giao được việc lớn và bản đầu tiên dùng được ngay. Nghĩa là AI đã nắm được chuẩn của bạn — bối cảnh, mẫu và tiêu chí đã có sẵn. Bài đánh giá này chỉ đo được đến đây. Từ Cấp 3, câu hỏi không còn là "viết prompt ra sao" mà là hệ thống của bạn tự chạy được bao nhiêu việc mà không cần bạn can thiệp.',
+         next: 'Đếm xem bạn có bao nhiêu việc lặp lại đang chạy được bằng 1 câu lệnh ngắn từ Project/prompt đã lưu. Dưới 3 → tuần này dựng thêm 1. Từ 3 trở lên → buổi chia sẻ tối thứ Năm là chỗ để so hệ thống của bạn với người khác.',
          done: 'Buổi chia sẻ tối thứ Năm của mình dành riêng cho nhóm Cấp 3. Thông tin trong email.' },
-  near: 'Riêng bạn: bản đầu đã dùng được rồi — tức là bạn dặn AI tốt. Cái còn thiếu là một chỗ để AI nhớ chuẩn của bạn mà không cần bạn dặn lại: Project, Gem, hay một file bối cảnh. Dựng cái đó xong là Cấp 3.',
+  near: 'Riêng với bạn: bản đầu tiên đã dùng được ngay — chứng tỏ bạn dặn AI rất tốt. Thứ duy nhất bạn còn thiếu là một nơi lưu sẵn chuẩn để AI nhớ mà không cần dặn lại: Project, Gem, hoặc file bối cảnh. Dựng xong cái đó là bạn sang Cấp 3.',
   nearNext: 'Lấy đúng prompt vừa rồi, tách phần bối cảnh + chuẩn ra thành một file hoặc Project instructions. Lần sau chỉ gõ việc, không gõ lại bối cảnh. Một việc thôi, tuần này.'
 };
 
@@ -233,8 +233,8 @@ function sendResultEmail_(email, name, level, ceilingPrompt, judgeReason, follow
   var B = BANDS[level];
   var first = firstName_(name);
   var subject = 'Kết quả scorecard của bạn: ' + B.title;
-  var FU = { '0-1': 'gõ thêm 0–1 lần là dùng được', '2-4': 'phải gõ thêm 2–4 lần', '5+': 'phải gõ thêm 5 lần trở lên', 'gave-up': 'cuối cùng bỏ, tự làm' };
-  var qLine = followups ? ' Trong cuộc chat đó bạn ' + (FU[followups] || followups) + '.' : '';
+  var FU = { '0-1': 'gõ thêm 0–1 lần là dùng được ngay', '2-4': 'phải gõ thêm 2–4 lần mới dùng được', '5+': 'phải gõ thêm 5 lần trở lên', 'gave-up': 'cuối cùng bỏ ngang, tự làm lấy' };
+  var qLine = followups ? '\nTrong cuộc chat đó, bạn ' + (FU[followups] || followups) + '.' : '';
   var near = level === '2' && followups === '0-1';
   var bodyText = B.body + (near ? ' ' + BANDS.near : '');
   var nextText = near ? BANDS.nearNext : B.next;
@@ -242,7 +242,7 @@ function sendResultEmail_(email, name, level, ceilingPrompt, judgeReason, follow
     'Chào ' + first + ',\n\n' +
     'Kết quả của bạn: ' + B.title + '.\n\n' +
     bodyText + '\n\n' +
-    'Mình thấy gì trong prompt của bạn: ' + (judgeReason || 'Việc lớn nhất bạn giao AI là cái dưới đây.') + qLine + '\n' +
+    'Mình thấy gì từ prompt của bạn:\n' + (judgeReason || 'Việc lớn nhất bạn giao AI là cái dưới đây.') + qLine + '\n' +
     (ceilingPrompt ? '> ' + ceilingPrompt.replace(/\n/g, '\n> ') + '\n\n' : '\n') +
     'Một việc tiếp theo: ' + nextText + '\n\n' +
     '---\n\n' +
@@ -252,7 +252,7 @@ function sendResultEmail_(email, name, level, ceilingPrompt, judgeReason, follow
     '· Hình thức: ' + WORKSHOP.format + '\n' +
     '· Sĩ số: ' + WORKSHOP.seats + '\n' +
     '· Học phí: ' + WORKSHOP.price + '\n\n' +
-    'Muốn giữ chỗ? Trả lời email này một chữ "Đăng ký" là đủ, mình gửi bước tiếp theo.\n\n' +
+    'Để giữ chỗ, bạn chỉ cần trả lời email này chữ "Đăng ký". Mình sẽ gửi hướng dẫn bước tiếp theo.\n\n' +
     'Thỉnh thoảng mình gửi bài mới về cách dùng AI trong công việc. Không muốn nhận nữa thì trả lời "Thôi" là mình dừng.\n\n' +
     'Tim';
   MailApp.sendEmail({ to: email, subject: subject, body: body, name: SENDER });
@@ -295,18 +295,18 @@ function sendInviteToSelected() {
 function sendInviteEmail_(email, name, level) {
   var first = firstName_(name);
   var track = level === '3'
-    ? 'Bạn ở nhóm Cấp 3, nên buổi tối thứ Năm đi thẳng vào chuyện dựng: file bối cảnh, prompt dùng lại được, quy trình chạy được — trên việc thật của bạn.'
+    ? 'Bạn ở nhóm Cấp 3, nên buổi tối thứ Năm đi thẳng vào việc dựng hệ thống: file bối cảnh, prompt dùng lại được, quy trình tự chạy — trên chính công việc thực tế của bạn.'
     : 'Bạn ở nhóm Cấp ' + level + ', nên buổi tối thứ Ba bắt đầu từ chỗ bạn đang đứng: một việc lặp lại của bạn, làm xong trong buổi, mang về dùng ngay.';
-  var subject = 'Mời bạn: workshop Tim on AI, ' + WORKSHOP.date.split(' (')[0];
+  var subject = 'Mời bạn tham dự buổi chia sẻ Tim on AI, ' + WORKSHOP.date.split(' (')[0];
   var body =
     'Chào ' + first + ',\n\n' +
-    'Hôm trước bạn làm scorecard của mình. Mình mở workshop cho đúng nhóm đó, và mình giữ cho bạn một chỗ nếu bạn muốn.\n\n' +
+    'Hôm trước bạn có làm bài scorecard của mình. Mình sắp mở một buổi chia sẻ riêng cho đúng nhóm của bạn, và có giữ sẵn một chỗ nếu bạn muốn tham gia.\n\n' +
     track + '\n\n' +
     '· Thời gian: ' + WORKSHOP.date + '\n' +
     '· Hình thức: ' + WORKSHOP.format + '\n' +
     '· Sĩ số: ' + WORKSHOP.seats + ' — hết là mình đóng, không mở thêm\n' +
     '· Học phí: ' + WORKSHOP.price + '\n\n' +
-    'Giữ chỗ: trả lời email này "Đăng ký". Mình gửi hướng dẫn thanh toán và một câu hỏi chuẩn bị trước buổi.\n\n' +
+    'Để giữ chỗ, bạn chỉ cần trả lời email này "Đăng ký". Mình sẽ gửi hướng dẫn chuyển khoản và câu hỏi chuẩn bị trước buổi.\n\n' +
     'Không hợp lúc này cũng không sao — nói mình một tiếng để mình nhường chỗ cho người khác.\n\n' +
     'Tim';
   MailApp.sendEmail({ to: email, subject: subject, body: body, name: SENDER });

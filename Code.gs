@@ -20,9 +20,9 @@ var HEADERS = ['Timestamp', 'Name', 'Email', 'Level', 'Segment', 'Score %', 'T%'
 var COL = { STATUS: 14, NOTE: 15, EMAIL: 3, NAME: 2, LEVEL: 4 }; // 1-based
 var SENDER = 'Tim Trần — Tim on AI';
 
-// ═══ WORKSHOP FACTS — P101/context.md 11 Sep: 7 or 8 Nov 2026, online, 8 seats, 2.5M/seat ═══
+// ═══ WORKSHOP FACTS — P101/context.md 11 Sep 08:30: weeknight online classes, Cấp 1–2 Tuesdays / Cấp 3 Thursdays (no weekends), 8 seats, 2.5M/seat; Nov dates TBD ═══
 var WORKSHOP = {
-  date: 'cuối tuần 7–8/11/2026 (một ngày, mình chốt ngày với nhóm đăng ký)',
+  date: 'buổi tối trong tuần — Cấp 1–2: tối thứ Ba, Cấp 3: tối thứ Năm (ngày cụ thể mình chốt với nhóm đăng ký)',
   format: 'online, làm việc trực tiếp trên tài liệu thật của bạn',
   seats: '8 chỗ',
   price: '2.500.000đ / chỗ'
@@ -31,14 +31,14 @@ var WORKSHOP = {
 // ═══ RESULT COPY — same text as scorecard.html §3 (Tim edits both places, or edit here and mirror) ═══
 var BANDS = {
   '1':  { title: 'Cấp 1 — Hỏi',
-          body: 'Bạn dùng AI như một cái Google biết nói: hỏi, nhận, copy. Lần nào cũng bắt đầu lại từ đầu. Không sao — hầu hết dân văn phòng đang ở đây, và đây là cấp dễ lên nhất.',
-          done: 'Workshop online cuối tuần 7–8/11 của mình bắt đầu đúng từ chỗ bạn đang đứng.' },
+          body: 'Bạn dùng AI như một cái Google biết nói: hỏi, nhận, copy. Mỗi lần làm task tương tự thì lại bắt đầu từ đầu. Không sao — hầu hết dân văn phòng đang ở đây, và đây là cấp dễ lên trình nhất.',
+          done: 'Lớp online tối thứ Ba của mình bắt đầu đúng từ chỗ bạn đang đứng.' },
   '2':  { title: 'Cấp 2 — Ra lệnh',
-          body: 'Bạn biết dặn AI cho rõ, có bối cảnh, có ví dụ. Output khá hơn — nhưng mỗi phiên bạn vẫn phải dặn lại từ đầu. Cái thiếu không phải là prompt hay hơn. Là chỗ để prompt sống.',
-          done: 'Cấp 3 là chỗ workshop 7–8/11 đưa bạn tới.' },
+          body: 'Bạn biết dặn AI cho rõ, có bối cảnh, có ví dụ. Output khá hơn — nhưng mỗi phiên bạn vẫn phải dặn kỹ càng lại từ đầu để ra được kết quả tốt. Cái thiếu không phải là prompt hay hơn, cái thiếu là làm thế nào để không phải gõ đi gõ lại.',
+          done: 'Cấp 3 là chỗ lớp tối thứ Ba đưa bạn tới.' },
   '2+': { title: 'Cấp 2+ — sẵn sàng lên Cấp 3',
-          body: 'Bài này đo được tới đây thôi. Cấp 3 trở lên không đo bằng trắc nghiệm mà bằng thứ bạn đã dựng: file bối cảnh, prompt dùng lại được, quy trình chạy được. Nếu bạn đã có, bạn đang ở Cấp 3. Nếu chưa, bạn biết việc tiếp theo là gì rồi.',
-          done: 'Workshop 7–8/11 có một buổi riêng cho nhóm này.' }
+          body: 'Bài này đo được tới đây thôi. Cấp 3 trở lên mình cần nhìn vào hệ thống AI và cách bạn quản lý dữ liệu thì mới đánh giá được. Nếu bạn muốn mình đánh giá, liên hệ mình nhé.',
+          done: 'Nhóm này có lớp riêng tối thứ Năm.' }
 };
 var BOTTLENECK = {
   T: 'Bạn giao cho AI toàn việc nhỏ.',

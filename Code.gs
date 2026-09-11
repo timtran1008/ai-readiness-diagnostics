@@ -15,7 +15,7 @@
  * FLOW (Tim, 11 Sep 10:10–10:40): page posts {action:'judge', prompts[]} → Gemini classifies task complexity only →
  *   ceiling simple → Cấp 1 · else page asks first-response usability → >80% Cấp 3, else Cấp 2 → {action:'lead'} → row + email.
  *
- * Deploying account = sending account (timqtran1008@gmail.com). MailApp free quota: 100 emails/day.
+ * Deploying account = sending account (tqt323@gmail.com — where the Sheet + script were created 11 Sep). MailApp free quota: 100 emails/day.
  */
 
 var SHEET_NAME = 'Leads';
@@ -138,7 +138,7 @@ function handleLead_(d) {
 // 1b. Gemini judge — TASK COMPLEXITY ONLY (Tim 10:35: "the prompt is to check task complexity only")
 //     Domain codes per TQE instrument v0.5 §3 (Code D): simple / complicated / complex.
 // ═══════════════════════════════════════════════════════════
-var JUDGE_MODEL = 'gemini-2.5-flash';
+var JUDGE_MODEL = 'gemini-3.6-flash';   // 2.5-flash returned 404 'no longer available to new users' on 11 Sep 2026
 
 function runJudge_(prompts) {
   var key = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
@@ -170,12 +170,15 @@ function runJudge_(prompts) {
   ].join('\n');
 
   var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + JUDGE_MODEL + ':generateContent?key=' + key;
-  var body = { contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.1, responseMimeType: 'application/json', thinkingConfig: { thinkingBudget: 0 } } };
   var order = { simple: 0, complicated: 1, complex: 2 };
 
   var lastErr = null;
-  for (var attempt = 0; attempt < 2; attempt++) {
+  for (var attempt = 0; attempt < 3; attempt++) {
     try {
+      // attempt 0: thinking off (fast). If the model rejects thinkingConfig (HTTP 400), later attempts drop it.
+      var gen = { temperature: 0.1, responseMimeType: 'application/json' };
+      if (attempt === 0) gen.thinkingConfig = { thinkingBudget: 0 };
+      var body = { contents: [{ parts: [{ text: prompt }] }], generationConfig: gen };
       var resp = UrlFetchApp.fetch(url, { method: 'post', contentType: 'application/json', payload: JSON.stringify(body), muteHttpExceptions: true });
       if (resp.getResponseCode() !== 200) throw new Error('Gemini HTTP ' + resp.getResponseCode() + ': ' + resp.getContentText().slice(0, 300));
       var text = JSON.parse(resp.getContentText()).candidates[0].content.parts[0].text;

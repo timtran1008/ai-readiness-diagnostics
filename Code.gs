@@ -32,7 +32,7 @@ var WORKSHOP = {
   date: 'buổi tối trong tuần — Cấp 1–2: tối thứ Ba, Cấp 3: tối thứ Năm (ngày cụ thể mình chốt với nhóm đăng ký)',
   format: 'online. Đi theo một mạch: bạn đang ở đâu → vì sao kẹt ở đó → cái giá bạn chưa nhìn thấy → cách gỡ → mình demo cách gỡ đó → hỏi đáp',
   seats: '8 chỗ',
-  price: '2.500.000đ / chỗ'
+  price: 'miễn phí (đợt đầu — Tim, 11 Sep: "free for now")'
 };
 
 // ═══ RESULT COPY — same text as scorecard.html BANDS (DRAFT — Tim edits both places, or edit here and mirror) ═══
@@ -251,8 +251,8 @@ function sendResultEmail_(email, name, level, ceilingPrompt, judgeReason, follow
     '· Thời gian: ' + WORKSHOP.date + '\n' +
     '· Hình thức: ' + WORKSHOP.format + '\n' +
     '· Sĩ số: ' + WORKSHOP.seats + '\n' +
-    '· Học phí: ' + WORKSHOP.price + '\n\n' +
-    'Để giữ chỗ, bạn chỉ cần trả lời email này chữ "Đăng ký". Mình sẽ gửi hướng dẫn bước tiếp theo.\n\n' +
+    '· Chi phí: ' + WORKSHOP.price + '\n\n' +
+    'Để giữ chỗ, bạn chỉ cần trả lời email này chữ "Đăng ký". Mình sẽ gửi link tham dự.\n\n' +
     'Thỉnh thoảng mình gửi bài mới về cách dùng AI trong công việc. Không muốn nhận nữa thì trả lời "Thôi" là mình dừng.\n\n' +
     'Tim';
   MailApp.sendEmail({ to: email, subject: subject, body: body, name: SENDER });
@@ -305,8 +305,8 @@ function sendInviteEmail_(email, name, level) {
     '· Thời gian: ' + WORKSHOP.date + '\n' +
     '· Hình thức: ' + WORKSHOP.format + '\n' +
     '· Sĩ số: ' + WORKSHOP.seats + ' — hết là mình đóng, không mở thêm\n' +
-    '· Học phí: ' + WORKSHOP.price + '\n\n' +
-    'Để giữ chỗ, bạn chỉ cần trả lời email này "Đăng ký". Mình sẽ gửi hướng dẫn chuyển khoản và câu hỏi chuẩn bị trước buổi.\n\n' +
+    '· Chi phí: ' + WORKSHOP.price + '\n\n' +
+    'Để giữ chỗ, bạn chỉ cần trả lời email này "Đăng ký". Mình sẽ gửi link tham dự và một câu hỏi chuẩn bị trước buổi.\n\n' +
     'Không hợp lúc này cũng không sao — nói mình một tiếng để mình nhường chỗ cho người khác.\n\n' +
     'Tim';
   MailApp.sendEmail({ to: email, subject: subject, body: body, name: SENDER });
